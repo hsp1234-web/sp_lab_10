@@ -1,31 +1,41 @@
+# -*- coding: utf-8 -*-
+"""
+此模組提供從 yfinance 下載股票歷史數據的功能。
+"""
 import yfinance as yf
-import os
+import pandas as pd
 
-# 定義常數
-TICKER = "^GSPC"
-
-def download_gspc(output_path: str):
+def fetch_stock_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
     """
-    從 yfinance 下載 S&P 500 (^GSPC) 的歷史資料，並儲存為 Parquet 檔案。
+    從 yfinance 下載指定股票在特定期間內的歷史數據。
 
     Args:
-        output_path (str): 儲存 Parquet 檔案的完整路徑。
+        ticker (str): 股票代碼, 例如 '0050.TW' 或 '^GSPC'。
+        start_date (str): 數據開始日期, 格式 'YYYY-MM-DD'。
+        end_date (str): 數據結束日期, 格式 'YYYY-MM-DD'。
+
+    Returns:
+        pd.DataFrame: 包含 OHLCV 數據的 DataFrame。
+                      如果下載失敗則返回一個空的 DataFrame。
     """
-    # 確保輸出目錄存在
-    output_dir = os.path.dirname(output_path)
-    os.makedirs(output_dir, exist_ok=True)
-
-    # 下載資料
-    # FutureWarning: YF.download() has changed argument auto_adjust default to True
-    data = yf.download(TICKER, start="1990-01-01")
-
-    # 儲存為 Parquet 格式
-    data.to_parquet(output_path)
-    print(f"資料已成功下載並儲存至 {output_path}")
+    try:
+        data = yf.download(ticker, start=start_date, end=end_date, progress=False)
+        if data.empty:
+            print(f"警告：找不到 {ticker} 在 {start_date} 到 {end_date} 期間的數據。")
+        return data
+    except Exception as e:
+        print(f"下載 {ticker} 數據時發生錯誤: {e}")
+        return pd.DataFrame()
 
 if __name__ == '__main__':
-    # 為了方便獨立執行此腳本，我們在此處定義一個預設的輸出路徑。
-    # 這段程式碼只有在 `python src/fetch.py` 被直接執行時才會觸發。
-    DEFAULT_OUTPUT_DIR = "data/raw"
-    DEFAULT_OUTPUT_FILE = os.path.join(DEFAULT_OUTPUT_DIR, f"{TICKER.replace('^', '')}.parquet")
-    download_gspc(DEFAULT_OUTPUT_FILE)
+    # 這段程式碼只有在 `python src/fetch.py` 被直接執行時才會觸發
+    # 用於快速測試函式功能
+    print("--- 測試 fetch_stock_data 函式 ---")
+    gspc_data = fetch_stock_data('^GSPC', '2023-01-01', '2023-12-31')
+    if not gspc_data.empty:
+        print("成功獲取 S&P 500 (^GSPC) 數據：")
+        print(gspc_data.head())
+
+    print("\n--- 測試一個無效的股票代碼 ---")
+    invalid_data = fetch_stock_data('INVALIDTICKERXYZ', '2023-01-01', '2023-12-31')
+    print(f"無效股票代碼的返回結果是否為空 DataFrame: {invalid_data.empty}")

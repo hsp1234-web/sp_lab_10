@@ -33,3 +33,7 @@ pytest==8.3.2
 
 # --- 環境管理 ---
 # uv==0.4.18  # uv 本身通常是透過 pipx 或系統管理員安裝,而非專案依賴
+backtesting
+pandas-ta
+scipy
+matplotlib

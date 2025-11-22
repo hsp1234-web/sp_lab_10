@@ -35,8 +35,8 @@ CLEAN_DATA_PATH = os.path.join(DATA_DIR, 'processed', 'gspc_clean.parquet')
 FEATURES_PATH = os.path.join(DATA_DIR, 'processed', 'features.parquet')
 SIGNALS_PATH = os.path.join(DATA_DIR, 'processed', 'sp_signals.parquet')
 OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
-EQUITY_CURVE_PATH = os.path.join(OUTPUT_DIR, 'results', 'sp_equity_curve.jpg') # Update to output/results
-TRADE_LOG_PATH = os.path.join(OUTPUT_DIR, 'results', 'sp_trade_log.csv')       # Update to output/results
+EQUITY_CURVE_PATH = os.path.join(OUTPUT_DIR, 'results', 'sp_equity_curve.jpg') # 更新路徑至 output/results
+TRADE_LOG_PATH = os.path.join(OUTPUT_DIR, 'results', 'sp_trade_log.csv')       # 更新路徑至 output/results
 
 STRATEGY = 'buy_and_hold'
 INIT_CAPITAL = 100000.0

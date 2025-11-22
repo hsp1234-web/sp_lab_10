@@ -44,6 +44,13 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 def evaluate_strategy(individual: list, training_data: pd.DataFrame) -> tuple:
     """
     評估一個「個體」(一組策略參數) 的適應度 (夏普比率)。
+
+    參數:
+        individual (list): 代表一組策略參數的列表 (基因)。
+        training_data (pd.DataFrame): 用於回測的訓練數據集。
+
+    回傳:
+        tuple: 包含單一適應度分數 (夏普比率) 的元組。
     """
     # 解包參數
     sma_long_period, bband_period, bband_stddev = individual[0], individual[1], individual[2]
@@ -115,6 +122,16 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 def run_ga_optimization(training_data: pd.DataFrame, pop_size: int, ngen: int, cxpb: float, mutpb: float):
     """
     執行完整的基因演算法優化流程，並返回找到的最佳個體。
+
+    參數:
+        training_data (pd.DataFrame): 用於訓練的價格數據。
+        pop_size (int): 族群大小。
+        ngen (int): 演化的世代數。
+        cxpb (float): 交配機率。
+        mutpb (float): 突變機率。
+
+    回傳:
+        list: 找到的最佳參數組合 (個體)。
     """
     pop = toolbox.population(n=pop_size)
     hof = tools.HallOfFame(1)

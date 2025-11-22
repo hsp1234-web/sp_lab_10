@@ -5,7 +5,7 @@ import os
 from src.stats import calculate_backtest_stats
 from src.viz import plot_equity_curve
 from src.clean import clean_data # 需要用來獲取完整的價格數據
-from src.fetch import download_gspc
+from src.fetch import fetch_stock_data
 
 # --- 全域設定 ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +22,14 @@ INITIAL_CAPITAL = 100000.0
 def build_equity_curve_from_log(trade_log: pd.DataFrame, full_price_data: pd.DataFrame, initial_capital: float) -> pd.DataFrame:
     """
     根據交易日誌和完整的價格數據，重建每日的權益曲線。
+
+    參數:
+        trade_log (pd.DataFrame): 包含 'entry_date', 'exit_date', 'pnl' 的交易日誌。
+        full_price_data (pd.DataFrame): 包含完整日期索引的價格數據，用於對齊時間軸。
+        initial_capital (float): 初始資金。
+
+    回傳:
+        pd.DataFrame: 包含每日權益值的 DataFrame。
     """
     # 確保索引是 datetime 類型
     trade_log['entry_date'] = pd.to_datetime(trade_log['entry_date'])
@@ -71,7 +79,8 @@ def main():
     # --- 2. 準備完整的價格數據以重建權益曲線 ---
     # 我們需要完整的歷史數據來建立一個連續的權益曲線時間軸
     print("正在準備完整的歷史價格數據...")
-    raw_df = download_gspc() # 假設 download_gspc 能直接返回 DataFrame
+    # 使用通用的 fetch 函式，並提供一個足夠長的日期範圍
+    raw_df = fetch_stock_data('^GSPC', start_date='1990-01-01', end_date='2023-12-31')
     clean_df = clean_data(raw_df)
 
     # --- 3. 重建權益曲線 ---

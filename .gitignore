@@ -1,95 +1,16 @@
-# Byte-compiled / optimized / DLL files
+# 忽略 Python 快取檔案
 __pycache__/
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+*.pyc
 
-# Translations
-*.mo
-*.pot
+# 忽略 Notebook 檢查點
+.ipynb_checkpoints/
 
-# Django stuff:
-# *.log
-local_settings.py
-db.sqlite3
+# 忽略 backtesting.py 產生的報告檔案
+*.html
 
-# Flask stuff:
-instance/
-.webassets-cache
+# 忽略所有數據和報告 CSV 檔案
+# 這樣可以避免將大型數據集或生成的日誌提交到 Git
+*.csv
 
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyderworkspace
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# Generated data
-data/raw/
-data/processed/
-results/
-logs/
-# fetch_data.log
-clean_merge.log
-main.log
-
-# Keep development logs in docs/logs/
-!docs/logs/
-!docs/logs/**/*.md
-
-# Database and large files
-*.parquet
-*.duckdb
-*.db
-*.sqlite
-*.h5
-*.pkl
-
+# 忽略特定的 log 檔案
+*.log
