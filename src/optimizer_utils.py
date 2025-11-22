@@ -10,14 +10,14 @@ def create_walk_forward_splits(
     """
     生成滾動前向優化 (Walk-Forward Optimization) 的數據分割。
 
-    Args:
+    參數:
         data (pd.DataFrame): 完整的時間序列數據，索引必須是時間類型。
         train_period_len (int): 每個訓練週期的長度（天數）。
         test_period_len (int): 每個測試週期的長度（天數）。
         step (int, optional): 每個滾動窗口向前移動的步長。
                                如果為 None，則預設為 test_period_len。
 
-    Yields:
+    回傳 (Yields):
         Generator[Tuple[pd.DataFrame, pd.DataFrame], None, None]:
         一個生成器，每次回傳一個 (訓練集, 測試集) 的元組。
     """

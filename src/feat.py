@@ -13,14 +13,14 @@ def calculate_features(
     根據輸入的日線資料 DataFrame，計算多項可參數化的技術指標特徵。
     此版本專為「順大勢、逆小勢」布林帶策略設計，並保留舊指標以供相容。
 
-    Args:
+    參數:
         df: 包含 'Open', 'High', 'Low', 'Close' 的 DataFrame。
         sma_long_period (int): 長期 SMA 的計算週期，用於定義大趨勢。
         bband_period (int): 布林帶的計算週期。
         bband_stddev (float): 布林帶的標準差倍數。
         atr_period (int): ATR 的計算週期 (為舊策略或未來擴充保留)。
 
-    Returns:
+    回傳:
         一個包含原始資料以及新增特徵欄位的新的 Pandas DataFrame。
     """
     df_feat = df.copy()

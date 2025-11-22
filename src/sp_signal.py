@@ -11,14 +11,14 @@ def generate_signals(
     """
     根據市場特徵與統計結論，產生交易訊號 (參數化版本，已修復迴歸錯誤)。
 
-    Args:
+    參數:
         df: 包含特徵的 Pandas DataFrame。
         high_vol_trend: 高波動後的趨勢方向 (-1 或 1)。
         atr_period (int): 用於尋找 ATR 欄位的週期。
         atr_multiplier (float): ATR 閾值的倍數。
         ma_window (int): 用於計算 ATR 移動平均的窗口。
 
-    Returns:
+    回傳:
         一個附加了 'signal' 及多個輔助欄位的 DataFrame。
     """
     df_signal = df.copy()
@@ -97,13 +97,13 @@ def generate_bollinger_band_signals(
     """
     產生基於「順大勢、逆小勢」布林帶策略的交易訊號。
 
-    Args:
+    參數:
         df (pd.DataFrame): 包含價格和指標特徵的 DataFrame。
         sma_long_period (int): 長期 SMA 的週期。
         bband_period (int): 布林帶的週期。
         bband_stddev (float): 布林帶的標準差倍數。
 
-    Returns:
+    回傳:
         pd.DataFrame: 包含 'signal' 欄位的 DataFrame。
     """
     df_signal = df.copy()

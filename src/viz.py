@@ -11,7 +11,7 @@ def plot_equity_curve(equity_curve: pd.DataFrame, output_path: str, performance_
     """
     繪製權益曲線圖並將其保存為檔案。
 
-    Args:
+    參數:
         equity_curve (pd.DataFrame): 包含 'equity' 欄位的 DataFrame，索引為日期。
         output_path (str): 儲存圖表的檔案路徑 (例如 'equity_curve.jpg')。
         performance_metrics (dict, optional): 包含績效指標的字典。如果提供，
@@ -20,22 +20,22 @@ def plot_equity_curve(equity_curve: pd.DataFrame, output_path: str, performance_
     plt.style.use('seaborn-v0_8-darkgrid') # 使用較美觀的樣式
     fig, ax = plt.subplots(figsize=(8, 4.5))
 
-    ax.plot(equity_curve.index, equity_curve['equity'], label='Equity Curve', color='royalblue')
-    ax.set_xlabel('Date', fontsize=12)
-    ax.set_ylabel('Equity', fontsize=12)
+    ax.plot(equity_curve.index, equity_curve['equity'], label='權益曲線', color='royalblue')
+    ax.set_xlabel('日期', fontsize=12)
+    ax.set_ylabel('權益', fontsize=12)
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
 
     # 格式化標題
-    title = "Strategy Equity Curve"
+    title = "策略權益曲線"
     if performance_metrics:
-        total_return = performance_metrics.get('total_return', 0) * 100
-        max_drawdown = performance_metrics.get('max_drawdown', 0) * 100
-        sharpe = performance_metrics.get('sharpe_ratio', 0)
+        total_return = performance_metrics.get('總報酬率', 0) * 100
+        max_drawdown = performance_metrics.get('最大回撤 (MDD)', 0) * 100
+        sharpe = performance_metrics.get('夏普比率', 0)
         title += (
             f"\\n"
-            f"Total Return: {total_return:.2f}% | "
-            f"Max Drawdown: {max_drawdown:.2f}% | "
-            f"Sharpe Ratio: {sharpe:.2f}"
+            f"總報酬率: {total_return:.2f}% | "
+            f"最大回撤: {max_drawdown:.2f}% | "
+            f"夏普比率: {sharpe:.2f}"
         )
     ax.set_title(title, fontsize=12, pad=20)
 

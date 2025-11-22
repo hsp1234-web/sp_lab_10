@@ -13,12 +13,12 @@ def analyze_volatility_hypotheses(df: pd.DataFrame, atr_window: int = 14, ma_win
     4. 使用 Welch's t-test (不假設等變異數) 檢定兩組平均報酬的差異是否顯著。
     5. 回傳一個包含樣本數、平均報酬、t-statistic 和 p-value 的匯總 DataFrame。
 
-    Args:
+    參數:
         df: 包含 'ATR_14', 'RET_SIMPLE' 等特徵的 Pandas DataFrame。
         atr_window: ATR 的計算天期 (預設為 14)。
         ma_window: 用於定義波動狀態的移動平均天期 (預設為 30)。
 
-    Returns:
+    回傳:
         一個匯總統計結果的 Pandas DataFrame，包含 'Regime', 'Count',
         'Mean_Return', 'T_Statistic', 'P_Value' 等欄位。
     """
@@ -65,13 +65,13 @@ def calculate_backtest_stats(
     """
     根據交易日誌和權益曲線，計算並返回多個關鍵的回測績效指標。
 
-    Args:
+    參數:
         trade_log (pd.DataFrame): 包含所有已完成交易紀錄的 DataFrame。
         equity_curve (pd.DataFrame): 包含每日權益變化的 DataFrame。
         initial_capital (float): 初始資金。
         trading_days_per_year (int): 每年的交易日數，用於年化計算。
 
-    Returns:
+    回傳:
         dict: 包含詳細績效指標的字典。
     """
     if trade_log.empty:
