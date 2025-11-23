@@ -1,0 +1,73 @@
+================================================================================
+📋 檔案結構檢查
+================================================================================
+
+總記錄數: 2,236 筆
+
+所有欄位名稱:
+  1. Time
+  2. Open
+  3. High
+  4. Low
+  5. Close
+  6. Trading_instrument
+  7. Position_type
+  8. Open_position_price
+  9. Close_position_price
+  10. Position_size
+  11. Return
+  12. Trade_group_id
+  13. Trade_action
+  14. Open_time
+  15. Close_time
+  16. Parameter_set_id
+  17. Equity_value
+  18. Transaction_cost
+  19. Slippage_cost
+  20. Predictor_value
+  21. Entry_signal
+  22. Exit_signal
+  23. Holding_period_count
+  24. Holding_period
+  25. Trade_return
+  26. Backtest_id
+
+資料型態:
+Time                    datetime64[ns]
+Open                           float64
+High                           float64
+Low                            float64
+Close                          float64
+Trading_instrument              object
+Position_type                   object
+Open_position_price            float64
+Close_position_price           float64
+Position_size                  float64
+Return                         float64
+Trade_group_id                  object
+Trade_action                     int64
+Open_time               datetime64[ns]
+Close_time              datetime64[ns]
+Parameter_set_id                object
+Equity_value                   float64
+Transaction_cost               float64
+Slippage_cost                  float64
+Predictor_value                float64
+Entry_signal                   float64
+Exit_signal                    float64
+Holding_period_count             int64
+Holding_period                 float64
+Trade_return                   float64
+Backtest_id                     object
+dtype: object
+
+前 5 筆資料:
+        Time        Open        High         Low       Close Trading_instrument Position_type  Open_position_price  Close_position_price  Position_size  Return Trade_group_id  Trade_action Open_time Close_time               Parameter_set_id  Equity_value  Transaction_cost  Slippage_cost  Predictor_value  Entry_signal  Exit_signal  Holding_period_count  Holding_period  Trade_return       Backtest_id
+0 2017-01-03  225.039993  225.830002  223.880005  225.240005                SPY          None                  0.0                   0.0            0.0     0.0           None             0       NaT        NaT  MA1_SMA(20)_Close_MA4_SMA(20)         100.0               0.0            0.0       225.240005           0.0          0.0                     0             NaN           NaN  8f5c2f63-5458-47
+1 2017-01-04  225.619995  226.750000  225.610001  226.580002                SPY          None                  0.0                   0.0            0.0     0.0           None             0       NaT        NaT  MA1_SMA(20)_Close_MA4_SMA(20)         100.0               0.0            0.0       226.580002           0.0          0.0                     0             NaN           NaN  8f5c2f63-5458-47
+2 2017-01-05  226.270004  226.580002  225.479996  226.399994                SPY          None                  0.0                   0.0            0.0     0.0           None             0       NaT        NaT  MA1_SMA(20)_Close_MA4_SMA(20)         100.0               0.0            0.0       226.399994           0.0          0.0                     0             NaN           NaN  8f5c2f63-5458-47
+3 2017-01-06  226.529999  227.750000  225.899994  227.210007                SPY          None                  0.0                   0.0            0.0     0.0           None             0       NaT        NaT  MA1_SMA(20)_Close_MA4_SMA(20)         100.0               0.0            0.0       227.210007           0.0          0.0                     0             NaN           NaN  8f5c2f63-5458-47
+4 2017-01-09  226.910004  227.070007  226.419998  226.460007                SPY          None                  0.0                   0.0            0.0     0.0           None             0       NaT        NaT  MA1_SMA(20)_Close_MA4_SMA(20)         100.0               0.0            0.0       226.460007           0.0          0.0                     0             NaN           NaN  8f5c2f63-5458-47
+
+================================================================================
+✅ 檢查完成！結果已儲存至 output/column_check_result.txt

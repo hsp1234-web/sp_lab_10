@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Virtual env
+venv/
+env/
+.venv/
+
+# Logs
+logs/
+*.log
+
+# Data/Results
+records/**/*.parquet
+records/**/*.csv
+records/**/*.txt
+records/**/*.json
+
+# 但不要忽略資料夾和 .gitkeep
+!records/**/
+!records/**/.gitkeep
+
+# 不要忽略 config template 文件
+!records/autorunner/config_template*.json
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE/Editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Test cache
+.pytest_cache/
+
+# Local env
+.env
+README_CLI_STYLE.md
+Development_Guideline.md
+HowToAddNewTA_AIPROMPT.md
+AUTOMODE_DEVELOPMENT_PLAN.md
+
+# Claude
+CLAUDE.md
+.mcp.json
+.claude/
+records/dataloader/import/Boxer_Score_20210103.xlsx
+autorunner/DEV_PLAN.md

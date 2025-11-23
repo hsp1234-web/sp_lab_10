@@ -1,0 +1,7 @@
+Backtest Summary
+================
+Total Return: 0.00%
+Win Rate: 0.00%
+Trades: 0
+Sharpe Ratio: 0.00
+Max Drawdown: 0.00%
