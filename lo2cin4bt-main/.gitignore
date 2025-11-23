@@ -58,3 +58,39 @@ CLAUDE.md
 .claude/
 records/dataloader/import/Boxer_Score_20210103.xlsx
 autorunner/DEV_PLAN.md
+
+# ========================================
+# 大型資料檔案 (避免 GitHub 上傳失敗)
+# ========================================
+
+# 資料目錄 (通常包含大型資料庫或 CSV)
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# 大型 CSV 檔案 (超過 100MB)
+# 如果有小型 CSV 需要版本控制,請使用 !path/to/small.csv 排除
+*.csv
+
+# Parquet 檔案 (通常較大)
+*.parquet
+
+# 壓縮檔案
+*.zip
+*.tar.gz
+*.7z
+*.rar
+
+# Excel 檔案 (可能很大)
+*.xlsx
+*.xls
+
+# 備份檔案
+*.bak
+*.backup
+
+# 臨時檔案
+*.tmp
+*.temp
+

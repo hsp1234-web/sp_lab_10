@@ -457,7 +457,8 @@ class BaseDataLoader:
             console.print(
                 Panel(
                     "[bold white]請選擇價格數據來源：\n1. Excel/CSV 文件\n"
-                    "2. Yahoo Finance\n3. Binance API\n4. Coinbase API[/bold white]",
+                    "2. Yahoo Finance\n3. Binance API\n4. Coinbase API\n"
+                    "5. DuckDB (Taifex)[/bold white]",
                     title="[bold #8f1511]📊 數據載入 Dataloader[/bold #8f1511]",
                     border_style="#dbac30",
                 )
@@ -465,15 +466,15 @@ class BaseDataLoader:
 
             while True:
                 console.print(
-                    "[bold #dbac30]輸入你的選擇（1, 2, 3, 4）：[/bold #dbac30]"
+                    "[bold #dbac30]輸入你的選擇（1, 2, 3, 4, 5）：[/bold #dbac30]"
                 )
                 choice = input().strip()
-                if choice in ["1", "2", "3", "4"]:
+                if choice in ["1", "2", "3", "4", "5"]:
                     self.source = choice
                     break
                 console.print(
                     Panel(
-                        "錯誤：請輸入 1, 2, 3 或 4。",
+                        "錯誤：請輸入 1, 2, 3, 4 或 5。",
                         title="[bold #8f1511]📊 數據載入 Dataloader[/bold #8f1511]",
                         border_style="#8f1511",
                     )
@@ -493,10 +494,14 @@ class BaseDataLoader:
                     from .binance_loader import BinanceLoader
 
                     loader = BinanceLoader()
-                else:
+                elif self.source == "4":
                     from .coinbase_loader import CoinbaseLoader
 
                     loader = CoinbaseLoader()
+                elif self.source == "5":
+                    from .duckdb_loader import DuckDBLoader
+                    
+                    loader = DuckDBLoader()
 
                 self.data, self.frequency = loader.load()
                 # 保存 symbol 信息（如果 loader 有設定）

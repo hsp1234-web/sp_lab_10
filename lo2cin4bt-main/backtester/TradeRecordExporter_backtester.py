@@ -573,20 +573,71 @@ class TradeRecordExporter_backtester:
     def _concat_records_safely(
         self, filtered_records: List[pd.DataFrame]
     ) -> pd.DataFrame:
-        """安全地合併記錄"""
+        """安全地合併記錄 - 使用分批策略避免記憶體溢出"""
         if not filtered_records:
             return pd.DataFrame()
 
-        try:
-            combined_records = pd.concat(
-                filtered_records, ignore_index=True, sort=False
-            )
-        except Exception:
-            combined_records = filtered_records[0]
-            for df in filtered_records[1:]:
+        # 如果記錄數量少,直接合併
+        if len(filtered_records) <= 100:
+            try:
                 combined_records = pd.concat(
-                    [combined_records, df], ignore_index=True, sort=False
+                    filtered_records, ignore_index=True, sort=False
                 )
+                return combined_records
+            except Exception as e:
+                print(f"直接合併失敗: {e},嘗試逐個合併...")
+                combined_records = filtered_records[0]
+                for df in filtered_records[1:]:
+                    combined_records = pd.concat(
+                        [combined_records, df], ignore_index=True, sort=False
+                    )
+                return combined_records
+        
+        # 記錄數量多時,使用分批合併策略
+        print(f"📊 使用分批合併策略處理 {len(filtered_records)} 個結果...")
+        batch_size = 100  # 每批處理 100 個結果
+        batches = []
+        
+        # 第一步: 將記錄分批合併
+        for i in range(0, len(filtered_records), batch_size):
+            batch = filtered_records[i:i + batch_size]
+            try:
+                batch_combined = pd.concat(batch, ignore_index=True, sort=False)
+                batches.append(batch_combined)
+                print(f"  ✓ 批次 {len(batches)}/{(len(filtered_records) + batch_size - 1) // batch_size} 完成")
+                
+                # 釋放記憶體
+                import gc
+                gc.collect()
+            except Exception as e:
+                print(f"  ✗ 批次 {len(batches) + 1} 失敗: {e}")
+                # 如果批次合併失敗,逐個合併
+                batch_combined = batch[0]
+                for df in batch[1:]:
+                    batch_combined = pd.concat(
+                        [batch_combined, df], ignore_index=True, sort=False
+                    )
+                batches.append(batch_combined)
+        
+        # 第二步: 合併所有批次
+        print(f"📊 合併 {len(batches)} 個批次...")
+        try:
+            combined_records = pd.concat(batches, ignore_index=True, sort=False)
+            print("✓ 所有批次合併完成")
+        except Exception as e:
+            print(f"批次合併失敗: {e},嘗試逐個合併...")
+            combined_records = batches[0]
+            for i, batch in enumerate(batches[1:], 1):
+                combined_records = pd.concat(
+                    [combined_records, batch], ignore_index=True, sort=False
+                )
+                print(f"  ✓ 進度: {i}/{len(batches)-1}")
+                
+                # 每合併 5 個批次就釋放一次記憶體
+                if i % 5 == 0:
+                    import gc
+                    gc.collect()
+        
         return combined_records
 
     def _combine_records(self, results_to_export: List[dict]) -> pd.DataFrame:

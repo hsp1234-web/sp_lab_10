@@ -34,11 +34,27 @@ python full_analysis.py
 
 **回測期間：** 2017-01-03 至 2025-11-21 (8.88 年)
 
+## 💾 數據庫 (New)
+
+本專案已整合 **DuckDB**，包含 1998-2024 年完整的台指期貨數據。
+
+- **數據位置**：`data/taifex.db`
+- **使用說明**：請參閱 [DuckDB 使用手冊](data/README.md)
+- **功能**：
+    - 支援高效查詢 27 年歷史數據
+    - 已整合至 `lo2cin4bt` 框架 (選單選項 5)
+
 ## 📁 專案結構
 
 ```
 sp_lab_v9_1.1/
+├── data/                    # 數據庫與說明
+│   ├── taifex.db            # DuckDB 資料庫
+│   └── README.md            # 資料庫說明
 ├── lo2cin4bt-main/          # 回測框架
+├── src/                     # 工具腳本
+│   ├── build_taifex_db.py   # 資料庫建置腳本
+│   └── verify_taifex_db.py  # 資料庫驗證腳本
 ├── output/                  # 分析結果
 ├── demo_run.py              # 回測腳本
 ├── full_analysis.py         # 分析腳本
@@ -51,6 +67,7 @@ sp_lab_v9_1.1/
 
 ## 🎯 下一步
 
+- [x] 整合 DuckDB 台指期數據
 - [ ] 測試不同均線參數（10日、50日）
 - [ ] 加入 RSI、MACD 指標
 - [ ] 實作止損止盈機制

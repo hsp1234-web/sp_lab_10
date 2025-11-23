@@ -97,3 +97,36 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Batch files
+*.bat
+
+# ========================================
+# 大型資料檔案 (避免 GitHub 上傳失敗)
+# ========================================
+
+# 資料目錄 (包含所有子目錄)
+data/
+data/**/*
+
+# 資料庫檔案
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+
+# Parquet 檔案 (除了 output 中的分析結果)
+*.parquet
+!output/**/*.parquet
+
+# 壓縮檔案
+*.zip
+*.tar.gz
+*.7z
+*.rar
+*.gz
+
+# 大型二進位檔案
+*.bin
+*.dat
+
