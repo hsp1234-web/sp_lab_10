@@ -1,0 +1,39 @@
+﻿uv :   ? No solution 
+found when resolving 
+dependencies:
+位於 線路:1 字元:1
++ uv pip install -r r
+equirements.txt > ins
+tall_log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (  ? No    
+ solution...g dep    
+endencies::Strin    g
+) [], RemoteExc    ep
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  ?售???Because the cu
+rrent Python version 
+(3.11.13) does not sa
+tisfy
+      Python>=3.12 an
+d all versions of pan
+das-ta depend on Pyth
+on>=3.12, we
+      can conclude th
+at all versions of pa
+ndas-ta cannot be use
+d.
+      And because you
+ require pandas-ta, w
+e can conclude that y
+our
+      requirements ar
+e unsatisfiable.
