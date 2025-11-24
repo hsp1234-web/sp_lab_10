@@ -1,0 +1,2 @@
+,trade_id,entry_date,exit_date,direction,entry_price,exit_price,quantity,pnl,realized_pnl,fees,notes
+0,1,2020-01-03,2023-12-29,Long,20.35619003384939,32.306084246619285,100,1194.9894212769896,1194.9894212769896,0.0,

@@ -1,0 +1,73 @@
+# tasks.yaml
+
+# ============================================================================
+# Task Definition
+#
+# This file defines a series of automated tasks that can be executed by the
+# main script. Each task consists of one or more steps, allowing for complex
+# workflows to be defined and run from a single command.
+#
+# To run a task, use the following command:
+#   python main.py --task <task_name>
+#
+# Example:
+#   python main.py --task quick_test
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Task 1: quick_test
+#
+# A simple task to run a single backtest for a specific symbol and strategy.
+# Useful for quick validation and debugging.
+# ----------------------------------------------------------------------------
+quick_test:
+  description: "對 0050.TW 執行一個快速的單策略回測"
+  steps:
+    - action: "download_data"
+      symbols: ["0050.TW"]
+      start_date: "2023-01-01"
+      end_date: "2023-12-31"
+
+    - action: "backtest"
+      # --- Data & Strategy ---
+      symbol: "0050.TW"
+      strategy_name: "buy_and_hold" # 使用 buy_and_hold 進行測試
+
+      # --- Time Range (implied by data) ---
+
+      # --- Output ---
+      output_path: "output/quick_test_results"
+
+# ----------------------------------------------------------------------------
+# Task 2: full_process
+#
+# A comprehensive workflow that simulates a full research process:
+# 1. Download the latest data for multiple symbols.
+# 2. Run backtests on two different strategies.
+# 3. Analyze and aggregate the results.
+# ----------------------------------------------------------------------------
+full_process:
+  description: "完整流程：下載數據 -> 執行回測 -> 分析結果"
+  steps:
+    # --- Step 1: Download latest data ---
+    - action: "download_data"
+      symbols: ["0050.TW", "0056.TW"]
+      start_date: "2020-01-01"
+      end_date: "2023-12-31"
+
+    # --- Step 2: Backtest Strategy 1 on 0050.TW ---
+    - action: "backtest"
+      symbol: "0050.TW"
+      strategy_name: "buy_and_hold"
+      output_path: "output/full_process_results/buy_and_hold_0050TW"
+
+    # --- Step 3: Backtest Strategy 2 on 0056.TW ---
+    - action: "backtest"
+      symbol: "0056.TW"
+      strategy_name: "volatility"
+      output_path: "output/full_process_results/volatility_0056TW"
+
+    # --- Step 4: Analyze results ---
+    - action: "analyze_results"
+      source_folder: "output/full_process_results"
+      report_name: "final_report.html"
