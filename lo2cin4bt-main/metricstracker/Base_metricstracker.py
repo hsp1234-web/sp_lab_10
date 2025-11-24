@@ -70,6 +70,7 @@ from .DataImporter_metricstracker import (
     show_parquet_files,
 )
 from .MetricsExporter_metricstracker import MetricsExporter
+from .MAEMFE_Analyser_metricstracker import MAEMFEAnalyser
 
 console = Console()
 
@@ -202,6 +203,53 @@ class BaseMetricTracker:
             # 執行分析
             df = pd.read_parquet(orig_parquet_path)
             MetricsExporter.export(df, orig_parquet_path, time_unit, risk_free_rate)
+            
+            # 步驟4：MAE/MFE 分析 (自動)
+            self._print_step_panel(
+                4,
+                "- 系統將自動進行 MAE/MFE 分析。\n"
+                "- 計算每筆交易的最大不利幅度與最大有利幅度。\n"
+                "- 分析結果將用於優化停損停利策略。",
+            )
+            
+            # 載入 OHLCV 數據 (需要從 DataImporter 或其他方式獲取)
+            # 這裡假設我們可以直接從 DuckDB 或其他來源獲取對應的 OHLCV
+            # 為了簡化，我們嘗試從 DuckDB 載入 (如果可用)
+            try:
+                from dataloader.duckdb_loader import DuckDBLoader
+                loader = DuckDBLoader()
+                # 這裡需要知道 Symbol，但 Parquet 檔名通常包含 Symbol 資訊，或者我們可以從 df 中推斷
+                # 假設我們分析的是 TX
+                loader.symbol = 'TX' 
+                ohlcv_data, _ = loader.load()
+                
+                if ohlcv_data is not None:
+                    analyser = MAEMFEAnalyser(df, ohlcv_data)
+                    df_with_mae_mfe = analyser.analyze()
+                    
+                    # 導出 MAE/MFE 結果
+                    output_dir = os.path.dirname(orig_parquet_path)
+                    base_name = os.path.basename(orig_parquet_path).replace('.parquet', '')
+                    output_path = os.path.join(output_dir, f"{base_name}_maemfe.csv")
+                    df_with_mae_mfe.to_csv(output_path, index=False)
+                    console.print(f"[green]MAE/MFE 分析結果已儲存至: {output_path}[/green]")
+                    
+                    # 繪圖 (如果 plotter 可用)
+                    try:
+                        from plotter.MAEMFE_plotter import plot_mae_mfe
+                        fig = plot_mae_mfe(df_with_mae_mfe)
+                        plot_path = os.path.join(output_dir, f"{base_name}_maemfe_plot.html")
+                        fig.write_html(plot_path)
+                        console.print(f"[green]MAE/MFE 圖表已儲存至: {plot_path}[/green]")
+                    except ImportError:
+                        console.print("[yellow]MAEMFE_plotter 模組未找到，跳過繪圖[/yellow]")
+                    except Exception as e:
+                        console.print(f"[red]繪圖失敗: {e}[/red]")
+                else:
+                    console.print("[yellow]無法載入 OHLCV 數據，跳過 MAE/MFE 分析[/yellow]")
+                    
+            except Exception as e:
+                console.print(f"[red]MAE/MFE 分析失敗: {e}[/red]")
 
         return True
 

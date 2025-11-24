@@ -1,0 +1,30 @@
+{
+    "job_name": "v2_demo_job",
+    "mode": "incremental",
+    "database_path": "records/backtest_v2.db",
+    "system": {
+        "max_workers": "auto", 
+        "batch_size": 50
+    },
+    "strategy": {
+        "name": "MaCross",
+        "params_range": {
+            "fast_ma": [5, 10, 20],
+            "slow_ma": [20, 60, 120]
+        }
+    },
+    "data": {
+        "source": "duckdb",
+        "db_path": "data/taifex.db",
+        "symbol": "TXF",
+        "interval": "1m",
+        "start_date": "2023-01-01",
+        "end_date": "2023-01-31"
+    },
+    "trading": {
+        "initial_capital": 1000000,
+        "transaction_cost": 0.0004,
+        "slippage": 1,
+        "trade_delay": 0
+    }
+}

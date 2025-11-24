@@ -156,6 +156,7 @@ class IndicatorsBacktester:
             "HL": "HL_Indicator_backtester",
             "PERC": "Percentile_Indicator_backtester",
             "VALUE": "VALUE_Indicator_backtester",
+            "CHANDELIER": "Chandelier_Indicator_backtester",
         }
 
         # 細分型態對應表
@@ -230,6 +231,16 @@ class IndicatorsBacktester:
                         alias_map[f"VALUE{i}"] = ("VALUE", i)
         except Exception as e:
             self.logger.warning(f"無法獲取VALUE指標描述: {e}")
+        # CHANDELIER
+        try:
+            module = importlib.import_module("backtester.Chandelier_Indicator_backtester")
+            if hasattr(module, "ChandelierIndicator") and hasattr(
+                module.ChandelierIndicator, "STRATEGY_DESCRIPTIONS"
+            ):
+                for code, desc in module.ChandelierIndicator.STRATEGY_DESCRIPTIONS.items():
+                    alias_map[code] = ("CHANDELIER", 1)
+        except Exception as e:
+            self.logger.warning(f"無法獲取CHANDELIER指標描述: {e}")
 
         return alias_map
 
@@ -274,7 +285,10 @@ class IndicatorsBacktester:
                 "BOLL": "BollingerBandIndicator",
                 "HL": "HLIndicator",
                 "PERC": "PercentileIndicator",
+                "PERC": "PercentileIndicator",
                 "VALUE": "VALUEIndicator",
+                "CHANDELIER": "ChandelierIndicator",
+                "CHANDELIER": "ChandelierIndicator",
             }
             indicator_cls_name = indicator_cls_name_map.get(
                 main_type, main_type.capitalize() + "Indicator"
@@ -364,7 +378,7 @@ class IndicatorsBacktester:
                 ):
                     indicator_descs[f"PERC{i}"] = desc
         except Exception as e:
-            self.logger.warning(f"無法獲取PERC指標描述: {e}")
+            self.logger.warning(f"無法獲取CHANDELIER指標描述: {e}")
         # print所有指標與說明
         print("\n可用技術指標與說明：")
         for code, desc in indicator_descs.items():
@@ -393,6 +407,8 @@ class IndicatorsBacktester:
             signals = self._calculate_value_signals(data, params, predictor)
         elif indicator_type == "PERC":
             signals = self._calculate_percentile_signals(data, params, predictor)
+        elif indicator_type == "CHANDELIER":
+            signals = self._calculate_chandelier_signals(data, params, predictor)
         else:
             raise ValueError(f"不支援的指標類型: {indicator_type}")
 
@@ -545,3 +561,27 @@ class IndicatorsBacktester:
             traceback.print_exc()
             raise
 
+            traceback.print_exc()
+            raise
+
+    def _calculate_chandelier_signals(
+        self, data: pd.DataFrame, params: "IndicatorParams", predictor: Optional[str] = None
+    ) -> np.ndarray:  # pylint: disable=unused-argument
+        try:
+            # 動態導入模組
+            module = importlib.import_module(
+                "backtester.Chandelier_Indicator_backtester"
+            )
+            indicator_cls = getattr(module, "ChandelierIndicator")
+
+            indicator = indicator_cls(data, params, logger=self.logger)
+
+            signals = indicator.generate_signals(predictor)
+
+            return signals
+        except Exception:
+            # CHANDELIER 信號計算失敗
+            import traceback
+
+            traceback.print_exc()
+            raise
