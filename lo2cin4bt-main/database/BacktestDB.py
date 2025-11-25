@@ -5,6 +5,13 @@ import os
 from datetime import datetime
 import logging
 from typing import Dict, List, Optional, Any, Union
+from types import SimpleNamespace
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, SimpleNamespace):
+            return o.__dict__
+        return super().default(o)
 
 class BacktestDB:
     """
@@ -83,8 +90,8 @@ class BacktestDB:
             'PENDING', 
             total_tasks, 
             0, 
-            json.dumps(config), 
-            json.dumps(system_info) if system_info else None
+            json.dumps(config, cls=CustomJSONEncoder),
+            json.dumps(system_info, cls=CustomJSONEncoder) if system_info else None
         ))
         return job_id
 
@@ -118,13 +125,13 @@ class BacktestDB:
         
         for res in results:
             # 處理參數和指標，轉為 JSON 字串
-            params_json = json.dumps(res.get('params', {}))
+            params_json = json.dumps(res.get('params', {}), cls=CustomJSONEncoder)
             
             # 提取指標 (假設 metrics 在 res 中，或者 res 本身就是 metrics 的集合)
             # 這裡需要根據實際的 VectorBacktestEngine 輸出結構進行調整
             # 目前假設 res 包含了所有資訊
             metrics = {k: v for k, v in res.items() if k not in ['backtest_id', 'strategy_id', 'params', 'records', 'error']}
-            metrics_json = json.dumps(metrics)
+            metrics_json = json.dumps(metrics, cls=CustomJSONEncoder)
             
             trade_count = 0
             if 'records' in res and isinstance(res['records'], pd.DataFrame) and not res['records'].empty:

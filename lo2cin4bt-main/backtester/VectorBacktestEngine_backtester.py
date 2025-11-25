@@ -1584,7 +1584,16 @@ class VectorBacktestEngine:
                     VALUEIndicator.vectorized_calculate_value_signals(
                         tasks, predictor, signals_matrix, global_value_cache, self.data
                     )
-
+                elif indicator_type == "MonthlyBuyAndHold":
+                    from .MonthlyBuyAndHold_Indicator_backtester import MonthlyBuyAndHoldIndicator
+                    MonthlyBuyAndHoldIndicator.vectorized_calculate_signals(
+                        tasks, signals_matrix, self.data
+                    )
+                elif indicator_type == "MonthlyBuyHoldWithSMA":
+                    from .MonthlyBuyHoldWithSMA_Indicator_backtester import MonthlyBuyHoldWithSMAIndicator
+                    MonthlyBuyHoldWithSMAIndicator.vectorized_calculate_signals(
+                        tasks, signals_matrix, self.data
+                    )
                 elif indicator_type == "PERC":
                     # Use Percentile_Indicator_backtester's vectorized method
                     from .Percentile_Indicator_backtester import PercentileIndicator

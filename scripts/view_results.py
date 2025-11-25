@@ -120,7 +120,7 @@ def view_results(db_path: Path, job_id: str):
 def main():
     parser = argparse.ArgumentParser(description="回測結果檢視器")
     parser.add_argument("--db", type=str, default="output/results/quick_feedback.db", help="回測結果資料庫的路徑")
-    parser.add_argument("--job", type=str, default="SPY_MA_Crossover_QuickTest", help="要檢視的 Job ID")
+    parser.add_argument("--job", type=str, default="default_job", help="要檢視的 Job ID")
     args = parser.parse_args()
 
     db_path = PROJECT_ROOT / args.db

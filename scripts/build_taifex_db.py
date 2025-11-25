@@ -6,14 +6,15 @@ import time
 import numpy as np
 
 def run_migration():
-    log_path = Path(r"c:\SP_lab_Projects\sp_lab_v9_1.1\data\migration_log_v2.txt")
+    # Use dynamic paths relative to the script's location
+    project_root = Path(__file__).parent.parent
+    log_path = project_root / "data" / "migration_log_v2.txt"
     
     with open(log_path, 'w', encoding='utf-8') as log:
         try:
             start_time = time.time()
             
             # Paths
-            project_root = Path(r"c:\SP_lab_Projects\sp_lab_v9_1.1")
             source_dir = project_root / "data" / "taifex_extracted"
             db_path = project_root / "data" / "taifex.db"
             
