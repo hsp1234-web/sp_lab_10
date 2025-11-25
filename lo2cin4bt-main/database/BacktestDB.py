@@ -143,11 +143,19 @@ class BacktestDB:
             ))
 
         # 使用 Appender 或 executemany 寫入
-        # DuckDB 的 executemany 效能很好
+        # 使用 DuckDB v0.8.0+ 的標準 UPSERT 語法，明確指定衝突目標
         self.conn.executemany("""
-            INSERT OR REPLACE INTO results (
+            INSERT INTO results (
                 job_id, backtest_id, strategy_id, params, metrics, trade_count, is_error, error_msg, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (job_id, backtest_id) DO UPDATE SET
+                strategy_id = excluded.strategy_id,
+                params = excluded.params,
+                metrics = excluded.metrics,
+                trade_count = excluded.trade_count,
+                is_error = excluded.is_error,
+                error_msg = excluded.error_msg,
+                created_at = excluded.created_at
         """, data_to_insert)
         
         # 更新任務進度
