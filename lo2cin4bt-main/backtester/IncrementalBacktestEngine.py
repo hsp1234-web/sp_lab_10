@@ -66,11 +66,15 @@ def calculate_and_print_monthly_stats(
         cum_ret_style = "green" if cum_ret > 0 else "red" if cum_ret < 0 else ""
         dd_style = "red" if dd < 0 else ""
 
+        # Helper to apply style only when style is not empty
+        def style_text(text, style):
+            return f"[{style}]{text}[/{style}]" if style else text
+
         table.add_row(
             month_str,
-            f"[{ret_style}]{ret:+.2%}[/{ret_style}]",
-            f"[{cum_ret_style}]{cum_ret:+.2%}[/{cum_ret_style}]",
-            f"[{dd_style}]{dd:.2%}[/{dd_style}]"
+            style_text(f"{ret:+.2%}", ret_style),
+            style_text(f"{cum_ret:+.2%}", cum_ret_style),
+            style_text(f"{dd:.2%}", dd_style)
         )
 
     console.print(table)
@@ -223,11 +227,24 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
             combo = all_tasks["combinations"][task_idx]
             
             condition_pair = condition_pairs[0]
-            entry_params = dict(zip([p['name'] for p in condition_pair['entry']], combo[:len(condition_pair['entry'])]))
-            exit_params = dict(zip([p['name'] for p in condition_pair['exit']], combo[len(condition_pair['entry']):]))
+
+            # 修正：combo 的元素是完整的參數字典，而不是純量值。
+            # 我們直接從 combo 中提取這些字典，而不是錯誤地從 condition_pair 解析。
+            num_entry_conditions = len(condition_pair['entry'])
+            num_exit_conditions = len(condition_pair['exit'])
+
+            entry_param_objects = combo[:num_entry_conditions]
+            exit_param_objects = combo[num_entry_conditions : num_entry_conditions + num_exit_conditions]
+
+            # 假設每個條件對應一個參數字典。
+            # 如果 entry_param_objects 為空，則 entry_params 為空字典。
+            entry_params = entry_param_objects[0] if entry_param_objects else {}
+            exit_params = exit_param_objects[0] if exit_param_objects else {}
             
             # *** 新增功能：即時回饋 ***
-            calculate_and_print_monthly_stats(equity, dates, backtest_id, {**entry_params, **exit_params})
+            entry_params_dict = entry_params.params.__dict__ if hasattr(entry_params, 'params') else {}
+            exit_params_dict = exit_params.params.__dict__ if hasattr(exit_params, 'params') else {}
+            calculate_and_print_monthly_stats(equity, dates, backtest_id, {**entry_params_dict, **exit_params_dict})
             
             # (以下為原有的績效計算邏輯)
             trade_actions = trade_results["trade_actions"][:, i]
@@ -241,7 +258,10 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
                 })
 
             total_return = (equity[-1] - equity[0]) / equity[0] if len(equity) > 1 and equity[0] != 0 else 0
-            returns = np.diff(equity) / equity[:-1] if len(equity) > 1 else np.array([])
+            # 修正夏普比率計算：避免除以零
+            prev_equity = equity[:-1]
+            # 當 equity 接近 0 時，避免產生無限大的報酬率
+            returns = np.divide(np.diff(equity), prev_equity, where=prev_equity!=0, out=np.zeros_like(np.diff(equity), dtype=float))
             returns = np.nan_to_num(returns)
             
             sharpe = 0
@@ -298,12 +318,19 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
 
             entries = (entry_signals[t] == 1) & (current_positions == 0)
             if np.any(entries):
-                cost = cash[entries] * (1 - transaction_cost_pct)
-                new_shares = cost / price
-                shares[entries] = new_shares
-                cash[entries] = 0
-                current_positions[entries] = 1
-                trade_actions[t, entries] = 1
+                trade_unit = trading_params.get("trade_unit", 1)
+                cost = trade_unit * price * (1 + transaction_cost_pct)
+
+                # 檢查是否有足夠現金
+                can_afford = cash[entries] >= cost
+                if np.any(can_afford):
+                    # 只處理有足夠現金的倉位
+                    eligible_entries = entries & can_afford
+
+                    shares[eligible_entries] = trade_unit
+                    cash[eligible_entries] -= cost
+                    current_positions[eligible_entries] = 1
+                    trade_actions[t, eligible_entries] = 1
             
             equity_values[t] = cash + shares * price
             

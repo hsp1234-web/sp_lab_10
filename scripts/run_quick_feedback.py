@@ -20,6 +20,7 @@ import logging
 import duckdb
 import pandas as pd
 import itertools
+import types
 from pathlib import Path
 
 # --- 路徑設定 ---
@@ -64,34 +65,54 @@ def load_data_from_db(db_path: Path, symbol: str, start_date: str, end_date: str
     con.close()
 
     df.rename(columns={'time': 'Time'}, inplace=True, errors='ignore')
+    df['Time'] = pd.to_datetime(df['Time'])  # 確保時間欄位是 datetime 格式
     return df
 
 def prepare_engine_config(config: dict) -> dict:
     """將我們的 JSON 設定轉換為引擎可接受的格式。"""
     strategy_name = config["strategy"]["name"]
+    params_range = config["strategy"]["params_range"]
 
-    # 1. 構造 condition_pairs
+    # 1. 構造 condition_pairs (最終修正格式)
+    # 引擎期望 entry/exit 的值是策略名稱的列表, e.g., ["MovingAverage"]
     condition_pairs = [{
         "entry": [strategy_name],
         "exit": [strategy_name]
     }]
 
     # 2. 構造 indicator_params
-    params_range = config["strategy"]["params_range"]
     keys = list(params_range.keys())
     values = list(params_range.values())
-    combinations = list(itertools.product(*values))
 
     param_list = []
-    for combo in combinations:
-        param_dict = {"indicator_type": strategy_name}
-        for k, v in zip(keys, combo):
-            param_dict[k] = v
-        param_list.append(param_dict)
+    if not keys:
+        # 處理無參數的策略
+        param_dict = {
+            "indicator_type": strategy_name,
+            "params": {}
+        }
+        param_obj = json.loads(json.dumps(param_dict), object_hook=lambda d: types.SimpleNamespace(**d))
+        param_list.append(param_obj)
+    else:
+        combinations = list(itertools.product(*values))
+        for combo in combinations:
+            # 框架的核心期望一個具有 .params 屬性的物件
+            param_details = dict(zip(keys, combo))
 
+            # 創建一個巢狀結構
+            param_dict = {
+                "indicator_type": strategy_name,
+                "params": param_details
+            }
+
+            # 將字典遞歸地轉換為 SimpleNamespace 對象
+            param_obj = json.loads(json.dumps(param_dict), object_hook=lambda d: types.SimpleNamespace(**d))
+            param_list.append(param_obj)
+
+    # 引擎會使用 condition_pairs 中的 "entry" 值 (e.g., "MovingAverage")
+    # 來構造鍵 "MovingAverage_strategy_1"，並在此查找參數列表。
     indicator_params = {
-        f"{strategy_name}_strategy_1": param_list,
-        f"{strategy_name}_strategy_1_exit": param_list
+        f"{strategy_name}_strategy_1": param_list
     }
 
     # 3. 構造最終的 engine_config
@@ -147,7 +168,7 @@ def main():
         engine.run_backtests(
             config=engine_config,
             job_id=config['job_name'],
-            resume=True  # 允許斷點續傳
+            resume=False  # 強制重新計算
         )
         logger.info("--- 回測執行成功 ---")
     except Exception as e:

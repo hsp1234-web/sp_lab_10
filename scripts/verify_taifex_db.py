@@ -3,8 +3,9 @@ import pandas as pd
 from pathlib import Path
 
 def verify_migration():
-    db_path = Path(r"c:\SP_lab_Projects\sp_lab_v9_1.1\data\taifex.db")
-    output_path = Path(r"c:\SP_lab_Projects\sp_lab_v9_1.1\data\full_verification.txt")
+    project_root = Path(__file__).parent.parent
+    db_path = project_root / "data" / "taifex.db"
+    output_path = project_root / "data" / "full_verification.txt"
     
     try:
         con = duckdb.connect(str(db_path))
