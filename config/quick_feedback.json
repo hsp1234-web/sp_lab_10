@@ -1,5 +1,5 @@
 {
-  "job_name": "SPY_MA_Crossover_QuickTest",
+  "job_name": "SPY_Monthly_BuyAndHold_Test",
   "data": {
     "db_path": "data/yfinance.db",
     "symbol": "SPY",
@@ -11,11 +11,8 @@
     "db_output_path": "output/results/quick_feedback.db"
   },
   "strategy": {
-    "name": "MovingAverage",
-    "params_range": {
-      "fast_period": [10, 20],
-      "slow_period": [50, 60]
-    }
+    "name": "MonthlyBuyAndHold",
+    "params_range": {}
   },
   "trading": {
     "initial_capital": 1000000,

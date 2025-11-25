@@ -66,11 +66,15 @@ def calculate_and_print_monthly_stats(
         cum_ret_style = "green" if cum_ret > 0 else "red" if cum_ret < 0 else ""
         dd_style = "red" if dd < 0 else ""
 
+        # Helper to apply style only when style is not empty
+        def style_text(text, style):
+            return f"[{style}]{text}[/{style}]" if style else text
+
         table.add_row(
             month_str,
-            f"[{ret_style}]{ret:+.2%}[/{ret_style}]",
-            f"[{cum_ret_style}]{cum_ret:+.2%}[/{cum_ret_style}]",
-            f"[{dd_style}]{dd:.2%}[/{dd_style}]"
+            style_text(f"{ret:+.2%}", ret_style),
+            style_text(f"{cum_ret:+.2%}", cum_ret_style),
+            style_text(f"{dd:.2%}", dd_style)
         )
 
     console.print(table)
@@ -223,11 +227,24 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
             combo = all_tasks["combinations"][task_idx]
             
             condition_pair = condition_pairs[0]
-            entry_params = dict(zip([p['name'] for p in condition_pair['entry']], combo[:len(condition_pair['entry'])]))
-            exit_params = dict(zip([p['name'] for p in condition_pair['exit']], combo[len(condition_pair['entry']):]))
+
+            # 修正：combo 的元素是完整的參數字典，而不是純量值。
+            # 我們直接從 combo 中提取這些字典，而不是錯誤地從 condition_pair 解析。
+            num_entry_conditions = len(condition_pair['entry'])
+            num_exit_conditions = len(condition_pair['exit'])
+
+            entry_param_objects = combo[:num_entry_conditions]
+            exit_param_objects = combo[num_entry_conditions : num_entry_conditions + num_exit_conditions]
+
+            # 假設每個條件對應一個參數字典。
+            # 如果 entry_param_objects 為空，則 entry_params 為空字典。
+            entry_params = entry_param_objects[0] if entry_param_objects else {}
+            exit_params = exit_param_objects[0] if exit_param_objects else {}
             
             # *** 新增功能：即時回饋 ***
-            calculate_and_print_monthly_stats(equity, dates, backtest_id, {**entry_params, **exit_params})
+            entry_params_dict = entry_params.params.__dict__ if hasattr(entry_params, 'params') else {}
+            exit_params_dict = exit_params.params.__dict__ if hasattr(exit_params, 'params') else {}
+            calculate_and_print_monthly_stats(equity, dates, backtest_id, {**entry_params_dict, **exit_params_dict})
             
             # (以下為原有的績效計算邏輯)
             trade_actions = trade_results["trade_actions"][:, i]

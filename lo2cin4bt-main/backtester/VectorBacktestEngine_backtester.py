@@ -106,6 +106,7 @@ from rich.text import Text
 from .BollingerBand_Indicator_backtester import BollingerBandIndicator
 from .HL_Indicator_backtester import HLIndicator
 from .Indicators_backtester import IndicatorsBacktester
+from .MonthlyBuyAndHold_Indicator_backtester import MonthlyBuyAndHoldIndicator
 from .SpecMonitor_backtester import SpecMonitor
 from .TradeSimulator_backtester import (
     TradeSimulator_backtester,
@@ -1584,7 +1585,10 @@ class VectorBacktestEngine:
                     VALUEIndicator.vectorized_calculate_value_signals(
                         tasks, predictor, signals_matrix, global_value_cache, self.data
                     )
-
+                elif indicator_type == "MonthlyBuyAndHold":
+                    MonthlyBuyAndHoldIndicator.vectorized_calculate_signals(
+                        tasks, signals_matrix, self.data
+                    )
                 elif indicator_type == "PERC":
                     # Use Percentile_Indicator_backtester's vectorized method
                     from .Percentile_Indicator_backtester import PercentileIndicator
