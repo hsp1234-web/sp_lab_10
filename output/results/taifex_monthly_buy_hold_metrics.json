@@ -1,0 +1,19 @@
+{
+  "start_month": "2010-01",
+  "end_month": "2024-12",
+  "total_months": 180,
+  "total_return_pct": 0.8562856450547551,
+  "avg_monthly_return_pct": 0.004750224166666794,
+  "median_monthly_return_pct": 0.008163975000000118,
+  "monthly_return_std_pct": 0.05142190241158201,
+  "positive_month_ratio": 0.5833333333333334,
+  "max_drawdown_pct": -0.4881593452167654,
+  "best_month": {
+    "month": "2022-11",
+    "monthly_return_pct": 0.1755084500000001
+  },
+  "worst_month": {
+    "month": "2022-06",
+    "monthly_return_pct": -0.20036160000000003
+  }
+}
