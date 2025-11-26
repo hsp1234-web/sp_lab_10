@@ -1,0 +1,24 @@
+{
+  "job_name": "SPY_MA_Crossover_QuickTest",
+  "data": {
+    "db_path": "data/yfinance.db",
+    "symbol": "SPY",
+    "start_date": "2010-01-01",
+    "end_date": "2024-12-31",
+    "frequency": "1d"
+  },
+  "engine": {
+    "db_output_path": "output/results/quick_feedback.db"
+  },
+  "strategy": {
+    "name": "MovingAverage",
+    "params_range": {
+      "fast_period": [10, 20],
+      "slow_period": [50, 60]
+    }
+  },
+  "trading": {
+    "initial_capital": 1000000,
+    "transaction_cost": 0.0005
+  }
+}

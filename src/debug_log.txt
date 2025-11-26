@@ -1,3 +1,0 @@
-Starting debug script
-yfinance version: 0.2.66
-Downloading TX=F...

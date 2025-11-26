@@ -7,11 +7,74 @@ from typing import Dict, List, Any, Optional
 from concurrent.futures import ProcessPoolExecutor
 from rich.console import Console
 from rich.panel import Panel
-from rich.text import Text
+from rich.table import Table
 
 from .VectorBacktestEngine_backtester import VectorBacktestEngine
 from database.BacktestDB import BacktestDB
 from .SpecMonitor_backtester import SpecMonitor
+
+def calculate_and_print_monthly_stats(
+    equity: np.ndarray,
+    dates: np.ndarray,
+    backtest_id: str,
+    params: dict
+):
+    """
+    計算並打印月度績效統計，用於即時回饋。
+    """
+    if len(equity) < 2 or np.all(equity == equity[0]):
+        return # 如果沒有足夠數據或權益無變化，則不顯示
+
+    df = pd.DataFrame({'equity': equity}, index=pd.to_datetime(dates))
+
+    # 按月重採樣
+    monthly_returns = df['equity'].resample('M').last().pct_change().fillna(0)
+
+    if monthly_returns.empty:
+        return
+
+    # 計算累計月度回報
+    cumulative_monthly_returns = (1 + monthly_returns).cumprod() - 1
+
+    # 計算月度最大回撤
+    def monthly_drawdown(series):
+        cum_max = series.cummax()
+        drawdown = (series - cum_max) / cum_max
+        return drawdown.min()
+
+    monthly_dd = df['equity'].groupby(pd.Grouper(freq='M')).apply(monthly_drawdown).fillna(0)
+
+    # 使用 Rich 創建美觀的表格
+    console = Console()
+    table = Table(
+        title=f"[bold cyan]快速回饋: {backtest_id}[/bold cyan]\n[dim]參數: {params}[/dim]",
+        show_header=True,
+        header_style="bold magenta"
+    )
+    table.add_column("月份", style="dim", width=12)
+    table.add_column("月度報酬率", justify="right")
+    table.add_column("累計報酬率", justify="right")
+    table.add_column("月度最大回撤", justify="right")
+
+    for date, ret in monthly_returns.items():
+        month_str = date.strftime('%Y-%m')
+        cum_ret = cumulative_monthly_returns.get(date, 0)
+        dd = monthly_dd.get(date, 0)
+
+        # 根據正負值設定顏色
+        ret_style = "green" if ret > 0 else "red" if ret < 0 else ""
+        cum_ret_style = "green" if cum_ret > 0 else "red" if cum_ret < 0 else ""
+        dd_style = "red" if dd < 0 else ""
+
+        table.add_row(
+            month_str,
+            f"[{ret_style}]{ret:+.2%}[/{ret_style}]",
+            f"[{cum_ret_style}]{cum_ret:+.2%}[/{cum_ret_style}]",
+            f"[{dd_style}]{dd:.2%}[/{dd_style}]"
+        )
+
+    console.print(table)
+
 
 class IncrementalBacktestEngine(VectorBacktestEngine):
     """
@@ -38,53 +101,30 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
     ) -> None:
         """
         執行增量回測
-        
-        Args:
-            config: 回測配置
-            job_id: 任務 ID
-            resume: 是否嘗試續傳
         """
         self.logger.info(f"啟動增量回測 Job ID: {job_id}")
         
-        # 1. 初始化資料庫連接
         self.db = BacktestDB(self.db_path)
         
-        # 2. 生成所有參數組合
         all_combinations = self.generate_parameter_combinations(config)
         all_tasks = self._generate_all_tasks_matrix(all_combinations, config["predictors"])
         total_tasks = len(all_tasks["combinations"])
         
-        # 檢查並創建任務
         existing_job = self.db.get_job(job_id)
         if not existing_job:
             self.logger.info(f"創建新任務: {job_id}, 總任務數: {total_tasks}")
-            # 這裡我們需要把 config 轉成 json string 存入，但 config 可能包含非 serializable 對象
-            # 簡單起見，存一個簡化的 config
-            import json
-            try:
-                config_json = json.dumps(config, default=str)
-            except:
-                config_json = "{}"
-            self.db.create_job(job_id, config_json, total_tasks)
+            self.db.create_job(job_id, config, total_tasks)
         else:
             self.logger.info(f"任務 {job_id} 已存在，準備續傳")
         
-        # 3. 處理續傳邏輯
         completed_ids = set()
         if resume:
             completed_ids = set(self.db.get_completed_backtest_ids(job_id))
             self.logger.info(f"發現已完成任務數: {len(completed_ids)}")
         
-        # 4. 過濾未完成的任務
-        # 注意：這裡需要重新構建 all_tasks，只包含未完成的部分
-        # 但為了保持索引一致性，我們最好是在執行時跳過，或者重建索引映射
-        # 簡單起見，我們在 _generate_all_results_vectorized 中過濾
-        
-        # 5. 準備信號和條件
         condition_pairs = config["condition_pairs"]
         all_signals = self._generate_all_signals_vectorized(all_tasks, condition_pairs)
         
-        # 6. 執行回測 (核心邏輯)
         self._generate_and_save_results(
             job_id,
             all_tasks,
@@ -106,120 +146,61 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
         trading_params: Dict[str, Any],
         completed_ids: set
     ) -> None:
-        """
-        生成結果並即時寫入資料庫 (取代原有的 _generate_all_results_vectorized)
-        """
         n_tasks = len(all_tasks["combinations"])
-        
-        # 獲取系統資源建議
         n_cores, _ = SpecMonitor.get_optimal_core_count()
-        
-        # 動態計算批次大小
-        # Windows 下 spawn 開銷大，批次要大一點
-        batch_size = max(50, n_tasks // (n_cores * 4))
-        batch_size = min(batch_size, 500) # 上限 500，避免單批次記憶體過大
+        batch_size = max(1, n_tasks // (n_cores * 4)) # 確保批次大小至少為 1
+        batch_size = min(batch_size, 500)
         
         self.logger.info(f"使用 {n_cores} 核心並行處理，批次大小: {batch_size}")
 
-        # 準備批次索引
         batch_indices = []
         for i in range(0, n_tasks, batch_size):
-            # 檢查這一批次是否全部都已經完成
             batch_range = range(i, min(i + batch_size, n_tasks))
             batch_task_ids = [all_tasks["backtest_ids"][j] for j in batch_range]
             
             if all(tid in completed_ids for tid in batch_task_ids):
-                continue # 整批跳過
+                continue
             
-            # 如果部分完成，這批還是要跑，但內部會過濾
-            # 為了簡單，我們這裡就整批跑，DB 會處理重複寫入 (INSERT OR REPLACE)
             batch_indices.append(list(batch_range))
 
         if not batch_indices:
             self.logger.info("所有任務已完成，無需執行")
             return
 
-        # 執行並行運算
         total_batches = len(batch_indices)
         processed_batches = 0
         
         with ProcessPoolExecutor(max_workers=n_cores) as executor:
             futures = []
             
-            for batch_idx, idx_list in enumerate(batch_indices):
-                # 準備數據 (只傳遞必要的 numpy array 切片)
-                # 注意：這裡我們需要一個空的 all_trade_results，因為 _prepare_batch_data 需要它
-                # 但實際上我們不需要預先計算 trade_results，因為那是 _process_batch_results_optimized 內部算的？
-                # 不，VectorBacktestEngine 的流程是：
-                # 1. _simulate_all_trades_vectorized (算出 trade_results)
-                # 2. _generate_all_results_vectorized (組裝結果)
-                # 
-                # 我們需要調整流程：
-                # 我們不能一次算完所有 trade_results (太佔記憶體)
-                # 我們應該在每個批次內：生成信號 -> 模擬交易 -> 組裝結果 -> 寫入 DB
-                
-                # 但 VectorBacktestEngine 的設計是分離的。
-                # 為了 V2，我們需要重寫 _process_batch_results_optimized 或是
-                # 在這裡先做模擬交易？
-                
-                # 讓我們看 VectorBacktestEngine 的源碼...
-                # 它確實是先 _simulate_all_trades_vectorized 算出所有結果矩陣
-                # 這就是記憶體爆掉的原因之一！
-                
-                # V2 改進：我們必須把 _simulate_all_trades_vectorized 也拆進批次裡！
-                pass
-
-            # 由於繼承結構限制，如果父類別邏輯是「先全算再組裝」，我們很難只覆寫組裝部分就解決記憶體問題。
-            # 我們必須覆寫整個流程。
-            
-            # 重新設計流程：
-            # 1. 準備批次數據 (包含信號)
-            # 2. 在子進程中：模擬交易 -> 計算指標 -> 返回結果 dict
-            # 3. 主進程：寫入 DB
-            
-            # 這需要修改 _process_batch_results_optimized，讓它包含模擬交易的邏輯
-            # 但 _process_batch_results_optimized 依賴 trade_results 矩陣
-            
-            # 解決方案：
-            # 我們在主進程中，針對每個批次，切片信號矩陣 -> 呼叫一個新的靜態方法/函數來執行模擬和計算
-            
-            for batch_idx, idx_list in enumerate(batch_indices):
-                # 準備該批次的信號切片
+            for idx_list in batch_indices:
                 batch_signals = {
                     "entry_signals": all_signals["entry_signals"][:, idx_list],
                     "exit_signals": all_signals["exit_signals"][:, idx_list]
                 }
                 
-                # 提交任務
                 future = executor.submit(
                     self._run_batch_simulation_and_metrics,
                     idx_list,
                     batch_signals,
-                    all_tasks, # 這裡傳遞整個 all_tasks 可能有點大，但主要是 metadata
+                    all_tasks,
                     condition_pairs,
                     trading_params,
-                    self.data, # 傳遞原始數據 (唯讀，多進程共享)
+                    self.data,
                     self.frequency
                 )
                 futures.append(future)
 
-            # 收集結果
             for future in futures:
                 try:
                     batch_results = future.result()
-                    
-                    # 寫入資料庫
                     self.db.write_batch_results(job_id, batch_results)
-                    
                     processed_batches += 1
                     self.logger.info(f"進度: {processed_batches}/{total_batches} 批次完成")
-                    
-                    # 釋放記憶體
                     del batch_results
                     gc.collect()
-                    
                 except Exception as e:
-                    self.logger.error(f"批次處理失敗: {e}")
+                    self.logger.error(f"批次處理失敗: {e}", exc_info=True)
 
     @staticmethod
     def _run_batch_simulation_and_metrics(
@@ -231,80 +212,52 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
         data: pd.DataFrame,
         frequency: str
     ) -> List[Dict[str, Any]]:
-        """
-        在子進程中執行：模擬交易 + 計算指標
-        """
-        # 1. 模擬交易
         trade_results = IncrementalBacktestEngine._simulate_batch_trades(batch_signals, trading_params, data)
-        
-        # 2. 組裝結果
         results = []
         prices = data['Close'].values
         dates = data['Time'].values
         
         for i, task_idx in enumerate(batch_indices):
-            # 獲取該任務的交易結果
-            positions = trade_results["positions"][:, i]
-            trade_actions = trade_results["trade_actions"][:, i]
             equity = trade_results["equity_values"][:, i]
-            
-            # 提取元數據
-            strategy_id = all_tasks["strategy_ids"][task_idx]
             backtest_id = all_tasks["backtest_ids"][task_idx]
             combo = all_tasks["combinations"][task_idx]
             
-            # 解析參數
-            # 這裡需要解析 strategy_id 來獲取 condition_pair index
-            # 假設 strategy_id 格式為 "strategy_X_..."
-            # 簡單起見，我們假設只有一個 condition pair (index 0)
-            # 或者我們傳遞 condition_pair_idx?
-            # VectorBacktestEngine 的 strategy_id 生成邏輯比較複雜
-            # 這裡簡化處理：
-            condition_pair = condition_pairs[0] # 暫時假設只有一個
+            condition_pair = condition_pairs[0]
+            entry_params = dict(zip([p['name'] for p in condition_pair['entry']], combo[:len(condition_pair['entry'])]))
+            exit_params = dict(zip([p['name'] for p in condition_pair['exit']], combo[len(condition_pair['entry']):]))
             
-            entry_params = list(combo[: len(condition_pair["entry"])])
-            exit_params = list(combo[len(condition_pair["entry"]) : len(condition_pair["entry"]) + len(condition_pair["exit"])])
+            # *** 新增功能：即時回饋 ***
+            calculate_and_print_monthly_stats(equity, dates, backtest_id, {**entry_params, **exit_params})
             
-            # 生成交易記錄 DataFrame
+            # (以下為原有的績效計算邏輯)
+            trade_actions = trade_results["trade_actions"][:, i]
             trade_mask = trade_actions != 0
+            records = pd.DataFrame()
             if np.any(trade_mask):
                 records = pd.DataFrame({
                     'Time': dates[trade_mask],
                     'Price': prices[trade_mask],
-                    'Trade_action': trade_actions[trade_mask],
-                    'Position': positions[trade_mask],
-                    'Equity': equity[trade_mask]
+                    'Trade_action': trade_actions[trade_mask]
                 })
-            else:
-                records = pd.DataFrame()
 
-            # 計算指標
-            total_return = (equity[-1] - equity[0]) / equity[0] if len(equity) > 0 else 0
-            
-            returns = np.diff(equity) / equity[:-1]
+            total_return = (equity[-1] - equity[0]) / equity[0] if len(equity) > 1 and equity[0] != 0 else 0
+            returns = np.diff(equity) / equity[:-1] if len(equity) > 1 else np.array([])
             returns = np.nan_to_num(returns)
             
+            sharpe = 0
             if len(returns) > 0 and np.std(returns) > 0:
-                # 解析 frequency
                 freq_map = {"1m": 252*1440, "1h": 252*24, "1d": 252}
                 annual_factor = freq_map.get(frequency, 252)
                 sharpe = np.mean(returns) / np.std(returns) * np.sqrt(annual_factor)
-            else:
-                sharpe = 0
                 
-            # Max Drawdown
             cum_max = np.maximum.accumulate(equity)
-            drawdown = (equity - cum_max) / cum_max
+            drawdown = (equity - cum_max) / cum_max if np.all(cum_max > 0) else np.zeros_like(equity)
             max_dd = np.min(drawdown) if len(drawdown) > 0 else 0
 
             result = {
                 "backtest_id": backtest_id,
-                "strategy_id": strategy_id,
-                "params": {
-                    "entry": entry_params,
-                    "exit": exit_params,
-                    "predictor": all_tasks["predictors"][task_idx]
-                },
+                "strategy_id": all_tasks["strategy_ids"][task_idx],
+                "params": {"entry": entry_params, "exit": exit_params},
                 "total_return": total_return,
                 "sharpe_ratio": sharpe,
                 "max_drawdown": max_dd,
@@ -316,41 +269,36 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
 
     @staticmethod
     def _simulate_batch_trades(batch_signals, trading_params, data):
-        """
-        針對一個批次進行向量化交易模擬
-        """
         entry_signals = batch_signals["entry_signals"]
         exit_signals = batch_signals["exit_signals"]
-        
         n_timesteps, n_strategies = entry_signals.shape
         prices = data['Close'].values
         
-        positions = np.zeros((n_timesteps, n_strategies), dtype=np.int8)
+        equity_values = np.full((n_timesteps, n_strategies), trading_params.get("initial_capital", 1000000), dtype=np.float64)
         trade_actions = np.zeros((n_timesteps, n_strategies), dtype=np.int8)
-        equity_values = np.zeros((n_timesteps, n_strategies), dtype=np.float64)
         
-        initial_capital = trading_params.get("initial_capital", 1000000)
-        transaction_cost = trading_params.get("transaction_cost", 0.0004)
-        
-        current_positions = np.zeros(n_strategies)
-        cash = np.full(n_strategies, initial_capital)
+        current_positions = np.zeros(n_strategies, dtype=np.int8)
+        cash = np.full(n_strategies, equity_values[0, 0])
         shares = np.zeros(n_strategies)
-        
+        transaction_cost_pct = trading_params.get("transaction_cost", 0.0005)
+
         for t in range(1, n_timesteps):
+            equity_values[t] = equity_values[t-1]
             price = prices[t]
             
-            entries = (entry_signals[t] == 1) & (current_positions == 0)
+            if price <= 0: continue # 跳過無效價格
+
             exits = (exit_signals[t] == 1) & (current_positions == 1)
-            
             if np.any(exits):
-                revenue = shares[exits] * price * (1 - transaction_cost)
+                revenue = shares[exits] * price * (1 - transaction_cost_pct)
                 cash[exits] += revenue
                 shares[exits] = 0
                 current_positions[exits] = 0
                 trade_actions[t, exits] = -1
-            
+
+            entries = (entry_signals[t] == 1) & (current_positions == 0)
             if np.any(entries):
-                cost = cash[entries] * (1 - transaction_cost)
+                cost = cash[entries] * (1 - transaction_cost_pct)
                 new_shares = cost / price
                 shares[entries] = new_shares
                 cash[entries] = 0
@@ -358,10 +306,5 @@ class IncrementalBacktestEngine(VectorBacktestEngine):
                 trade_actions[t, entries] = 1
             
             equity_values[t] = cash + shares * price
-            positions[t] = current_positions
             
-        return {
-            "positions": positions,
-            "trade_actions": trade_actions,
-            "equity_values": equity_values
-        }
+        return {"equity_values": equity_values, "trade_actions": trade_actions}
