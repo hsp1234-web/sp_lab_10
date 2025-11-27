@@ -1,0 +1,32 @@
+--- Category Distribution ---
+category  count
+    數據處理     53
+    交易策略     47
+    說明文件     28
+    分析工具     13
+    設定檔案     12
+    測試程式     12
+    研究筆記      4
+    無法判斷      3
+   第三方程式      1
+
+--- Sample Reasons (Non-Zero) ---
+ file_id                              summary                  reason
+       3 分析了不同AI模型在量化交易策略開發中的成本和效率，並提供模型選擇建議。  提供關鍵模型選擇指南，支持量化交易策略開發。
+       5     確保程式碼、資料和產出檔案存放在指定目錄下，並使用繁體中文溝通。      確保一致性，簡化管理，提升開發效率。
+       9            優化 RORO 策略，實現風險控制與動態倉位調整。   優化回測引擎，提升交易策略的穩定性與效率。
+      17      探索FinLab台灣股市數據獲取、技術指標計算及數據分析功能。 提升FinLab功能，提供更完善股市數據分析。
+      26            生成模擬策略投資組合績效圖表，展示不同策略的表現。     提供策略回測，評估投資組合的潛在收益。
+
+--- Files with Category but No Decision ---
+                        filename category
+                       AGENTS.md     設定檔案
+                requirements.txt    第三方程式
+      roro_strategy_optimized.py     交易策略
+RORO_STRATEGY_HANDOVER_REPORT.md     說明文件
+                search_finlab.py     交易策略
+                 finlab_setup.py     設定檔案
+          finlab_taiwan_index.py     數據處理
+               explore_finlab.py     數據處理
+     finlab_enhanced_strategy.py     交易策略
+          finlab_simple_check.py     交易策略

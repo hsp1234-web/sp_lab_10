@@ -1,0 +1,55 @@
+--- Decision Distribution ---
+0: 81
+保留: 89
+刪除: 3
+
+Total files in DB: 177
+
+--- Sample Files to NOT Keep ---
+File: AGENTS.md
+Decision: 0
+Reason: 確保一致性，簡化管理，提升開發效率。
+
+File: RORO_STRATEGY_HANDOVER_REPORT.md
+Decision: 0
+Reason: 0
+
+File: check_data_structure.py
+Decision: 0
+Reason: 0
+
+File: config/backtest_config_template.json
+Decision: 0
+Reason: 0
+
+File: config/chandelier_backtest_config.json
+Decision: 0
+Reason: 0
+
+File: config/dual_ma_backtest_config.json
+Decision: 0
+Reason: 0
+
+File: demo_strategy_charts.py
+Decision: 0
+Reason: 提供策略回測，評估投資組合的潛在收益。
+
+File: docs/HANDOVER.md
+Decision: 0
+Reason: 0
+
+File: docs/PROJECT_STRUCTURE.md
+Decision: 0
+Reason: 0
+
+File: docs/Pandas_ta_fix.txt
+Decision: 0
+Reason: 0
+
+
+--- Path Verification ---
+AGENTS.md: Exists
+AI_HANDOVER_DOCUMENT.md: Exists
+CURSOR_AI_MODEL_GUIDE.md: Exists
+PROJECT_STRUCTURE_ORGANIZATION.md: Exists
+QUANT_STRATEGY_DEVELOPMENT_PLAN.md: Exists

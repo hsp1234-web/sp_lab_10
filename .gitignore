@@ -73,6 +73,7 @@ pandas_test.txt
 # Jupyter Notebook
 .ipynb_checkpoints/
 *.ipynb
+!plan/*.ipynb    # 允許 plan 資料夾中的 Notebook 檔案
 
 # 環境變數
 .env
@@ -129,4 +130,36 @@ data/**/*
 # 大型二進位檔案
 *.bin
 *.dat
+
+# ========================================
+# AI 交易系統專用排除規則
+# ========================================
+
+# Ollama 模型檔案（可能數 GB）
+*.gguf
+*.ggml
+models/
+
+# AI 交易系統資料庫
+ai_trading_system.db
+trading_system.db
+backtest_results.db
+
+# 交易數據
+market_data/
+historical_data/
+tick_data/
+
+# 回測結果（大型檔案）
+backtest_results/
+performance_reports/*.csv
+!performance_reports/summary.csv  # 保留摘要
+
+# Colab 相關
+*.ipynb_checkpoints/
+colab_cache/
+
+# 臨時分析檔案
+temp_analysis/
+scratch/
 
