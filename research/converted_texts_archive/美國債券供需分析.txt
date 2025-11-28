@@ -1,0 +1,923 @@
+美國公債市場供需動態及一級交易商角色分析
+
+1. 執行摘要
+
+本報告旨在深入剖析美國公債市場的供需基本盤，評估影響其動態的關鍵因素，並特別檢視一級交易商在此市場所扮演的核心角色。美國財政持續面臨結構性失衡，導致公債供應壓力居高不下。與此同時，需求面貌呈現日益複雜的格局，外國投資者行為模式轉變，聯準會貨幣政策亦從量化寬鬆轉向量化緊縮，均對市場產生深遠影響。一級交易商作為市場重要的中介樞紐，其運作模式及所面臨的監管與市場壓力，對市場流動性及效率至關重要。本報告將整合近期市場趨勢，包括公債標售表現及殖利率走勢，並對 2025-2026 年美國公債市場前景進行展望，強調主要風險點及市場參與者應關注的策略性考量。
+
+當前美國公債市場正處於一個關鍵的轉折點。一方面，前所未有的財政赤字及持續膨脹的國家債務 ，迫使財政部須維持大規模的公債發行以應對融資需求 。另一方面，傳統的需求來源變得更具選擇性且分散。聯準會正處於量化緊縮週期，減少了其在市場上的購買力 ，而外國買家則對殖利率水平、美元前景及地緣政治因素展現出更高的敏感度 。在此背景下，作為市場運作基石的一級交易商，其在調節供需、提供流動性方面的角色更形重要，然而其自身亦面臨著資產負債表限制及日益嚴格的監管環境所帶來的挑戰 。這些因素共同作用，使得當前市場的平衡狀態較過去數十年更為脆弱，潛在波動性加劇，對投資者的風險管理能力提出了更高要求。
+
+此外，美國公債作為全球「避風港」資產的傳統地位正受到嚴峻考驗。此現象不僅源於國內對財政可持續性的擔憂 ，亦與全球經濟金融格局的演變息息相關。部分外國官方機構顯現出去美元化資產配置的傾向 ，而美國自身政策（如關稅政策）引發的市場波動，也使得公債在某些情境下與風險資產同向變動，削弱了其避險功能 。若投資者因應這些感知風險而要求更高的持有補償，則意味著即使撇除純粹的貨幣政策預期，公債殖利率（特別是期限溢價部分）也可能面臨結構性的上升壓力 。
+
+2. 美國公債市場：基礎與機制
+
+2.1. 公債證券概覽（短期國庫券、中期公債、長期公債、抗通膨公債、浮動利率公債、分割公債）
+
+本節旨在定義並區分美國財政部發行的主要可交易證券類型。這些證券包括不同期限的短期國庫券 (Treasury Bills, T-bills)、中期公債 (Treasury Notes, T-notes) 及長期公債 (Treasury Bonds, T-bonds)，以及具有特殊設計的抗通膨公債 (Treasury Inflation-Protected Securities, TIPS) 和浮動利率公債 (Floating Rate Notes, FRNs) 。它們在到期期限、利息支付結構（附息 vs. 折價發行）以及特定功能（如 TIPS 的通膨保護或 FRNs 的浮動利率）方面各具特色 。此外，由中期及長期公債的本金和利息部分分割而成的零息證券，即分割公債 (Separate Trading of Registered Interest and Principal of Securities, STRIPS)，也將一併說明 。
+
+美國財政部發行的多樣化證券組合，使其能夠有效地觸及不同投資者群體的需求，並在管理其龐大債務組合時，能夠靈活地應對各種期限結構和利率敏感性。短期國庫券、中期公債、長期公債以及如 TIPS 和 FRNs 等特殊工具，各自滿足了市場上不同的投資目標 。例如，短期國庫券因其高流動性而成為現金管理的理想工具；中期及長期公債則為尋求穩定收益的長期投資者所青睞；TIPS 為投資者提供了對抗通膨的有效途徑；而 FRNs 則有助於規避利率上升的風險 。這種產品的多樣性不僅使財政部能夠根據特定需求來源優化其借貸成本，還有助於管理整體債務組合的利率風險和再融資風險。更進一步，將中期及長期公債「分割」為零息證券 (STRIPS) 的能力，創造了更完整的市場，滿足了那些對特定現金流匹配有精確需求的投資者 。
+
+表1：美國主要公債證券概覽
+
+證券類型 (Security Type)
+
+到期期限範圍 (Maturity Range)
+
+利息支付 (Interest Payments)
+
+發行方式 (How Sold)
+
+主要投資者用途 (Key Investor Uses)
+
+短期國庫券 (Treasury Bills)
+
+4週至52週
+
+無票息，折價發行，到期支付面值
+
+標售 (Auction)，折價
+
+現金管理，短期流動性
+
+中期公債 (Treasury Notes)
+
+2、3、5、7、10年
+
+每半年支付固定利息
+
+標售，可為平價、溢價或折價
+
+中長期投資，固定收益
+
+長期公債 (Treasury Bonds)
+
+20、30年
+
+每半年支付固定利息
+
+標售，可為平價、溢價或折價
+
+長期投資，固定收益，LDI策略
+
+抗通膨公債 (TIPS)
+
+5、10、30年
+
+每半年支付固定利率利息，但本金隨CPI調整
+
+標售
+
+通膨避險
+
+浮動利率公債 (FRNs)
+
+2年
+
+每季支付利息，利率隨13週短期國庫券利率浮動
+
+標售
+
+對抗利率上升風險
+
+分割公債 (STRIPS)
+
+可達30年（源於中期及長期公債）
+
+零息，折價發行，到期支付面值
+
+由市場參與者從現有中期及長期公債分割產生，透過經紀商交易
+
+現金流匹配，久期管理
+
+2.2. 公債標售流程與次級市場
+
+美國公債主要透過標售方式向公眾發行 。此流程允許非競爭性投標和競爭性投標。非競爭性投標者（通常為個人投資者透過 TreasuryDirect 平台參與）保證能以標售決定的殖利率獲得所欲購買的數量 。競爭性投標者（通常為機構投資者，須透過銀行、券商或交易商參與）則需指明其願意接受的利率或殖利率 。財政部採用單一價格標售機制，即所有成功得標者，不論其投標價格為何，均以最高可接受的競爭性投標殖利率（或貼現率）購得證券 。此機制旨在促進價格競爭並確保廣泛的證券分配。財政部亦會透過「重新開啟」(reopenings) 現有已發行證券的方式來增加該證券的流通量 。
+
+公債在初級市場標售後，便進入高度活躍的次級市場進行交易 。這個市場的深度和流動性是全球金融體系的基石，使美國公債成為重要的基準資產。標售流程的設計旨在確保定價的競爭性和分配的廣泛性。單一價格機制鼓勵投標者積極出價，因為他們知道如果得標，將支付的是市場能夠承受的最高殖利率，而非其自身可能更高的投標價 。同時，允許非競爭性投標確保了個人投資者也能直接參與，而競爭性投標則反映了機構投資者的市場判斷 。次級市場的極高流動性至關重要 。它意味著投資者可以相對輕鬆地買賣公債，從而降低了流動性風險溢價，這反過來有助於財政部以較低的成本發行債務。這種流動性也鞏固了美國公債作為全球其他資產定價基準的地位，並使其成為金融交易中主要的抵押品。
+
+3. 供應動態：美國政府的融資需求
+
+3.1. 美國財政前景：赤字、債務與國會預算辦公室 (CBO) 預測
+
+美國公債供應的主要驅動力來自於聯邦政府的借款需求，而此需求又與其財政狀況密切相關。近年來，美國持續面臨龐大的預算赤字和不斷攀升的國家債務。根據國會預算辦公室 (CBO) 2025 年 1 月的預測，聯邦總赤字（即支出超過收入的部分）預計在 2035 年將達到國內生產總值 (GDP) 的 6.1%。更值得注意的是，公共持有債務佔 GDP 的比例預計將從 2025 年的 100% 膨脹至 2035 年的 118%，創下歷史新高。與此同時，淨利息支付預計到 2035 年將增長至 GDP 的 4.1% 。
+
+這些數據凸顯了一個結構性問題：政府支出（尤其是社會保障、醫療補助和醫療保險等權利性支出，以及日益沉重的債務利息）與稅收收入之間存在持續的巨大缺口 。這意味著美國財政部在可預見的未來，將不得不持續大規模發行公債以彌補資金缺口，從而對市場構成持續的供應壓力。不斷上升的利息成本進一步加劇了此問題，形成一個潛在的惡性循環：更高的債務水平導致更高的利息支付，進而推高赤字，迫使政府發行更多債務 。CBO 的預測顯示，即使排除利息支付，基本赤字在 2035 年仍將達到 GDP 的 2.1% ，這表明問題的根源不僅僅是利息負擔。鑑於改革權利性支出或大幅提高稅收在政治上的高度敏感性 ，這些財政趨勢短期內難以逆轉，市場參與者必須為長期承受大量公債供應做好準備。
+
+此外，利息支付在預算中所佔比重日益增加，不僅壓縮了其他可自由支配的政府開支空間，也降低了財政政策應對未來經濟衝擊的靈活性 。2024 年，美國的債務利息支出首次超過國防開支，這是一個重要的里程碑 。當債務規模龐大時，利率的微小變動都可能對財政狀況產生顯著影響，增加了經濟體系對利率衝擊的脆弱性。CBO 也警告，龐大且不斷增長的聯邦債務可能導致長期利率上升、經濟增長放緩，並增加財政危機和其他不利後果的風險 。
+
+表2：CBO對美國赤字、債務及利息成本的預測 (選定年份)
+
+財政年度 (Fiscal Year)
+
+總赤字 (% of GDP)
+
+公共持有債務 (% of GDP)
+
+淨利息支付 (% of GDP)
+
+2025 (預測)
+
+N/A
+
+100%
+
+N/A
+
+2030 (預測)
+
+(CBO 報告中應有具體數字)
+
+(CBO 報告中應有具體數字)
+
+(CBO 報告中應有具體數字)
+
+2035 (預測)
+
+6.1%
+
+118%
+
+4.1%
+
+註：上表部分數據點在提供的摘要中未明確給出2025年和2030年的具體赤字和利息支付百分比，需參考完整CBO報告。
+
+
+
+
+
+
+
+3.2. 財政部發行策略：季度再融資與債務管理
+
+美國財政部透過「定期且可預測」的發債模式來管理國家債務，其核心機制是每季度發布的再融資聲明 (Quarterly Refunding Statement) 。該聲明會詳細列出未來幾個月內各期限名目附息公債、浮動利率公債 (FRNs) 及抗通膨公債 (TIPS) 的計劃標售規模。例如，在 2025 年 5 月至 7 月的季度再融資計劃中，財政部預計維持特定名目公債和 FRN 的標售規模，同時計劃增加 TIPS 的發行量 。財政部亦會利用短期國庫券標售規模的調整和現金管理票據 (Cash Management Bills, CMBs) 來應對季節性或突發性的融資需求波動 。
+
+財政借款諮詢委員會 (Treasury Borrowing Advisory Committee, TBAC) 在此過程中扮演著關鍵的諮詢角色。該委員會由來自金融市場的專家組成，定期向財政部提供關於發行策略、市場狀況及未來借款前景的分析與建議 。TBAC 的考量因素廣泛，包括財政前景的變化、聯準會系統公開市場帳戶 (SOMA) 的贖回步伐、市場對不同期限證券的需求動態、通膨預期（特別是在關稅等政策影響下）以及整體市場流動性和風險溢價水平 。例如，TBAC 在其 2025 年 5 月的報告中，建議維持名目附息公債的標售規模不變，但鑒於關稅引發的通膨不確定性，建議增加 5 年期和 10 年期 TIPS 的標售規模 。
+
+財政部在制定發行策略時，力求在「定期且可預測」的原則與管理借貸成本、適應不斷變化的財政需求及考量市場胃納和流動性狀況之間取得平衡。雖然整體發行量持續偏高的趨勢明確，但具體的發行組合（例如，短期國庫券與中長期公債的比例，名目債與 TIPS 的比例）則可能根據 TBAC 的建議和財政部的判斷進行調整，這會對殖利率曲線的不同部分以及不同投資者群體產生影響。
+
+此外，財政部的公債回購計劃 (buyback program) 也是其債務管理工具之一。此計劃旨在提高市場流動性並協助現金管理 。TBAC 指出，市場對回購計劃的反應良好，並認為該計劃仍有發展空間。然而，委員會同時強調，更廣泛的指標如加權平均到期期限 (Weighted Average Maturity, WAM) 仍應主要透過財政部的發行決策來管理，而非依賴回購操作 。這意味著回購更多的是一種技術性的市場管理工具，而非從根本上改變未償還債務總體供應軌跡或期限結構的手段。
+
+表3：財政部季度再融資發行摘要 (範例：2025年5月-7月)
+
+證券類型 (Security Type)
+
+預計月度/季度標售規模 (億美元) (Anticipated Monthly/Quarterly Auction Size, $ billions)
+
+2年期公債 (2-Year Note)
+
+69 (每月)
+
+3年期公債 (3-Year Note)
+
+58 (每月)
+
+5年期公債 (5-Year Note)
+
+70 (每月)
+
+7年期公債 (7-Year Note)
+
+44 (每月)
+
+10年期公債 (10-Year Note)
+
+5月: 42, 6月: 39, 7月: 39
+
+20年期公債 (20-Year Bond)
+
+5月: 16, 6月: 13, 7月: 13
+
+30年期公債 (30-Year Bond)
+
+5月: 25, 6月: 22, 7月: 22
+
+浮動利率公債 (FRN)
+
+5月: 28, 6月: 28, 7月: 30
+
+抗通膨公債 (TIPS)
+
+5月10年期重開: 18; 6月5年期重開: 23 (增加10億); 7月10年期新發行: 21 (增加10億)
+
+資料來源： (財政部2025年5月1日季度再融資聲明)
+
+
+
+3.3. 美國未償還債務的歷史趨勢
+
+美國公共債務總額的歷史數據清晰地展示了其長期增長的軌跡，為理解當前債務水平和發行率提供了重要背景。財政部提供的「歷史未償還債務」(Historical Debt Outstanding) 數據集，記錄了自 1789 年以來每個財政年度末的美國政府總未償還債務 。這些數據顯示，美國債務規模在過去幾十年中顯著擴張，尤其是在全球金融危機和新冠疫情等重大事件之後，增長速度更是驚人 。
+
+根據 FiscalData.Treasury.gov 的數據，截至 2020 財年末，美國總公共債務未償金額約為 26.95 兆美元；到 2021 財年末增至 28.43 兆美元；2022 財年末達到 30.93 兆美元；2023 財年末進一步攀升至 33.17 兆美元；而截至 2024 財年末，此數字已高達 35.46 兆美元 。需要注意的是，總公共債務未償金額包括由公眾持有的債務 (Debt Held by the Public) 和政府內部持有的債務 (Intragovernmental Holdings) 。
+
+這種債務規模的急劇膨脹，意味著除了為新增赤字融資外，還需要定期為更大規模的現有存量債務進行再融資。如此龐大的未償還債務存量，使得市場對投資者情緒或國家信用觀感的變化更為敏感，潛在的波動性和借貸成本也隨之增加。這也突顯了在分析當前及未來公債市場時，尋找充足且穩定的需求來源以吸收新增發行量，同時避免對價格（即殖利率）造成過大衝擊，是一項日益嚴峻的挑戰。
+
+4. 需求驅動因素：誰在購買美國公債及其原因？
+
+4.1. 聯準會：貨幣政策、SOMA 持倉及量化寬鬆/緊縮的影響
+
+聯準會作為美國中央銀行，不僅是美國公債的主要持有者之一，其貨幣政策更是深刻影響公債需求和殖利率的關鍵力量。聯準會透過其系統公開市場帳戶 (System Open Market Account, SOMA) 持有大量美國公債及其他證券。在過去的量化寬鬆 (Quantitative Easing, QE) 時期，聯準會大規模購買長期公債等資產，旨在壓低長期利率、增加貨幣供應並刺激經濟活動 。例如，在新冠疫情期間的 QE 政策下，聯準會持有的公債佔 2021 年第一季財政部發行量的 56% 。
+
+然而，自 2022 年起，聯準會轉向實施量化緊縮 (Quantitative Tightening, QT)，透過允許其持有的證券到期而不完全再投資，或直接出售部分證券，來縮減其資產負債表規模 。截至 2025 年 3 月，自 2022 年 6 月 QT 開始以來，聯準會 SOMA 帳戶中的證券總持有量已減少約 2.05 兆美元 。根據紐約聯儲數據中心的資料，截至 2025 年 5 月初當週，SOMA 持有的美國中期及長期公債約為 3.586 兆美元 。QT 的目的是回收市場過剩流動性並協助控制通膨，但其過程也對公債市場產生顯著影響。研究表明，QT 操作可能對資產價格產生緊縮效應，並推高公債殖利率；有估算指出，SOMA 持倉每減少 1 兆美元，可能導致 10 年期公債殖利率上升約 2 個百分點 。
+
+聯準會從公債的主要購買者轉變為不再購買甚至淨賣出者，代表了需求結構的重大轉變。這意味著市場上一個重要的、對價格不敏感的買家消失了，使得吸收新增公債供應的任務更多地落在了對價格敏感的私人和外國投資者身上。這與 QE 時代形成了根本性的區別，當時聯準會的購買行為直接增加了需求並壓低了殖利率。如今，聯準會的 QT 政策實質上增加了需要由其他市場參與者消化的淨供應量。
+
+QT 對市場流動性和利率的影響是複雜的，並取決於多種因素，包括縮表的步伐、銀行體系準備金的水平，以及與聯準會其他工具（如隔夜逆回購工具 ONRRP）的互動 。當 ONRRP 的餘額下降時，QT 對銀行準備金的影響變得更為直接。聯準會的目標是維持「充足」的準備金水平，但確切水平存在不確定性，若準備金變得稀缺，則可能引發市場動盪的風險。儘管如此，普遍認為 QT 會對殖利率產生上行壓力。除了直接的資產負債表操作外，聯準會的基準利率政策（聯邦基金利率目標區間）也透過影響短期利率預期和整體融資成本，間接影響各期限公債的需求。
+
+表4：聯準會SOMA帳戶美國公債持倉 (截至2025年5月9日當週)
+
+證券類型 (Security Type)
+
+面值 (十億美元) (Par Value Outstanding, $ Billions)
+
+短期國庫券 (US Treasury Bills)
+
+195.4
+
+中期及長期公債 (US Treasury Notes and Bonds)
+
+3,586.9
+
+浮動利率公債 (US Treasury Floating Rate Notes)
+
+10.5
+
+抗通膨公債 (US Treasury Inflation-Protected Securities)
+
+313.8
+
+資料來源： (紐約聯儲數據中心，SOMA Holdings)
+
+
+
+4.2. 外國投資：主要持有者、TIC 數據洞察及地緣政治/經濟驅動因素
+
+外國投資者是美國公債市場中舉足輕重的一股力量，其需求動向對市場穩定和殖利率水平具有重要影響。外國持有者可大致分為官方機構（如中央銀行和政府主權基金）和私人投資者。美國財政部國際資本流動數據 (Treasury International Capital, TIC) 系統是追蹤外國持有美國證券（包括公債）的主要數據來源 。
+
+根據 TIC 數據，截至 2023 年 12 月，外國持有的美國公共債務約佔總公共持有債務的 31%，其中官方機構持有約 47.7%，私人投資者持有約 52.3% 。主要的外國持有國包括日本、中國和英國 。截至 2025 年 1 月的數據顯示，日本持有約 1.126 兆美元，中國持有約 7843 億美元，英國持有約 7503 億美元，外國總持有量約為 8.427 兆美元 。值得注意的是，近年來中國持有的美國公債規模有所下降 ，而外國整體持有公債的佔比也從過去的高點（如 2015 年約 50%）有所回落至目前的約 30% 。
+
+外國投資美國公債的驅動因素多元且複雜。傳統上，美國公債因其高信用評級、市場深度和流動性而被視為「避風港」資產，在全球市場動盪時吸引資金流入 。然而，近年來這一地位受到了一些挑戰 。利率差異是另一個重要因素；當美國公債殖利率相對於其他已開發國家更高時，會吸引尋求收益的私人投資者。美元的匯率前景也扮演關鍵角色，強勢美元預期通常會增加美元資產的吸引力。
+
+然而，地緣政治考量以及對美元長期全球地位的擔憂，正促使一些官方機構（尤其是與美國關係緊張的國家）尋求資產配置的多元化，減少對美元資產的依賴 。TIC 數據顯示，儘管官方機構的持有比例有所波動，甚至某些國家出現減持，但私人外國投資者的需求在某些時期依然強勁，他們可能更受殖利率差異和短期避險需求的驅動 。例如，2025 年 2 月的 TIC 數據顯示，外國私人淨流入高達 2293 億美元，而官方淨流入為 554 億美元；當月外國居民增持了 732 億美元的美國短期國庫券 。美國自身的貿易政策（如關稅）也可能影響外國投資者的情緒和行為 。
+
+這種官方機構潛在的長期多元化趨勢與私人投資者機會性購買行為的並存，使得外國需求的基礎變得更加動態，可能不如過去那樣穩定。一些分析認為，美國公債因其流動性和安全性而享有的「便利殖利率」（即投資者願意為這些特性而接受較低的純財務回報）可能正在對部分外國投資者減弱。如果這種趨勢持續，意味著需要更高的名目殖利率才能維持其吸引力，這與市場觀察到的期限溢價上升現象相符 。
+
+表5：美國公債主要外國持有者 (截至2025年1月)
+
+國家 (Country)
+
+持有金額 (十億美元) (Holding Amount, $ Billions)
+
+佔外國總持有比例 (%) (Approx. % of Total Foreign Holdings)
+
+日本 (Japan)
+
+1,125.9
+
+13.4%
+
+中國大陸 (China, Mainland)
+
+784.3
+
+9.3%
+
+英國 (United Kingdom)
+
+750.3
+
+8.9%
+
+盧森堡 (Luxembourg)
+
+412.5
+
+4.9%
+
+加拿大 (Canada)
+
+406.1
+
+4.8%
+
+開曼群島 (Cayman Islands)
+
+417.8
+
+4.9%
+
+比利時 (Belgium)
+
+394.7
+
+4.7%
+
+愛爾蘭 (Ireland)
+
+339.0
+
+4.0%
+
+瑞士 (Switzerland)
+
+290.8
+
+3.4%
+
+台灣 (Taiwan)
+
+294.8
+
+3.5%
+
+外國總持有量 (Total Foreign Holdings)
+
+8,427.0 (約)
+
+100%
+
+官方與私人持有比例 (Official vs. Private breakdown, 截至 2023年12月)
+
+官方: 47.7%, 私人: 52.3%
+
+N/A
+
+註：提供了2025年1月總額及部分主要國家數據。提供了另一組「最新統計」的國家排名，可能日期略有不同。上表主要依據，並補充數據作為參考。官方與私人持有比例為截至2023年12月的數據。
+
+
+
+
+
+4.3. 國內機構投資者
+
+國內機構投資者，包括退休基金、保險公司、共同基金、指數股票型基金 (ETFs) 和貨幣市場基金等，構成了美國公債市場龐大且相對穩定的需求基礎 。這些機構管理著巨額資本，而美國公債以其高信用質量、可預測的現金流以及在投資組合中提供收益、分散風險和資本保值等功能，滿足了它們多樣化的核心投資目標 。不同類型的機構因其負債結構、流動性需求和收益目標的差異，對公債的期限和種類會有不同的偏好，從而共同形成了對整個殖利率曲線的需求。雖然其總體需求量巨大，但這些機構內部的資產配置策略調整仍可能對市場動態產生影響。
+
+4.3.1. 退休基金：負債驅動型投資策略與資產配置趨勢
+
+退休基金，涵蓋私人企業退休金計劃和州及地方政府退休基金，是固定收益市場的重要參與者。近年來，許多企業退休金計劃的提撥狀況顯著改善，不少已達到甚至超過完全提撥的水平 。高盛資產管理估計，截至 2025 年第一季末，美國企業退休金系統的總體提撥狀況為 103.0% 。Milliman 的研究也顯示，2024 財年其追蹤的百大企業退休金計劃平均提撥率達到 101.1%，這是自 2007 年以來的首次盈餘 。
+
+在此背景下，負債驅動型投資 (Liability Driven Investing, LDI) 策略被廣泛採用。LDI 策略的核心是透過配置固定收益資產（包括長天期公債）來匹配退休金負債的利率敏感性，以降低風險 。這為美國公債，特別是長天期品種，創造了結構性的需求。然而，市場的波動和資產表現也導致了戰術性的調整。Milliman 指出，2024 年是自 2013 年以來首次出現這些大型退休金計劃固定收益配置比例下降的情況，部分原因是股票表現相對強勁 。高盛也提及，在利率波動的環境下，退休基金對固定收益的配置採取了更為防禦的姿態 。此外，退休金風險轉移 (Pension Risk Transfers, PRTs) 交易的增加，即計劃發起人將負債轉移給保險公司，也使得這部分需求從退休基金轉向保險公司 。
+
+相較之下，州及地方政府退休基金的提撥狀況普遍不如企業退休金。根據 Wilshire 的數據，截至 2025 年第一季末，美國州級退休金計劃的總體提撥率估計為 78.6%，較前一季有所下降 。較低的提撥率可能使得這些公共退休基金在資產配置上需要更積極地尋求回報以彌補資金缺口，因此其對公債的需求可能與其他增長型資產（如股票、私募股權）更為平衡，而非像已完全提撥的企業退休金那樣大規模地轉向純粹的去風險化固定收益配置。儘管如此，固定收益（包括公債）在其投資組合中仍扮演著分散風險和部分負債對沖的角色。Callan 的報告指出，2025 年第一季核心固定收益表現強勁，彭博美國綜合債券指數上漲 2.8% ，顯示在市場不確定性增加時，債券的避險作用依然存在 。
+
+4.3.2. 保險公司：投資組合與 NAIC 原則基礎債券定義 (PBBD) 的影響
+
+保險公司，包括壽險和產險公司，是美國公債市場中主要的、穩定的機構投資者。其投資行為主要受其負債結構和資產負債管理 (ALM) 需求的驅動。特別是壽險公司，由於其負債通常是長天期的，因此對長天期、高信評的固定收益資產（如美國公債）有著持續的需求，以匹配其負債的久期和現金流 。近期利率水平的上升，使得保險公司更容易透過持有像公債這樣的安全資產來實現其投資收益目標，從而支持了其對公債的穩定需求 。例如，AM Best 預計，美國產險業的淨投資收益在 2025 年將達到 1008 億美元，這得益於較高的利率環境 。
+
+自 2025 年 1 月 1 日起生效的美國保險監督官協會 (NAIC)「原則基礎債券定義」(Principles-Based Bond Definition, PBBD) 對保險公司如何分類和報告其債券持有（包括公債）帶來了新的規範 。PBBD 的主要目的是標準化債券的定義，並增加對更複雜證券的透明度。根據新定義，美國公債被明確歸類為「發行人信用義務」(issuer credit obligations)，將繼續在資產負債表的 D 表第一部分第一節中列報 。因此，PBBD 的實施預計不會對保險公司持有傳統美國公債的方式產生重大改變。其主要影響將體現在那些先前分類不太明確的結構性證券或其他類債務工具上，部分此類資產可能會被移至 BA 表。從某種程度上說，對其他資產類別更嚴格的審視，反而可能強化像美國公債這樣簡單明瞭、高質量的傳統債券的吸引力。隨著 2025 年第一季財務報告的提交（預計 2025 年 5 月後可獲得更詳細數據），市場將能更清晰地了解 PBBD 對保險業整體資產配置的具體影響 。
+
+儘管保險公司對公債有結構性需求，但它們也在積極尋求收益增強的機會。PineBridge 的 2025 年保險投資展望指出，在公共信貸利差處於歷史低位的情況下，預計保險公司將繼續配置於具有利差優勢的私募資產，如直接貸款、房地產和基礎設施項目 。這反映了保險公司在滿足 ALM 需求的同時，也在努力提升投資組合的整體回報。
+
+4.3.3. 共同基金、ETFs 及貨幣市場基金
+
+共同基金和指數股票型基金 (ETFs) 是零售和機構投資者參與公債市場的重要管道。這些基金匯集投資者的資金，投資於包括各類美國公債在內的多元化固定收益證券組合 。其資產管理規模 (AUM) 和資金流向是觀察市場情緒和投資者偏好的重要指標。根據投資公司協會 (ICI) 的數據，2025 年 3 月，長期債券基金出現了 159.1 億美元的淨流出 。這類短期資金流動可能受到市場對利率前景、聯準會政策預期以及其他資產類別表現等多種因素的影響，例如 2025 年初因關稅政策引發的市場波動 。儘管短期資金流向可能波動，但這些基金作為其投資組合分散和收益策略的一部分，仍是公債的結構性持有者。
+
+貨幣市場基金 (MMFs) 則在短期公債（尤其是國庫券）市場中扮演著極其重要的角色。隨著 2022 年以來短期利率大幅上升，貨幣市場基金因其提供的具吸引力的收益率而吸引了大量現金流入，特別是來自家庭部門的資金 。根據 CraneData 對聯準會 Z.1 數據的分析，截至 2024 年第四季末，貨幣市場基金總資產達到 7.243 兆美元，其持有的美國公債在該季度增加了 3350 億美元，全年增加了 7250 億美元，其中政府型貨幣市場基金佔主導地位 。這表明透過貨幣市場基金間接形成的對短期國庫券的強勁需求，為財政部在殖利率曲線前端的融資提供了有力支持。然而，這種需求對相對利率的變化非常敏感。2025 年 3 月 ICI 數據亦顯示貨幣市場基金出現 199.4 億美元的淨流出 ，這可能反映了短期市場預期的轉變或資金向其他領域的輪動。
+
+4.4. 其他國內需求 (家庭、州及地方政府、非金融企業)
+
+除了上述主要的機構投資者和聯準會外，美國國內其他部門，如家庭、州及地方政府以及非金融企業，也直接或間接持有美國公債，共同構成了整體需求的一部分。聯準會 Z.1 金融帳戶數據是追蹤這些部門持有金融資產（包括公債）的主要來源 。
+
+家庭部門是重要的儲蓄者，他們可能出於安全、儲蓄或特定理財目標而直接購買美國公債（例如，透過 TreasuryDirect 平台 ），或更普遍地透過貨幣市場基金、共同基金和 ETFs 間接持有 。其需求可能受到對資產安全性的感知、其他投資工具的回報率以及稅務考量等因素的影響。
+
+州及地方政府 (SLGs) 通常會將其運營資金的盈餘或債券發行所得的閒置資金，投資於短期、高質量、高流動性的資產，如短期國庫券，以待資金撥付之需。
+
+非金融企業也可能出於現金管理的目的持有美國公債，將短期閒置資金配置於流動性好且風險低的工具。
+
+雖然這些部門的持有行為可能不像大型機構那樣系統化或受複雜投資策略驅動，但其集體持有的規模不容忽視，對整體市場需求仍有貢獻。例如，聯準會 Z.1 數據顯示，截至 2024 年第四季末，家庭部門是貨幣市場基金的最大投資者，而貨幣市場基金則大量持有短期公債 。
+
+表6：美國主要國內部門公債持有情況 (基於聯準會Z.1數據的可用資訊)
+
+部門 (Sector)
+
+美國公債持有量 (十億美元) (Holdings of U.S. Treasury Securities, $ Billions) - Q4 2024
+
+家庭部門 (Household sector)
+
+(Z.1 L.210數據摘要中未直接提供，但透過MMF間接持有量大)
+
+非金融企業 (Nonfinancial corporate business)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+州及地方政府 (State and local governments)
+
+(Z.1 L.210數據摘要中未直接提供，但透過MMF持有)
+
+貨幣當局 (Monetary authority - Federal Reserve)
+
+約 3,906.6
+
+商業銀行 (Commercial banking)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+產物意外險公司 (Property-casualty insurance companies)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+人壽保險公司 (Life insurance companies)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+私人退休基金 (Private pension funds)
+
+
+
+州及地方政府退休基金 (State and local govt retirement funds)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+貨幣市場基金 (Money market funds)
+
+
+
+共同基金 (Mutual funds)
+
+
+
+指數股票型基金 (ETFs)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+經紀商與交易商 (Brokers and dealers)
+
+(Z.1 L.210數據摘要中未直接提供)
+
+註：完整的聯準會Z.1金融帳戶L.210表格數據在提供的摘要中無法直接提取。上表根據現有摘要信息進行了部分估算和說明。貨幣當局數據基於的SOMA持倉，作為Q4 2024的近似值。貨幣市場基金的公債增持數據來自對Z.1的解讀。
+
+
+
+5. 一級交易商：市場流動性的架構者
+
+5.1. 角色、職責與監管框架 (紐約聯儲框架)
+
+一級交易商 (Primary Dealers) 是美國公債市場運作的核心參與者，由紐約聯邦儲備銀行 (New York Fed) 指定的特定金融機構組成 。它們的首要角色是作為紐約聯儲在執行貨幣政策時的交易對手 。這包括參與公開市場操作，以協助聯邦公開市場委員會 (FOMC) 實現其政策目標。此外，一級交易商還肩負著在財政部所有公債標售中，以「合理具競爭力的價格」按比例參與投標的義務 。它們還需在紐約聯儲為其外國官方帳戶持有人進行交易時提供市場報價，並向紐約聯儲的交易室提供有助於制定和實施貨幣政策的市場評論、資訊和分析 。
+
+紐約聯儲強調，其與一級交易商的關係本質上是「交易對手關係，而非監管關係」。這意味著，儘管一級交易商通常是受到美國證券交易委員會 (SEC) 等機構監管的註冊經紀交易商或銀行，但紐約聯儲與它們的互動主要基於其在市場操作中的角色和履約能力，而非傳統意義上的銀行式監管。然而，成為一級交易商的資格標準相當嚴格，旨在確保這些機構擁有足夠的財務實力、運營穩健性和市場影響力，以履行其關鍵職責，尤其是在市場壓力時期。
+
+具體而言，一級交易商的資格要求包括：必須是 SEC 註冊和監管的經紀交易商或受官方銀行監管的銀行機構；在申請前至少一年內，在美國政府證券市場（特別是公債現貨和回購操作）中作為造市商具有實質性影響力，並維持至少 0.25% 的公債造市活動份額；擁有充足的資本（例如，提及銀行需擁有至少 1.5 億美元的一級資本，經紀交易商則需符合 SEC 的淨資本規定，提及經紀交易商至少 5000 萬美元的淨監管資本）；具備規模和經驗充足的後台運營能力以支持交易結算；以及擁有健全且經過例行測試的業務連續性計劃，確保即使在廣泛干擾期間也能持續參與公債標售和紐約聯儲的市場操作 。這些嚴格的標準旨在篩選出有能力在各種市場環境下穩定運作並支持整體金融穩定的交易對手。
+
+5.2. 標售參與、市場營造與 FR2004 報告
+
+一級交易商在美國公債市場的運作中扮演著不可或缺的雙重角色：既是初級市場標售的積極參與者，也是次級市場流動性的重要提供者。其在標售中的義務性參與，確保了政府債務的順利發行；而在次級市場的持續報價，則促進了價格發現和交易效率。
+
+根據紐約聯儲的規定，一級交易商必須「按比例」(pro rata basis) 參與所有美國公債的標售，並且其投標價格應「合理具有競爭力」。在競爭性投標中，單一投標者（包括一級交易商）最多可獲得該次標售發行量的 35% 。這項規定旨在防止任何單一實體過度主導標售，同時確保有足夠的基礎需求。
+
+在次級市場，一級交易商被期望提供雙向流動性，即同時報出買入價和賣出價，特別是在美國公債的現貨和回購市場 。這種市場營造行為對於維持市場深度、縮小買賣價差、降低交易成本至關重要。
+
+為了讓紐約聯儲和財政部能夠有效監控市場狀況和交易商活動，一級交易商必須定期提交一系列名為 FR2004 的報告 。這些報告包括：
+
+FR 2004A/B/C：每週報告交易商在美國政府證券及聯邦機構證券方面的即期和遠期頭寸 (A)、交易量 (B) 以及融資餘額和交割失敗情況 (C) 。
+
+FR 2004SI：每週報告特定新發行「即期」(on-the-run) 公債的頭寸、交易、融資和交割失敗情況 。
+
+FR 2004WI：每日報告在財政部已宣布發行但尚未發行的公債（即「預發行」或 "when-issued" 證券）方面的頭寸 。
+
+FR 2004F 系列：關於機構抵押貸款支持證券 (MBS) 交割失敗和交易量的結算週期報告 。
+
+這些來自 FR2004 的數據為監管機構提供了對一級交易商活動的關鍵洞察，包括其風險承擔水平、市場集中度以及在壓力時期的行為模式。例如，有研究利用 FR2004 數據來構建衡量交易商資產負債表容量利用率的指標 。目前約有 24 家一級交易商定期提交這些報告 。
+
+然而，一級交易商在履行其市場中介職能時，也面臨著自身資產負債表的限制。監管資本要求，如補充槓桿率 (Supplementary Leverage Ratio, SLR)，可能會影響其持有公債（尤其是未對沖頭寸）的成本效益 。如果資產負債表容量受限，交易商在標售中競標的意願或在次級市場提供緊密買賣價差的能力可能會下降，尤其是在發行量巨大或市場承壓時期 。這可能導致財政部借貸成本上升和次級市場效率降低。值得注意的是，大型銀行（通常包含一級交易商實體）的資產負債表上，美國公債的佔比已從 2013 年的 3% 大幅增長至 2024 年的 11% ，這反映了其在市場中吸收公債供應角色的日益重要，同時也突顯了其資產負債表容量的潛在壓力。
+
+5.3. 一級交易商市場活動與影響力分析
+
+一級交易商作為美國公債市場的核心中介，其集體行為對市場流動性、價格發現乃至整體市場效率具有決定性影響。紐約聯儲會定期發布基於 FR2004 數據匯總的一級交易商統計數據，包括其在公債及其他固定收益工具中的交易量、市場份額等信息 。例如，紐約聯儲數據中心顯示，在截至 2025 年 5 月初的六個月內，一級交易商的公債交易量達到約 2.48 兆美元，佔其總交易量的 66.7% 。這突顯了公債在一級交易商業務中的核心地位。
+
+儘管詳細的、最新的關於一級交易商在每次特定標售中的得標比例或其即時淨頭寸的公開數據有限，但其總體市場影響力是毋庸置疑的。它們在標售中的競標行為直接影響公債的發行殖利率，而在次級市場的報價則確立了市場的通行價格。由於其核心角色，若一級交易商因風險規避、資本限制或其他因素而集體減少市場營造活動，市場流動性可能迅速枯竭，正如在某些市場壓力事件（如 2020 年 3 月）中所觀察到的那樣 。當時，市場對交易商資產負債表進行中介活動的需求急劇增加，導致了市場功能的顯著喪失。
+
+大型銀行（通常擁有一級交易商部門）在其資產負債表上持有的美國公債規模近年來顯著增加 ，這既反映了它們在吸收市場供應方面的重要性，也暗示了其資產負債表可能面臨的壓力。任何對一級交易商功能的系統性損害，都可能對更廣泛的金融體系構成風險。因此，監管機構持續關注其運營狀況和市場行為。
+
+表7：一級交易商公債市場活動摘要 (基於現有匯總洞察的說明性表格)
+
+指標 (Metric)
+
+報告數據/趨勢 (Reported Figure/Trend)
+
+資料來源/時期 (Source/Period)
+
+公債次級市場交易量佔比 (Approx. Share of Secondary Market Trading in Treasuries)
+
+約 66.7% (一級交易商總交易量中)
+
+(截至2025年5月前6個月)
+
+標售參與情況 (Typical Auction Participation Range)
+
+有義務按比例參與所有標售，競標價格需具競爭力
+
+(紐約聯儲規定)
+
+資產負債表上公債持有量增長 (Growth in On-Balance Sheet Treasury Holdings)
+
+大型銀行公債持有佔總資產比例從2013年的3%增至2024年的11%
+
+
+
+FR2004報告提交機構數量 (Number of FR2004 Reporting Dealers)
+
+約 24 家
+
+(截至2024年6月)
+
+註：由於摘要中缺乏詳細的、最新的FR2004匯總數據，此表格更多是基於對一級交易商角色和現有高層次數據的定性描述和趨勢總結。
+
+
+
+
+
+6. 市場分析：近期趨勢與當前狀況
+
+6.1. 近期公債標售結果分析 (2年期、5年期、10年期、30年期；殖利率、投標倍數)
+
+對 2025 年初至年中美國公債市場的標售結果進行分析，可以揭示市場對持續大量供應的吸收能力以及投資者情緒的變化。在此期間，關鍵期限公債（如2年期、5年期、10年期和30年期）的標售殖利率和投標倍數（Bid-to-Cover Ratio，衡量總投標金額與實際發行金額的比例，是需求強度的重要指標）反映了市場在面對顯著政策不確定性（特別是關稅問題和聯準會政策路徑）及不斷演變的通膨預期時的定價行為。
+
+根據 TreasuryDirect 和 Investing.com 的數據，2025 年 1 月至 5 月的標售結果呈現出一定的波動性：
+
+2年期公債：1月27日標售的高殖利率為 4.211%，隨後在2月24日降至 4.169%，3月25日進一步降至 3.984%，至4月22日標售時為 3.795% 。TreasuryDirect 數據顯示，3月31日發行的2年期公債高殖利率為 3.984% 。
+
+5年期公債：TreasuryDirect 數據顯示，3月31日發行的5年期公債高殖利率為 4.100% 。
+
+10年期公債：1月7日標售的高殖利率為 4.680%，2月12日為 4.632%，3月12日降至 4.310%。然而，4月9日的標售殖利率回升至 4.435%（Investing.com 數據；TreasuryDirect 顯示3月17日重開的10年期公債殖利率為 4.310% ），5月6日標售的高殖利率為 4.342% 。
+
+30年期公債：1月8日標售的高殖利率為 4.913%，2月13日為 4.748%，3月13日為 4.623%（TreasuryDirect 顯示3月17日重開的30年期公債殖利率為 4.623% ）。4月10日標售殖利率反彈至 4.813%，5月8日則為 4.819% 。
+
+（註：投標倍數數據在提供的摘要中普遍缺乏，這使得對需求強度的直接量化分析受到限制。財政部網站 提供了歷史上創紀錄的投標倍數，但非近期具體數據。）
+
+這一時期的市場表現與多個外部因素交織。例如，2025 年初，市場對美國關稅政策及其潛在通膨影響的討論升溫，同時也在揣測聯準會的應對策略 。某些標售（如 TBAC 提及的 4 月 8 日 3 年期公債標售）需求疲軟，導致殖利率上升，反映了投資者的緊張情緒或對風險補償的更高要求。相反，一些結果穩健的標售則有助於緩解市場擔憂 。這些標售的最終殖利率，直接體現了市場在當前條件和預期下，為吸收新增政府債務所要求的價格。
+
+表8：美國公債標售結果摘要 (2025年1月 - 2025年5月，選定2年、5年、10年、30年期)
+
+標售日期 (Auction Date)
+
+證券類型/期限 (Security Type/Term)
+
+發行金額 (十億美元) (Offering Amount, $ Billions)
+
+最高殖利率/利率 (%) (High Yield/Rate, %)
+
+投標倍數 (Bid-to-Cover Ratio)
+
+資料來源 (Source)
+
+2025年1月27日
+
+2年期公債 (2-Year Note)
+
+N/A
+
+4.211
+
+N/A
+
+
+
+2025年2月24日
+
+2年期公債 (2-Year Note)
+
+N/A
+
+4.169
+
+N/A
+
+
+
+2025年3月25日
+
+2年期公債 (2-Year Note)
+
+N/A
+
+3.984
+
+N/A
+
+
+
+2025年3月31日 (發行日)
+
+2年期公債 (2-Year Note)
+
+N/A
+
+3.984
+
+N/A
+
+
+
+2025年4月22日
+
+2年期公債 (2-Year Note)
+
+N/A
+
+3.795
+
+N/A
+
+
+
+2025年3月31日 (發行日)
+
+5年期公債 (5-Year Note)
+
+N/A
+
+4.100
+
+N/A
+
+
+
+2025年1月7日
+
+10年期公債 (10-Year Note)
+
+N/A
+
+4.680
+
+N/A
+
+
+
+2025年2月12日
+
+10年期公債 (10-Year Note)
+
+N/A
+
+4.632
+
+N/A
+
+
+
+2025年3月12日
+
+10年期公債 (10-Year Note)
+
+N/A
+
+4.310
+
+N/A
+
+
+
+2025年3月17日 (發行日, 重開)
+
+10年期公債 (10-Year Note)
+
+N/A
+
+4.310
+
+N/A
+
+
+
+2025年4月9日
+
+10年期公債 (10-Year Note)
+
+N/A
+
+4.435
+
+N/A
+
+
+
+2025年5月6日
+
+10年期公債 (10-Year Note)
+
+
+
+4.342
+
+N/A
+
+
+
+2025年1月8日
+
+30年期公債 (30-Year Bond)
+
+N/A
+
+4.913
+
+N/A
+
+
+
+2025年2月13日
+
+30年期公債 (30-Year Bond)
+
+N/A
+
+4.748
+
+N/A
+
+
+
+2025年3月13日
+
+30年期公債 (30-Year Bond)
+
+N/A
+
+4.623
+
+N/A
+
+
+
+2025年3月17日 (發行日, 重開)
+
+30年期公債 (30-Year Bond)
+
+N/A
+
+4.623
+
+N/A
+
+
+
+2025年4月10日
+
+30年期公債 (30-Year Bond)
+
+N/A
+
+4.813
+
+N/A
+
+
+
+2025年5月8日
+
+30年期公債 (30-Year Bond)
+
+
+
+4.819
+
+N/A
+
+
+
+註：發行金額和投標倍數在多數摘要中未提供。部分數據點可能存在細微差異，已盡力整合。
+
+
+
+
+
+
+
+
+
+
+
+6.2. 當前供需平衡與市場情緒 (TBAC 洞察)
+
+當前美國公債市場的供需平衡狀況，深受財政赤字壓力、貨幣政策走向以及全球經濟不確定性的影響。財政借款諮詢委員會 (TBAC) 在其 2025 年 5 月的報告中，對市場狀況和投資者情緒進行了深入評估 。報告強調，市場波動性顯著增加，全球經濟前景高度不確定，主要受到國際貿易談判及其經濟影響的主導。通膨擔憂持續存在，市場參與者密切關注財政發展，包括預算赤字的影響和債務上限問題的解決方案。
+
+一個顯著的觀察是，市場參與者對美國中期財政平衡前景的信心不足，這導致了期限溢價的上升 。高度的經濟不確定性抑制了風險承擔意願，並使得投資者要求更高的風險回報。TBAC 指出，由於「異常高的頭條新聞風險」(unusually high headline risk)，美國公債市場目前存在「增量風險溢價」(incremental risk premium) 。這意味著，除了傳統的通膨和增長預期外，投資者還要求額外的補償來應對政策不確定性和潛在的市場衝擊。
+
+值得注意的是，儘管市場波動加劇，甚至出現美國公債的「避風港」地位受到質疑的情況（例如，在某些時期，公債與股票等風險資產同時下跌），但核心的融資市場（如回購市場）卻表現出顯著的穩定性 。TBAC 認為，銀行體系中充裕的準備金水平可能在緩解市場波動期間的潛在干擾方面發揮了作用。這表明，雖然公債的價格發現過程更為動盪，但市場的基礎融資機制在很大程度上保持了韌性。然而，隨著聯準會量化緊縮 (QT) 的推進和準備金水平的下降 ，這種穩定性在未來的壓力事件中可能會面臨考驗。
+
+總體而言，當前市場情緒謹慎，投資者對財政可持續性、政策走向和通膨前景保持高度警惕。雖然某些標售結果依然穩健，但市場對風險的定價更為敏感，任何負面消息都可能迅速引發市場波動。
+
+7. 2025-2026年前景展望：在不確定環境中航行
+
+7.1. 預計的供需動態 (主要銀行及機構預測)
+
+展望 2025-2026 年，美國公債市場的供需動態預計將持續受到多重因素的複雜影響。供應方面，CBO 對持續高企的財政赤字和不斷增長的國家債務的預測 ，以及財政部為滿足融資需求而制定的季度發行計劃 ，均表明未來幾年公債供應量將維持在較高水平。巴克萊銀行預計美國政府債務發行量將增加 ，摩根大通也預期美國赤字將擴大 。
+
+需求方面，則呈現出更為謹慎和分化的格局。聯準會的量化緊縮政策將繼續減少其對公債的需求，至少在初期階段如此 。外國投資者的需求則充滿不確定性，一些官方機構可能繼續其資產多元化策略，減少對美元資產的依賴 ，儘管私人部門的需求可能因殖利率吸引力而保持一定韌性。道富環球投資管理 (SSGA) 認為，實質貨幣對美國公債的需求將持續存在 。
+
+國內機構投資者將成為吸收新增供應的關鍵力量。然而，其吸收能力和意願將取決於相對價值、風險偏好以及監管環境。多家機構，如貝萊德 (BlackRock) 、領航 (Vanguard) 和富國銀行 (Wells Fargo) ，在其展望中均表示，考慮到通膨和供應擔憂，更傾向於中短期公債而非長天期品種。這可能意味著市場需要更高的期限溢價來吸引投資者持有長天期公債 。
+
+政策不確定性是各大機構展望中的共同主題，預計將持續對市場造成波動。這些不確定性來源廣泛，包括財政政策的走向、貿易和關稅政策的演變（摩根士丹利 、摩根大通 、國際金融協會 (IIF) 、貝萊德 、領航 ），以及聯準會的政策路徑。這種不確定性使得經濟預測（增長、通膨）的難度加大，從而也增加了對聯準會政策和公債殖利率走向判斷的複雜性。多數分析師預期市場波動性將加劇（摩根士丹利 、Nuveen/PIMCO 、PGIM ）。一些分析師還指出，這些由政策驅動的衝擊可能會擾亂公債傳統的避險行為 。
+
+總體而言，市場共識傾向於認為，持續的公債高供應將面臨一個需求更為謹慎的環境，聯準會的角色減弱，對價格敏感的投資者將發揮更大作用，這可能會對殖利率，特別是長天期殖利率的期限溢價部分，構成持續的上行壓力。
+
+7.2. 對公債殖利率及殖利率曲線的影響
+
+預計的供需平衡狀況以及對通膨、經濟增長和聯準會政策的廣泛預期，將共同塑造 2025-2026 年美國公債殖利率的水平和殖利率曲線的形態。
+
+多數預測顯示，聯準會可能在 2025 年開始或繼續下調短期利率（富國銀行 、IIF 、SIFMA 、Nuveen/PIMCO ）。這通常會拉低短期公債殖利率。然而，對通膨持續性的擔憂（IIF 、貝萊德 ）以及美國公債的大量持續供應（巴克萊 ），預計將對長天期公債殖利率構成上行壓力。期限溢價上升的觀點在市場分析中反覆出現 。
+
+這種短期利率可能下降而長天期殖利率受支撐（甚至上升）的組合，可能導致殖利率曲線趨於陡峭化——即短天期利率下降幅度大於長天期利率，或者長天期利率上升。摩根士丹利在其展望中明確建議配置「殖利率曲線陡峭化」策略 。貝萊德則表示對長天期美國公債持減持立場 。富國銀行預計，到 2025 年底，10 年期美國公債殖利率目標區間為 4.50%-5.00%，30 年期公債殖利率目標區間為 4.75%-5.25% 。Nuveen/PIMCO 則預期公債市場將處於區間波動，利率下調幅度有限 。
+
+殖利率曲線的形態將是市場對未來增長、通膨和聯準會政策預期的關鍵指標。殖利率曲線倒掛（即短期利率高於長期利率）傳統上被視為經濟衰退的先行指標 。儘管許多機構的基本預期並非深度衰退（IIF 預計 2025 年下半年出現淺度衰退 ），但殖利率曲線的走向仍將受到密切關注。然而，過去大規模的量化寬鬆和當前的量化緊縮，以及結構性的供需轉變，可能在一定程度上改變殖利率曲線傳統的信號意義。正如一些分析指出的，債券市場的供需法則本身也會獨立於純粹的經濟預測而影響殖利率曲線的形態 。
+
+7.3. 市場波動潛力與金融穩定性擔憂
+
+展望未來，美國公債市場的穩定性面臨多重潛在風險。大量且持續的公債供應、聯準會需求的減少、一級交易商中介能力的潛在制約，以及高度的宏觀經濟和政策不確定性，共同構成了一個容易引發市場波動加劇和流動性緊張的環境。
+
+歷史經驗表明，由於債務規模增加和市場中介結構的變化，公債市場應對重大衝擊的韌性已有所下降 。一級交易商的資產負債表對於市場中介至關重要，但在壓力時期其容量可能受限，從而影響市場功能 。正如 TBAC 所指出的，政策不確定性已導致市場波動加劇和風險溢價上升 。
+
+美國公債市場作為全球金融體系的基石，其任何功能失調都可能對其他金融市場乃至整體金融穩定產生顯著的溢出效應 。如果因供需失衡導致公債市場流動性惡化或殖利率飆升，可能引發更廣泛的市場不穩定，包括企業債券利差擴大、融資市場（如回購市場）受阻，並可能影響企業和消費者的借貸條件 。過去的「現金爭奪」(dash for cash) 事件顯示，在某些極端情況下，市場流動性可能比預期更快地惡化 。因此，監管機構和政策制定者高度關注公債市場的韌性。
+
+7.4. 市場參與者的主要風險與機遇
+
+對於市場參與者而言，未來一到兩年美國公債市場的主要風險集中在以下幾個方面：首先，通膨的持續性可能侵蝕實際回報，並促使聯準會維持較長時間的緊縮政策，或導致實際殖利率維持在低位 。其次，持續的財政壓力和龐大的供應可能導致殖利率意外上行，對現有債券持有者造成資本損失 。再次，地緣政治衝擊或政策失誤可能引發流動性事件，加劇市場波動 。
+
+儘管風險存在，但也存在潛在的機遇。相較於過去十年，當前較高的起始殖利率為願意長期持有的投資者提供了更具吸引力的收益潛力 。市場波動也可能為不同期限公債之間（例如即期與非即期公債）或沿著殖利率曲線創造相對價值交易機會 。積極管理久期，並根據對聯準會政策和殖利率曲線形態的預期進行倉位調整（例如配置殖利率曲線陡峭化策略 ），可能為投資者帶來超額回報。
+
+表9：部分機構對關鍵公債殖利率的預測 (2025年底及2026年底)
+
+機構 (Institution)
+
+預測日期 (Forecast Date)
+
+證券 (Security)
+
+2025年底殖利率目標 (End-2025 Yield Target)
+
+2026年底殖利率目標 (End-2026 Yield Target)
+
+資料來源 (Source)
+
+富國銀行 (Wells Fargo)
+
+(2025展望，日期約2024年底/2025年初)
+
+10年期公債 (10-Year Treasury)
+
+4.50% – 5.00%
+
+N/A
+
+
+
+富國銀行 (Wells Fargo)
+
+(2025展望，日期約2024年底/2025年初)
+
+30年期公債 (30-Year Treasury)
+
+4.75% – 5.25%
+
+N/A
+
+
+
+國際金融協會 (IIF)
+
+2025年5月
+
+聯邦基金利率 (Fed Funds Rate)
+
+(預計2025年降息3次)
+
+(預計2026年再降息3次)
+
+
+
+SIFMA
+
+2025年1月 (展望)
+
+聯邦基金利率 (Fed Funds Rate)
+
+(預計至2025年底共降息約100基點)
+
+N/A
+
+
+
+註：直接的公債殖利率預測在摘要中較為有限。IIF 和 SIFMA 的預測主要針對聯邦基金利率，這對公債殖利率有指導意義但非直接預測。
+
+
+
+
+
+
+
+
+
+
+
+8. 結論與策略建議
+
+美國公債市場正處於一個由持續高供應和日益複雜需求格局共同塑造的關鍵時期。財政壓力、聯準會政策的轉變、外國投資者行為的演化以及一級交易商面臨的運營挑戰，共同構成了市場未來走向的主要不確定性來源。
+
+對於投資者而言，駕馭未來幾年的美國公債市場，將需要更加注重積極管理、情景分析，並深刻理解供需兩端發生的結構性轉變。簡單依賴過去二十年（尤其是在全球金融危機後至新冠疫情前）的市場動態和投資假設，可能不再適用。投資者需要更精細地評估久期風險、殖利率曲線的潛在形態變化，以及在更廣泛的固定收益資產配置中，公債與其他信用產品的相對價值。
+
+對於政策制定者而言，確保美國公債市場的韌性和高效運作至關重要。考慮到龐大的融資需求，持續評估影響一級交易商中介能力的監管框架（如補充槓桿率 SLR 的影響），並探索增強市場基礎設施或流動性支持機制的潛在措施，將是必要的。財政部已在實施的回購計劃和聯準會設立的常備回購便利工具 (SRF) 是積極的步驟，但未來可能需要更多努力來應對潛在的市場壓力。此外，解決如債務上限等可能引發不必要市場緊張的政策問題，也有助於維護市場穩定。
+
+總而言之，美國公債市場雖然面臨挑戰，但其作為全球最重要的金融市場之一的地位依然穩固。然而，市場參與者必須適應新的常態，即一個供應更為充裕、需求更為挑剔、波動性可能更高的市場環境。在此環境下，深入的分析、靈活的策略和審慎的風險管理將是成功的關鍵。
+
+引用的著作
+
+1. Approach with caution: why the US deficit poses risks for Treasuries, https://impaxam.com/insights-and-news/blog/approach-with-caution-why-the-us-deficit-poses-risks-for-treasuries/ 2. www.cbo.gov, https://www.cbo.gov/system/files/2025-03/61230-Federal_Borrowing.pdf 3. Quarterly Refunding Statement of Acting Assistant Secretary for Financial Markets Brian Smith | U.S. Department of the Treasury, https://home.treasury.gov/news/press-releases/sb0120 4. QT, Ample Reserves, and the Changing Fed Balance Sheet, https://www.clevelandfed.org/publications/economic-commentary/2025/ec-202505-qt-ample-reserves-changing-fed-balance-sheet 5. Back to Normal? Assessing the Effects of the Federal Reserve's Quantitative Tightening - Geneva Graduate Institute, https://www.graduateinstitute.ch/sites/internet/files/2024-08/HEIDWP14-2024.pdf 6. Foreign Holdings of Federal Debt | Congress.gov, https://www.congress.gov/crs-product/RS22331 7. The Decline of the US Dollar: Global Trust Erosion and Alternative Systems - Discovery Alert, https://discoveryalert.com.au/news/us-dollar-decline-driving-factors-2025/ 8. Treasury Market Resiliency and Large Banks' Balance Sheet Constraints, https://bpi.com/treasury-market-resiliency-and-large-banks-balance-sheet-constraints/ 9. Dealer capacity and US Treasury market functionality - Bank for International Settlements, https://www.bis.org/publ/work1138.pdf 10. What's going on in the US Treasury market, and why does it matter? - Brookings Institution, https://www.brookings.edu/articles/whats-going-on-in-the-us-treasury-market-and-why-does-it-matter/ 11. Why US Treasuries sold off when market volatility jumped - Goldman Sachs, https://www.goldmansachs.com/insights/articles/why-us-treasuries-sold-off-when-market-volatility-jumped 12. Report to the Secretary of the Treasury from the Treasury Borrowing Advisory Committee | U.S. Department of the Treasury, https://home.treasury.gov/news/press-releases/sb0121 13. History of Treasury Marketable Securities Products and Programs ..., https://treasurydirect.gov/research-center/history-of-marketable-securities/ 14. Treasury Bonds vs. Treasury Notes vs. Treasury Bills: What's the ..., https://www.investopedia.com/ask/answers/033115/what-are-differences-between-treasury-bond-and-treasury-note-and-treasury-bill-tbill.asp 15. FAQs about Treasury Marketable Securities - TreasuryDirect, https://www.treasurydirect.gov/help-center/faqs/marketable-faqs/ 16. Buying a Treasury Marketable Security - TreasuryDirect, https://treasurydirect.gov/marketable-securities/buying-a-marketable-security/ 17. How Auctions Work - TreasuryDirect, https://treasurydirect.gov/auctions/how-auctions-work/ 18. US Treasury Bonds - Fidelity Investments, https://www.fidelity.com/fixed-income-bonds/individual-bonds/us-treasury-bonds 19. Public Debt Reports - TreasuryDirect, https://treasurydirect.gov/government/public-debt-reports/ 20. Historical Debt Outstanding - U.S. Treasury Fiscal Data, https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding/ 21. Federal Reserve Actions and Quantitative Easing | Macroeconomics - Lumen Learning, https://courses.lumenlearning.com/wm-macroeconomics/chapter/federal-reserve-actions-and-quantitative-easing/ 22. Quantitative Easing (QE): What It Is and How It Works - Investopedia, https://www.investopedia.com/terms/q/quantitative-easing.asp 23. Markets Data Dashboard - FEDERAL RESERVE BANK of NEW YORK, https://www.newyorkfed.org/markets/data-hub 24. Preliminary Report on Foreign Holdings of U.S. Securities at End-June 2024 - Treasury, https://home.treasury.gov/news/press-releases/sb0037 25. Treasury International Capital (TIC) System | U.S. Department of the ..., https://home.treasury.gov/data/treasury-international-capital-tic-system 26. World - Major Economies' Holdings of US Debt | US Treasury Bond | Collection - MacroMicro, https://en.macromicro.me/collections/51/us-treasury-bond/81306/top-10-countries-holding-us-debt 27. United States | Major Foreign Holders of US Treasury Securities - CEIC, https://www.ceicdata.com/en/united-states/major-foreign-holders-of-us-treasury-securities 28. Are US Treasuries and the Dollar Still Safe Havens? - Morgan Stanley, https://www.morganstanley.com/im/en-ie/intermediary-investor/insights/articles/market-pulse-with-jim-caron-20250428.html 29. Treasury International Capital Data for December | U.S. Department of the Treasury, https://home.treasury.gov/news/press-releases/sb0019 30. U.S. Department of the Treasury Office of Public Affairs, https://home.treasury.gov/system/files/136/Treasury-International-Capital-Data-for-April-2025.pdf 31. Institutional Investor: Who They Are and How They Invest - Investopedia, https://www.investopedia.com/terms/i/institutionalinvestor.asp 32. Fixed Income Investments | Charles Schwab, https://www.schwab.com/fixed-income 33. Corporate Pension Quarterly 1Q 2025: The Edge on European Equity - Goldman Sachs Asset Management, https://am.gs.com/en-us/advisors/insights/article/corporate-pension-quarterly 34. Largest Corporate Pension Funds Move Into Funding Surpluses | PLANSPONSOR, https://www.plansponsor.com/largest-corporate-pension-funds-move-into-funding-surpluses/?layout=print 35. How Companies With Frozen, Overfunded Pensions Approach the Future - Ai-CIO, https://www.ai-cio.com/news/how-companies-with-frozen-overfunded-pensions-approach-the-future/ 36. How to Use a Pension Plan Surplus - State Street Global Advisors, https://www.ssga.com/us/en/institutional/insights/how-to-use-a-pension-plan-surplus 37. U.S. State Pension Plans Funding Status – First Quarter 2025 - Wilshire, https://www.wilshire.com/press-releases/u-s-state-pension-plans-funding-status-first-quarter-2025 38. Investment Committee Meeting Agenda - Public Employees' Retirement System of Mississippi, https://www.pers.ms.gov/sites/default/files/Content/Board_Materials/2025/April/Materials/Investment%20Committee%20Meeting_April%202025.pdf 39. Callan 2025 CMAs and Historic Market Volatility, https://www.callan.com/blog-archive/callan-2025-cmas/ 40. 2025 US Insurance Investment Outlook: Seeking Spreads Amid Regulatory Shifts, https://www.pinebridge.com/en/insights/2025-us-insurance-investment-outlook 41. Best's Market Segment Report: Secondary Peril Events Persist as U.S. Property/Casualty Sector Pushes Toward Rate Adequacy, https://news.ambest.com/newscontent.aspx?refnum=264243&altsrc=174 42. Positive U.S. P&C result momentum set to continue in 2025: AM Best - Artemis.bm, https://www.artemis.bm/news/positive-u-s-pc-result-momentum-set-to-continue-in-2025-am-best/ 43. NAIC Guidance 2025: Bond Compliance for Insurers | Cherry Bekaert, https://www.cbh.com/insights/articles/naic-guidance-2025-bond-compliance-for-insurers/ 44. The NAIC's bond classification changes: Developing an implementation plan | Our Insights, https://www.plantemoran.com/explore-our-thinking/insight/2024/09/the-naics-bond-classification-changes 45. NAIC 2025 Spring National Meeting - Asset Management - J.P. Morgan, https://am.jpmorgan.com/us/en/asset-management/institutional/investment-strategies/insurance/insights/naic-2025-spring-national-meeting/ 46. Release: Trends in Mutual Fund Investing, March 2025 | Investment Company Institute, https://www.ici.org/research/stats/trends_03_25 47. Fed Z.1 Shows Jump in Household, Business MMF Assets; T-Bills Up in Q4, https://www.cranedata.com/archives/all-articles/10739/ 48. The Fed - Financial Accounts of the United States - Z.1 - Current ..., https://www.federalreserve.gov/releases/z1/ 49. Financial Accounts of the United States - Z.1, https://www.federalreserve.gov/releases/z1/20250313/html/introductory_text.htm 50. Primary Dealers - Federal Reserve Bank of New York, https://www.newyorkfed.org/markets/primarydealers 51. Operating Policy - FEDERAL RESERVE BANK of NEW YORK, https://www.newyorkfed.org/markets/pridealers_policies.html 52. Primary Dealers - Federal Reserve Bank of New York - EliScholar, https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=6145&context=ypfs-documents2 53. FR2004_20240614_omb - OMB 7100-0003 - OMB.report, https://omb.report/icr/202406-7100-003/doc/143663501 54. FR 2004A/B/C Weekly Report of Dealer Positions, Transactions, and Financing, https://www.newyorkfed.org/banking/reportingforms/fr_2004a_b_c 55. Useful Data for Research - TreasuryDirect, https://treasurydirect.gov/auctions/announcements-data-results/useful-data-for-research/ 56. United States 2-Year Note Auction - Investing.com, https://www.investing.com/economic-calendar/2-year-note-auction-569 57. Announcements, Data & Results — TreasuryDirect, https://www.treasurydirect.gov/auctions/announcements-data-results/ 58. United States 10-Year Note Auction - Investing.com, https://www.investing.com/economic-calendar/10-year-note-auction-571 59. Upcoming Auctions - TreasuryDirect, https://www.treasurydirect.gov/auctions/upcoming/ 60. United States 30-Year Bond Auction - Investing.com, https://www.investing.com/economic-calendar/30-year-bond-auction-572 61. Record-Setting Treasury Securities Auction Data, https://fiscaldata.treasury.gov/datasets/record-setting-auction-data/ 62. Adapting to the yield cycle | Barclays Private Bank, https://privatebank.barclays.com/insights/outlook-2025-11-2024/adapting-to-the-yield-cycle/ 63. Outlook 2025 Building on Strength | JP Morgan, https://www.jpmorgan.com/content/dam/jpmorgan/documents/wealth-management/outlook-2025-building-on-strength.pdf 64. Making Sense of the Current US Treasury Market, https://www.ssga.com/se/en_gb/intermediary/insights/making-sense-of-the-current-us-treasury-market 65. Q2 2025 Investment Outlook | BlackRock Investment Institute, https://www.blackrock.com/us/individual/insights/blackrock-investment-institute/outlook 66. Active Fixed Income Perspectives Q2 2025: Risks to realities - Vanguard, https://corporate.vanguard.com/content/corporatesite/us/en/corp/articles/afi-perspectives-q22025-risks-to-realities.html 67. Active fixed income perspectives Q2 2025 Risks to realities - Vanguard, https://institutional.vanguard.com/insights-and-research/report/active-fixed-income-perspectives-q2-2025-risks-to-realities.html 68. See what's next for the economy in our 2025 Outlook | Wells Fargo, https://sites.wf.com/2025-outlook/?cid=WF2300033174 69. Fixed Income Outlook 2025: Sector Picks | Morgan Stanley, https://www.morganstanley.com/insights/articles/bond-market-outlook-fixed-income-2025-sector-picks 70. IIF Global Macro Views - US Outlook: Forecasting Through Uncertainty, https://www.iif.com/LinkClick.aspx?fileticket=OsVIozVXv0c%3D&portalid&_cldee=9-7WvDGFhwsBx2rpu76mGQO4D065gIXu5vsBM4DDS3afcSLfYw5oKgno3zeMz9hE&recipientid=contact-dc67fb7db02aec1180f8000d3a0ee828-6dcec415cd3e4d1e8b48cd121acb1996&utm_source=ClickDimensions&utm_medium=email&utm_campaign=Press%20Emails&esid=ce53859d-c21e-f011-998a-7c1e520279df 71. 2025 Q2 outlook: Wheels down, elevation up: Five themes for a new economic landing, https://www.nuveen.com/en-us/insights/investment-outlook/2025-2q-outlook 72. Second Quarter 2025 Market Outlook - PGIM, https://www.pgim.com/fixed-income/outlook/second-quarter-2025-market-outlook 73. Highlights from SIFMA's 2025 State of the Industry Briefing, https://www.sifma.org/resources/news/blog/highlights-from-sifmas-2025-state-of-the-industry-briefing/ 74. The Impact of an Inverted Yield Curve - Investopedia, https://www.investopedia.com/articles/basics/06/invertedyieldcurve.asp

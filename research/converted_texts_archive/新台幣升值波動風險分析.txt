@@ -1,0 +1,453 @@
+新台幣短期大幅升值伴隨高波動性：驅動因素、衝擊與監控機制深度分析報告
+
+摘要
+
+本報告旨在深入分析新台幣（TWD）在短期內經歷急劇升值並伴隨高波動性的特定情境。此類市場動態主要由金融市場操作因素驅動，特別是國際資本的快速流動、大型機構（尤其是壽險公司）的匯率避險行為以及出口商的市場反應，而非短期基本面因素的直接結果。這種波動性加劇的機制涉及多重市場參與者行為的交互作用與潛在的正回饋循環，並受到中央銀行干預政策與市場預期的顯著影響。
+
+在此情境下，未進行充分匯率避險的台灣壽險公司和特定類型出口商（如機械、工具機產業）面臨最大的風險，主因其龐大的外幣資產曝險或以美元計價的營收結構。這些機構的典型反應包括增加避險操作、調整資產配置，甚至可能被迫拋售資產，這些行為反過來可能進一步加劇外匯市場的波動。
+
+易受衝擊的金融產品包括未避險的海外債券投資組合（因面臨直接的匯兌損失）、結構複雜的衍生性商品（如TRF，因其槓桿與不對稱風險結構），以及選擇權空頭部位（因Gamma風險在劇烈波動下急劇升高）。
+
+歷史上，台灣在1980年代經歷過類似的由外部壓力與熱錢引發的急劇升值，導致產業結構調整與資產泡沫。1997年亞洲金融風暴中韓元的崩潰（雖為貶值危機）亦揭示了資本快速流動與貨幣錯配的巨大風險。
+
+為有效監控此類風險，應重點關注資本流向數據（尤其是外資）、隱含波動率、風險逆轉指標、NDF市場報價及其與在岸遠匯的價差，以及中央銀行的干預訊號與外匯存底變動。綜合解讀這些指標有助於評估市場情緒、投機壓力與潛在的匯率拐點。本報告旨在為金融專業人士提供對此特定匯率風險情境的全面理解與應對參考。
+
+I. 緒論
+
+A. 情境界定
+
+本報告聚焦於一個特定的金融市場情境：新台幣（TWD）在短期內相對於主要國際貨幣（尤其是美元）出現顯著且快速的升值，同時伴隨著市場波動性的急劇升高。此情境的特徵包括：單日匯率變動幅度遠超歷史平均水平、盤中震盪加劇，以及選擇權市場隱含波動率（Implied Volatility）的顯著上揚 。近期市場可能出現的觸發因素，例如大規模、集中的資本湧入、國際貿易政策的突然轉變、地緣政治風險的變化，或市場對中央銀行（Central Bank of the Republic of China (Taiwan)，以下簡稱央行）政策立場預期的改變，均使得對此情境的深入分析具有高度的現實意義 。
+
+B. 報告目標
+
+本報告旨在為金融市場專業人士，包括機構投資者、風險管理人員、企業財務主管及投資組合經理等，提供一份針對上述情境的深度分析。主要目標包含：
+
+剖析驅動此現象的根本原因，區分基本面與金融市場操作因素。
+
+評估此情境對未進行充分避險的台灣關鍵機構（如壽險公司、大型出口商）造成的具體衝擊。
+
+識別在此環境下特別脆弱的金融產品，並解釋其損失機制。
+
+借鑒歷史上類似的匯率波動事件，汲取經驗教訓。
+
+建立一套用於監測和預警此類市場風險的關鍵指標體系。
+
+C. 分析重要性
+
+台灣作為一個小型且高度開放的經濟體，對外貿易依存度極高 ，且在全球高科技產業供應鏈中扮演關鍵角色。同時，台灣金融市場，特別是壽險業，持有龐大的海外資產 。因此，新台幣匯率的劇烈波動不僅直接影響進出口企業的營運績效與國際競爭力，更可能對金融機構的資產負債表、償付能力乃至整體金融穩定構成威脅。深入理解此特定情境的成因與影響，對於相關市場參與者制定有效的風險管理策略、投資決策及企業營運規劃至關重要 。
+
+II. 驅動因素分析
+
+A. 基本面因素 vs. 金融市場操作
+
+區分推動新台幣短期急劇升值與高波動性的因素時，必須認識到雖然經濟基本面奠定長期趨勢，但短期內的劇烈變動往往由金融市場的操作和資金流動主導。
+
+1. 短期基本面因素的間接影響：
+
+經濟數據與市場情緒： 雖然強勁的經濟數據（如GDP增長、出口訂單超乎預期、科技股財報亮眼）本身通常不足以引發匯率的急劇、高波動升值，但它們可以改善市場情緒，吸引國際資金關注，為後續的資金流入和升值提供背景支持 。然而，這些因素更多是影響中長期趨勢或提供短期催化劑，而非波動性加劇的直接原因。
+
+貿易順差與潛在升值壓力： 台灣長期維持龐大的貿易順差和經常帳順差，這構成了新台幣結構性的潛在升值壓力 。然而，此壓力通常是緩慢累積的，無法解釋短期內的「閃電式」飆升和高波動性。央行報告亦曾指出，在特定時期，即使考慮到貿易順差與國人海外支出，外匯市場供需可能接近平衡，突顯短期波動主要來自資金流 。
+
+外部壓力與政策預期： 地緣政治考量或主要貿易夥伴（尤其是美國）的政策動向，例如美國財政部對匯率操縱的監控或貿易談判中可能涉及的匯率議題，雖然官方通常否認直接壓力 ，但市場對此類外部因素的揣測可能影響對央行干預意願的預期，進而影響市場行為 。這種預期的轉變是金融市場因素，而非基本面本身。
+
+2. 主導性的金融市場操作因素：
+
+資本流入（熱錢）： 大規模、快速的短期資本流入是推動新台幣急劇升值的最直接因素之一。這些資金通常被稱為「熱錢」，可能源於國際投資者對台股的追捧（尤其是在科技股帶動下）、全球風險偏好的轉變（資金從美元流向亞洲）、或是對新台幣升值的投機預期 。例如，曾有報導指出短短兩日內約有60億美元資金湧入 。這些資金進入外匯市場兌換成新台幣，直接推高了對新台幣的需求。央行亦將短期資本（熱錢）的移動視為影響匯率穩定的重要因素 。
+
+壽險業避險動態： 台灣壽險業持有巨額（超過1.7兆美元）的海外資產，主要是美元計價的債券，而其負債端則主要是新台幣保單 。這種結構性的貨幣錯配使得壽險公司面臨巨大的匯率風險。為了管理這種風險，壽險公司需要進行避險操作，主要是透過賣出美元遠期合約或進行FX Swap（買入新台幣、賣出美元） 。這種持續性的避險需求本身就對新台幣構成升值壓力。當市場波動加劇、風險趨避情緒升高，或監管要求變化時，壽險公司可能突然增加避險比例，導致短時間內大量買入新台幣，成為推動匯率急升的重要力量 。金融時報甚至推測，某次台幣急升可能反映了壽險業者為降低風險而急於避險的行為 。
+
+出口商行為（恐慌性拋匯）： 持有大量美元應收帳款的出口商，在面對新台幣快速升值時，會蒙受匯兌損失。當升值速度過快，突破某些關鍵心理價位或技術水平時（例如32元、31.5元），部分出口商可能因擔心匯率進一步升值而引發「恐慌性拋售」美元、買入新台幣的行為，以鎖定匯率或滿足避險需求 。這種行為，尤其是在月初結匯高峰期，會形成集中的美元賣盤（新台幣買盤），加劇升值壓力，形成一種自我實現的預期和踩踏效應 。
+
+利差交易（Carry Trade）： 利差交易是指借入低利率貨幣，投資於高利率貨幣資產以賺取利差。雖然台灣的官方政策利率相對較低，但由於壽險業龐大的避險需求（賣美元/買台幣遠期），導致新台幣在遠期/交換市場的隱含收益率（Implied Yield）可能非常低甚至是深度負值，這使得新台幣成為一個有吸引力的「融資貨幣」（Funding Currency） 。投資者可能借入（隱含的）低成本新台幣，去投資於其他相對高收益的貨幣或資產。當全球風險偏好轉變、其他貨幣利差收窄或新台幣自身波動性急劇上升時，這些利差交易可能被平倉。平倉操作需要買回新台幣（償還融資），從而對新台幣產生突然的升值壓力 。
+
+投機活動（NDF市場）： 無本金交割遠期外匯（Non-Deliverable Forward, NDF）市場是一個重要的離岸新台幣交易和投機場所，其交易量龐大，有時甚至超過在岸市場 。NDF的報價主要反映市場參與者對未來匯率的預期，受投機活動影響較大，其價格（隱含的遠期匯率）可能與基於利率平價計算的在岸遠期匯率（Deliverable Forward, DF）產生偏離 。當NDF市場出現對新台幣大幅升值的強烈預期時（表現為NDF報價遠低於即期匯率，或NDF隱含的升值幅度大於DF），會吸引投機性買盤，並可能影響在岸市場的參與者情緒和資金流動，加劇升值壓力 。NDF報價脫離基本面被視為投機活動加劇的信號 。
+
+區域貨幣聯動： 新台幣匯率走勢常與其他主要亞洲貨幣（如韓元KRW、人民幣CNY）存在一定的聯動性，這反映了區域內經濟體相似的貿易結構、對全球因素（如美元走勢、全球風險情緒、供應鏈轉移）的共同曝險，以及區域內資金流動的相互影響 。當區域內主要貨幣普遍對美元升值時，新台幣往往也會跟隨走強，有時甚至因其相對強勢的基本面或股市吸引力而領漲 。
+
+B. 波動性加劇的機制
+
+新台幣短期內波動性急劇加劇，是上述多種因素相互作用和強化的結果：
+
+資金流的集中與共振： 當多種驅動升值的力量（如外資流入、出口商拋匯、壽險業避險）在短時間內集中爆發時，會形成巨大的單向市場壓力（買入新台幣），迅速推高匯率。這種資金流的共振效應是導致價格劇烈波動的核心機制 。市場在短時間內難以吸收如此大的單向流量，導致價格出現跳躍式變動。
+
+央行的角色與市場預期： 央行在外匯市場扮演著關鍵的穩定器角色。其既定政策是在市場出現「過度波動」或「失序」時進行干預，以維持「動態穩定」 。然而，市場對央行干預的「意願」和「能力」的預期，極大地影響著市場行為和波動性。如果市場參與者預期央行會強力阻升（例如，在特定價位附近干預），則升值壓力可能受到抑制。反之，若市場認為央行由於某些原因（如擔憂被美國列為匯率操縱國、順應國際壓力、或認為升值有其合理性）而選擇「放手」或僅進行象徵性調節，則可能移除市場心理上的「天花板」，引發更猛烈的投機性買盤和恐慌性拋匯，從而加劇波動性 。央行自身的干預行為，特別是如果規模巨大或出乎市場意料，雖然旨在平抑波動，但在短期內也可能增加市場的不確定性和價格波動 。央行使用的工具包括直接的即期市場買賣以及要求銀行通報大額交易以掌握市場動態 。
+
+衍生性商品避險的放大效應（Gamma效應）： 當市場存在大量的外匯選擇權部位時（例如銀行為對沖結構性產品或滿足客戶避險需求而持有的部位），匯率的劇烈波動可能觸發選擇權交易中的「Gamma效應」。選擇權賣方通常處於「負Gamma」狀態，意味著當標的資產價格朝不利方向變動時（例如新台幣升值對賣出看漲期權者不利），其風險敞口（Delta）會加速惡化。為了維持風險中性（Delta Neutral）的對沖策略，這些賣方被迫在市場上進行反向操作：即在新台幣升值時買入更多新台幣，在新台幣貶值時賣出新台幣。這種「追漲殺跌」式的動態對沖行為，在高波動環境下會顯著放大市場原有的波動 。波動性的升高本身也會增加選擇權的價值（Vega效應），進一步影響對沖成本和市場動態 。
+
+資訊不對稱與情緒傳染： 在快速變動的市場中，資訊不對稱普遍存在。市場傳言（例如關於美國施壓或央行意圖的揣測 ）、突發新聞事件、或全球風險情緒的快速轉變（風險偏好/風險趨避模式的切換 ）都可能引發市場參與者的情緒波動和集體行為，導致匯率在短期內出現非理性的劇烈震盪 。
+
+綜合來看，新台幣短期急劇升值伴隨高波動性的核心驅動力在於金融市場的資金流動與參與者行為。基本面因素提供背景，但短期內的爆發力來自於資本流（熱錢）、結構性參與者（壽險、出口商）的反應、投機活動以及央行政策預期的變化。這些因素的相互作用，特別是在市場情緒脆弱或存在外部壓力時，容易形成正回饋循環，導致波動性急劇放大。央行透過其龐大的外匯存底和包括外匯交換（FX Swap）在內的工具進行干預，旨在維持市場秩序 ，但其干預的透明度和效果，以及市場對其干預的解讀，本身也成為影響市場動態的複雜因素。特別是央行透過外匯交換市場進行的大規模、但未完全公開的操作，被部分研究視為一種「隱藏性干預」，旨在吸收壽險業的避險壓力並抑制新台幣升值，這雖然可能在平時降低了波動性，但也可能累積了風險，一旦市場條件或央行行為發生變化，可能導致被壓抑的壓力突然釋放 。
+
+III. 對未避險機構的衝擊評估
+
+A. 最易受衝擊的機構與企業
+
+在 新台幣短期內大幅升值且伴隨高波動性的情境下，若未進行充分的匯率避險，以下台灣機構與企業將面臨最大的風險：
+
+1. 壽險公司：
+
+核心風險來源：資產負債幣別嚴重錯配。 台灣壽險業持有龐大的海外資產，截至特定時點已達1.7兆美元以上，其中絕大部分是美元計價的債券等固定收益資產 。然而，其負債端主要是以新台幣計價的保單負債。當新台幣對美元大幅升值時，這些美元資產換算回新台幣的價值就會大幅縮水，直接衝擊壽險公司的淨值 。這種結構性的貨幣錯配是壽險業最根本的匯率風險來源。
+
+未避險或避險不足的後果： 儘管壽險公司會進行匯率避險，但完全避險成本高昂 ，且可能受限於避險工具的容量或監管規定。未避險或避險比例不足的部分，將直接承受新台幣升值帶來的匯兌損失。這些損失會侵蝕公司的獲利能力，甚至可能影響其資本適足率（RBC Ratio）和清償能力 。穆迪曾評估，新台幣每升值1%，可能侵蝕台灣頂級壽險公司20%至50%的獲利 。有專家甚至警告，若升值趨勢持續，壽險公司可能因鉅額匯損而無法發放股利 。部分分析更指出，台灣壽險業的償付能力在某種程度上是建立在「央行能有效避免新台幣大幅升值」的假設之上，且監管機構也默許了這種依賴 。
+
+2. 大型出口導向型企業（特別是國內生產比重高、美元計價者）：
+
+核心風險來源：營收換匯損失與國際競爭力下降。 台灣許多產業高度依賴出口，其營收主要來自海外，常以美元計價。當新台幣大幅升值時，同樣一筆美元收入換算成新台幣的金額會減少，直接壓縮企業的營收和毛利率 。同時，相對於那些本國貨幣貶值或升值幅度較小的競爭對手國（如韓國、日本 ），台灣產品的美元價格相對變貴，削弱了在國際市場上的價格競爭力，可能導致訂單減少 。
+
+特定產業的高風險：
+
+機械與工具機產業： 此類產業通常在台灣本地生產的比重非常高（如機械業超過80%在台生產 ），且多以美元報價。相較於在海外擁有多處生產基地、可進行自然避險的資通訊（ICT）組裝產業 ，機械業對匯率變動的緩衝能力較弱，避險工具也相對有限。因此，新台幣急劇升值對其衝擊尤為嚴重，業者甚至警告若匯率升破特定關卡（如30元，甚至27-28元），可能導致行業內大量廠商虧損甚至倒閉 。
+
+其他受影響產業： 包括紡織、化工、部分電子零組件（如被動元件、記憶體、載板）、電腦及系統組裝代工、光學元件等以出口為主的產業，若未充分避險，都將面臨顯著的匯損壓力 。即使是像台積電這樣的龍頭企業，雖然有較強的議價能力和避險機制，也坦承新台幣升值會對營收和獲利產生不利影響（例如，升值1%影響營益率約0.4-0.5個百分點）。
+
+B. 典型反應與應對措施
+
+面對新台幣急升和高波動性，未充分避險的機構和企業通常會採取以下反應：
+
+增加避險操作： 這是最直接的反應。壽險公司和出口商會增加購買遠期外匯（預售美元/買入新台幣）、外匯選擇權（買入新台幣看漲/美元看跌期權）或利用FX Swap等工具來鎖定匯率或對沖風險敞口 。然而，在高波動時期，避險成本（如遠期點數、選擇權權利金）會顯著上升 。
+
+拋售外幣資產/加速結匯： 出口商可能會加速將手中的美元應收帳款結售為新台幣，以避免進一步的匯兌損失，這可能演變成前述的「恐慌性拋匯」 。壽險公司在極端情況下，如果匯損嚴重侵蝕資本或避險成本過高，可能被迫出售部分海外資產以降低曝險或籌集新台幣資金 。
+
+調整營運策略（出口商）：
+
+價格調整： 嘗試提高美元報價以反映匯率變動，但這可能進一步損害競爭力，尤其是在價格敏感的市場 。
+
+成本控制： 加強內部成本管控，以吸收部分匯率損失。
+
+延遲或取消投資： 在匯率前景不明朗時，可能推遲資本支出或擴張計劃。
+
+尋求非價格競爭優勢： 強調品質、交期、服務等，以彌補價格劣勢。
+
+長期： 考慮將生產基地外移至成本或匯率更穩定的地區（儘管這是長期策略）。
+
+動用外匯價格變動準備金（壽險公司）： 壽險公司會利用監管機構設立的「外匯價格變動準備金」（FEVR）機制來平穩匯兌損益對財報的衝擊。當新台幣升值產生匯兌損失時，可以沖抵部分準備金，反之則需提列 。但這僅是會計上的平滑機制，並不能消除經濟實質上的風險，且準備金有其限額。
+
+向政府/央行施壓： 產業公會（如機械公會）會積極向政府和央行表達困境，呼籲採取措施穩定匯率，甚至要求央行干預市場以維持特定匯率水平 。也可能呼籲政府提供結構性支持，如設立升值對應基金 。
+
+C. 對外匯市場的進一步影響（反饋效應）
+
+上述機構和企業的反應行為，會對外匯市場本身產生重要的反饋效應：
+
+加劇升值壓力與波動性： 當大量出口商集中拋售美元、壽險公司急於增加避險（買入新台幣）時，這些行為本身就構成了巨大的新台幣買盤，會進一步推升新台幣匯率，並可能引發更劇烈的市場波動，形成惡性循環或正回饋 。市場流動性可能在短時間內被單向需求耗盡，導致價格出現不連續跳升。
+
+增加避險成本： 集中的避險需求會推高相關衍生性商品的價格（例如，遠期匯率的升水擴大，或看漲新台幣期權的隱含波動率上升），使得後續的避險操作成本更高，進一步加重相關企業的負擔。
+
+可能引發央行干預： 如果市場波動過於劇烈，威脅到金融穩定或嚴重衝擊實體經濟，央行介入干預的可能性就會增加 。央行的干預行為（無論是實際操作還是口頭警告）又會成為市場新的影響因素。
+
+潛在的反轉壓力： 若升值趨勢過於猛烈且不可持續，導致經濟基本面惡化或觸發大規模資產拋售，最終可能引發市場情緒逆轉。屆時，先前建立的避險部位（如遠期空頭美元）的解除，反而可能對新台幣產生貶值壓力。
+
+總結來說，未避險或避險不足的壽險公司和特定出口商是新台幣急劇升值和高波動情境下的主要受害者。其核心脆弱性來自於資產負債的貨幣錯配或營收的匯率曝險。它們的應對措施，特別是集中的避險或結匯行為，往往具有順週期性，可能放大最初的市場衝擊，對外匯市場穩定構成挑戰。壽險業龐大的海外資產規模使其匯率風險具有潛在的系統性影響，而出口商的脆弱性則因產業結構而異，對整體經濟產生不均衡的衝擊。
+
+IV. 受影響的金融產品與損失機制
+
+新台幣短期急劇升值伴隨高波動性的情境，會對多種金融產品造成衝擊，導致持有者蒙受巨大損失。以下分析幾類特別脆弱的產品及其損失機制：
+
+A. 海外資產投資組合（尤其是未避險債券）
+
+產品類型： 指台灣投資者（包括個人、共同基金、法人機構，尤其是壽險公司）持有的大量以外幣（主要是美元）計價的海外債券，如美國國債、外國公司債、新興市場債券等 。這也包括透過在台灣發行、以新台幣計價但實質投資於海外債券的ETF或基金 。
+
+損失機制（未避險情況）：直接匯兌損失（Translation Loss）。 這是最直接的影響。當新台幣相對外幣（如美元）升值時，投資者持有的外幣債券資產（本金和未來收到的利息）在換算回新台幣時，其價值會下降 。例如，若持有100萬美元的美國國債，當匯率從32 TWD/USD變為31 TWD/USD時，單純因匯率變動，該資產的新台幣價值就從3200萬新台幣縮水至3100萬新台幣，產生100萬新台幣的帳面匯兌損失。這種損失會直接影響以新台幣計算的投資組合報酬率和資產淨值（NAV） 。即使債券本身的美元價格可能因利率下降而上漲，但如果新台幣升值幅度更大，最終以新台幣計價的總報酬仍可能為負 。對於壽險公司而言，這種匯兌損失會直接衝擊其損益表和淨值 。對於持有海外債券ETF的散戶投資者而言，即使ETF以新台幣交易，其淨值仍會反映底層資產的匯兌損失，可能導致ETF價格下跌，引發投資者疑慮甚至恐慌 。
+
+B. 衍生性金融商品
+
+1. 目標可贖回遠期契約（Target Redemption Forward, TRF）：
+
+產品特性： TRF是一種複雜的、通常在櫃檯交易（OTC）的衍生性金融商品，結構上涉及客戶向銀行買入一個選擇權並賣出另一個選擇權，實質上是對未來匯率走勢進行押注 。合約通常有較長期限（如1-2年），定期（如每月）進行比價結算 。過去在台灣，與人民幣相關的TRF曾非常流行 。
+
+損失機制（客戶押注新台幣貶值或穩定時）： 假設客戶簽訂的TRF合約是押注新台幣將對美元貶值或維持在某個區間（例如，客戶賣出一個新台幣看漲期權，買入一個新台幣看跌期權，形成了對新台幣貶值的預期）。當新台幣出現意外的急劇升值時，客戶的押注方向錯誤，將觸發TRF合約的虧損條款。其損失機制具有以下放大風險的特點：
+
+槓桿效應： TRF合約通常內含槓桿倍數（例如2倍），這意味著客戶在虧損方向上的損失會被放大 。
+
+不對稱的損益結構： TRF的設計通常是「獲利有限，虧損（潛在）無限」。當匯率朝客戶有利方向變動時，累積獲利達到預設目標（Target Redemption）後，合約會提前終止，鎖定客戶的利潤 。但當匯率朝不利方向變動時，客戶的虧損沒有上限（或直至合約到期），且客戶通常無法提前終止合約以停損，必須承擔剩餘合約期間的潛在損失 。
+
+保證金追繳與斷頭風險： 當匯率突破合約設定的「保護價」（EKI）時，客戶需要補繳保證金或提供額外擔保品。若無法及時補繳，可能面臨被銀行強制平倉（斷頭）的風險，實現巨額虧損 。
+
+情境關聯： 若企業或投資者基於先前新台幣貶值或穩定的預期而持有了看空新台幣的TRF部位，那麼新台幣的突然急劇升值將使其面臨嚴峻的虧損局面，重演過去人民幣TRF風暴中中小企業的困境 。
+
+2. 外匯選擇權（選擇權賣方）：
+
+產品部位： 指賣出新台幣看漲期權（Short TWD Call）或賣出美元看跌期權（Short USD Put）的部位。持有這些部位的投資者或機構（如銀行作為做市商或結構性產品發行者）會在新台幣升值時遭受損失。
+
+損失機制（Gamma 風險）： 選擇權賣方的風險不僅來自於方向性（Delta），更來自於波動性變化（Vega）和Delta變化的速度（Gamma）。
+
+Delta損失： 新台幣升值（USD/TWD下跌）時，賣出的新台幣看漲期權價值上升，賣出的美元看跌期權價值也上升，導致賣方產生直接的帳面損失。
+
+Gamma放大損失： 選擇權賣方通常是「負Gamma」（Short Gamma）。Gamma衡量Delta隨標的資產價格變動的變化率。在新台幣急劇升值且高波動性的環境下：
+
+Gamma值會顯著增大，尤其是對於接近履約價（At-the-Money）或臨近到期（Near-Expiration）的選擇權 。
+
+高Gamma意味著Delta對匯率變化的敏感度急劇增加。對於賣出新台幣看漲期權者，新台幣每升值一點，其部位的負Delta值（代表風險）會加速擴大；對於賣出美元看跌期權者，其部位的正Delta值會加速擴大。
+
+為了維持Delta中性對沖，負Gamma的持有者必須「追漲殺跌」：在新台幣升值時被迫買入更多新台幣（或賣出美元）來對沖加速變化的Delta，而在新台幣貶值時則被迫賣出 。這種動態對沖在高波動市場中成本極高，且容易造成交易滑點，從而放大實際損失，甚至可能導致損失失控 。Gamma風險在高波動市場中對選擇權賣方構成重大威脅。
+
+3. 外匯交換（FX Swap）市場壓力：
+
+產品應用： FX Swap是金融機構間進行外匯融資和避險的重要工具，台灣壽險業大量使用短天期FX Swap來對沖其長期美元資產的匯率風險 。央行也透過FX Swap市場進行流動性調節和隱性干預 。
+
+風險機制（非直接價格損失，而是市場功能失調風險）：
+
+展期風險（Rollover Risk）： 壽險公司依賴不斷展期（Rolling Over）短天期的FX Swap合約來維持其長期資產的避險。在新台幣急升和高波動的市場壓力下，美元流動性可能趨緊，導致FX Swap市場的定價（換匯點或基差互換利差）變得對新台幣買方（美元賣方，即壽險公司）極為不利，甚至可能出現市場流動性枯竭，使得合約無法順利展期 。這將迫使壽險公司轉向成本更高的遠期市場，或放棄避險，或被迫出售長期資產以獲取美元現匯，從而引發連鎖反應。
+
+對手方信用風險： 市場劇烈波動時，交易對手方的信用風險會上升，影響Swap合約的執行。
+
+央行干預的不確定性： 由於市場（尤其是壽險業）高度依賴央行在Swap市場提供美元流動性 ，若央行因故減少或停止干預，或提高干預的成本，將對市場造成巨大衝擊。
+
+總結而言，新台幣急劇升值伴隨高波動性，對金融市場的衝擊是多方面的。未避險的海外資產直接面臨匯兌損失，這對持有大量海外債券的壽險公司和個人投資者影響巨大。結構複雜且具有槓桿和不對稱性的衍生品如TRF，可能讓押錯方向的投資者陷入難以脫身的巨額虧損。對於選擇權市場的賣方（通常是金融機構），高波動性帶來的Gamma風險使得動態對沖變得異常困難和昂貴，可能導致非線性的巨大損失。即使是作為基礎避險工具的FX Swap市場，也可能在極端壓力下出現流動性問題和展期風險。特別值得注意的是，看似以本幣計價的海外資產ETF，其淨值仍會反映底層資產的匯兌風險，這可能讓部分投資者對風險產生誤判 。
+
+V. 歷史案例佐證
+
+回顧歷史，新台幣或其他主要亞洲貨幣經歷大幅升值伴隨高波動的情境，可以為理解當前風險提供寶貴的參照。
+
+A. 台灣1980年代末期新台幣大幅升值（約1985-1992年）
+
+背景： 1985年《廣場協議》（Plaza Accord）簽訂後，美國為解決其龐大的貿易逆差，向包括台灣在內的主要貿易夥伴施加壓力，要求其貨幣對美元升值 。當時台灣對美貿易順差巨大，外匯存底快速累積 。在外部壓力下，台灣央行逐步放寬了外匯管制，並允許新台幣升值 。
+
+匯率變動： 新台幣兌美元匯率經歷了長達數年的急劇升值過程，從1985年約40元兌1美元，一路升值至1992年初突破25元兌1美元的歷史高位 。升值速度在特定階段非常迅猛，例如在1987至1989年間接連突破多個整數關卡 。
+
+驅動因素： 主要驅動力來自美國的外部壓力以及伴隨升值預期而來的大量國際熱錢湧入 。放寬資本管制為熱錢流入提供了管道。
+
+主要影響：
+
+出口產業衝擊： 傳統的勞力密集型出口產業（如紡織、製鞋）因新台幣升值導致成本上升、國際競爭力急劇下降，面臨巨大的經營壓力，引發了一波產業外移（主要是遷往中國大陸和東南亞）和關廠潮，造成了所謂的「產業空洞化」現象 。
+
+資產泡沫： 大量湧入的熱錢無處可去，加上當時相對寬鬆的貨幣環境，資金瘋狂湧入股市和房地產市場，催生了巨大的資產價格泡沫。台灣股市加權指數從1985年的不足千點飆升至1990年的12000點以上，房地產價格在幾年內翻了數倍 。
+
+泡沫破滅與調整： 隨著後續政策收緊和市場力量的轉變，股市和房市泡沫在1990年後相繼破滅，對金融體系和整體經濟造成了長期的調整壓力 。
+
+應對方式： 政府方面採取了逐步開放市場（降低關稅、放寬進口、解除外匯管制、解除戒嚴）、推動產業升級（轉向技術密集型產業如電子、資訊）等措施 。企業則加速外移、尋求轉型。央行在初期承受壓力放任升值，後期則透過市場操作管理匯率，並最終收緊貨幣政策。
+
+啟示： 此案例深刻揭示了由外部壓力引發的、伴隨大量資本流入的貨幣急劇升值，可能對實體經濟結構造成劇烈衝擊（迫使產業轉型或外移），並極易催生危險的資產泡沫。這突顯了管理資本流動和維持匯率有序調整的重要性。
+
+B. 1997年亞洲金融風暴中的韓元（KRW）
+
+背景： 1990年代中期，韓國經濟看似繁榮，但潛藏結構性問題：大型企業集團（財閥，Chaebol）過度擴張、高負債經營（尤其依賴短期外幣借款）、金融體系監管不力、裙帶資本主義等 。當時韓元匯率相對穩定，釘住美元。
+
+危機爆發與匯率變動： 1997年7月泰銖率先崩盤，金融危機迅速蔓延至亞洲各國 。國際投資者信心崩潰，資本大規模撤離韓國。儘管韓國央行試圖干預，但外匯存底迅速耗盡 。韓國政府被迫放棄固定匯率，韓元隨即暴跌（此為貶值危機，但波動性極高）。韓元兌美元匯率從危機前約850:1，在短短幾個月內（1997年底至1998年初）一度貶至接近2000:1 。
+
+驅動因素： 外部傳染效應、國內結構性弱點暴露、國際投機資本攻擊以及大規模資本外逃 。
+
+主要影響：
+
+金融體系崩潰： 大量金融機構因不良貸款激增而倒閉或被接管 。
+
+企業大規模破產： 許多負債纍纍的大型財閥無法償還外幣債務而破產 。
+
+嚴重經濟衰退： 韓國GDP在1998年出現負增長（-6.7%），失業率飆升 。
+
+IMF介入： 韓國被迫接受國際貨幣基金組織（IMF）高達580億美元的紓困計畫，但伴隨著嚴苛的緊縮財政、提高利率和結構性改革（如市場開放、企業重組）等條件，被視為國家主權的喪失和國恥 。
+
+應對方式： 接受並執行IMF的改革方案，進行痛苦的金融和企業部門重組，推動資本帳戶進一步自由化，轉向浮動匯率制度，並致力於累積外匯存底以增強抵禦外部衝擊的能力 。韓國民眾自發性的「捐金運動」也成為共度國難的象徵 。
+
+啟示： 雖然1997年韓元危機是急劇貶值，但它突顯了幾個關鍵點：(1) 資本流動的突然逆轉可能引發毀滅性的貨幣危機；(2) 嚴重的貨幣錯配（外幣負債、本幣資產/收入）在匯率劇烈波動時是致命的；(3) 金融體系的脆弱性和監管不足會放大危機的衝擊；(4) 外部傳染風險不容忽視。這些教訓對於理解任何涉及大規模資本流動和匯率劇烈波動的情境都具有參考價值，包括新台幣急劇升值可能引發的資本流動逆轉風險或對沖市場壓力。
+
+這兩個歷史案例，一個是新台幣自身的急劇升值經驗，另一個是鄰近主要經濟體經歷的資本流動驅動的貨幣危機，共同揭示了在特定條件下，匯率的快速、大幅變動可能帶來的深遠經濟後果和潛在的系統性風險。它們強調了管理外部壓力、監控資本流動、維持金融體系穩健以及制定審慎宏觀經濟政策的重要性。
+
+VI. 市場觀察指標與方法
+
+為了有效觀察、預警並管理新台幣短期大幅升值伴隨高波動性的風險，金融市場專業人士應重點監控以下市場數據和金融指標，並理解其所傳達的信號：
+
+A. 關鍵監控指標
+
+1. 隱含波動率（Implied Volatility, IV）：
+
+定義與來源： 從新台幣相關的外匯選擇權市場價格中反推出來的、市場對未來匯率波動幅度的預期值，通常以年化百分比表示 。可關注不同天期（如1個月、3個月）的隱含波動率。
+
+信號解讀：
+
+IV上升： 表明市場預期未來匯率波動將加劇，不確定性升高，風險趨避情緒可能升溫 。急劇飆升的IV通常伴隨著市場壓力或恐慌情緒，可能是潛在劇烈變動的前兆或同步指標。
+
+IV下降： 表明市場預期趨於穩定，波動風險降低 。
+
+與歷史水平比較： 將當前IV與其歷史平均值或區間進行比較，判斷目前市場的恐懼/自滿程度 。顯著高於歷史水平的IV意味著市場高度緊張。
+
+IV本身不指示方向： 高IV意味著預期波動大，但可能是向上或向下的大幅波動 。
+
+2. 風險逆轉（Risk Reversal, RR）：
+
+定義與來源： 衡量具有相同到期日、相同Delta值（通常為25 Delta）但不同方向（看漲 vs 看跌）的價外（OTM）選擇權的隱含波動率差異。具體計算為：25 Delta 看漲期權IV - 25 Delta 看跌期權IV 。
+
+信號解讀：
+
+正值RR（Call IV > Put IV）： 表明市場對新台幣看漲（升值）的預期或避險需求相對更強，願意為上行保護（買Call）支付更高的波動率溢價。顯示市場情緒偏向樂觀或預期升值 。
+
+負值RR（Put IV > Call IV）： 表明市場對新台幣看跌（貶值）的預期或避險需求更強，願意為下行保護（買Put）支付更高的溢價。顯示市場情緒偏向悲觀或預期貶值 。近期報導曾指出，新台幣RR指標由負轉正，暗示看漲情緒減弱 。
+
+RR的變動趨勢： RR指標的快速變動（例如從深度負值快速回升至零附近或轉正）可能預示著市場情緒和資金流向的轉折點。
+
+3. 資本流向數據（Capital Flows）：
+
+定義與來源： 追蹤外國機構投資者（Foreign Institutional Investors, FII/FINI）在台灣股市（TAIEX）和債市的淨買賣超金額及資金匯出入情況。數據可來自證交所、櫃買中心、金管會或專業數據提供商 。央行的大額結匯即時通報系統也是內部監控工具 。
+
+信號解讀：
+
+持續大量淨匯入/買超： 表明外資看好台灣市場，對新台幣產生直接的升值壓力 。外資持有台股市值比重高（約38-40%），其動向對匯率影響顯著 。
+
+突然轉為淨匯出/賣超： 可能預示市場情緒逆轉或風險事件觸發，對新台幣構成貶值壓力 。
+
+流量與匯率走勢的關係： 觀察資金流動是否與匯率走勢一致。若匯率升值但外資流入減緩甚至流出，可能意味著升值動能減弱或由其他因素（如出口商拋匯）主導 。
+
+4. 無本金交割遠期外匯（NDF）報價與價差：
+
+定義與來源： NDF是離岸市場交易的新台幣遠期匯率合約，報價反映離岸市場參與者（常包括投機者）對未來匯率的預期 。需關注不同天期（如1個月、3個月）的NDF報價（通常以遠期點數表示）以及其相對於在岸可交割遠期外匯（DF）的價差。
+
+信號解讀：
+
+NDF隱含的升值預期： NDF報價若顯著低於即期匯率（即遠期點數為較大的負值），表明離岸市場強烈預期新台幣將升值 。
+
+NDF vs. DF 價差： NDF報價主要反映市場預期和投機力量，而DF報價更多地反映兩國間的利率差異 。若NDF隱含的升值幅度遠大於DF（即NDF點數比DF點數負得更多），表明存在強烈的離岸投機性升值預期，可能預示短期內有較大的升值壓力或市場情緒過熱 。這種偏離基本面（利率平價）的報價被視為投機活動的信號 。
+
+NDF成交量： 高成交量表明離岸市場對新台幣的關注度和交易活躍度增加 。
+
+5. 央行干預信號與外匯存底變動：
+
+定義與來源： 密切關注央行的官方聲明、新聞稿、總裁/副總裁公開講話中有關匯率政策的表述 。同時觀察每日新台幣匯率的尾盤走勢（是否出現異常拉升或壓低）以及每月公布的外匯存底數據變動。
+
+信號解讀：
+
+尾盤作價/干預跡象： 央行若在尾盤進行干預以影響收盤價，通常會留下痕跡。頻繁或大規模的干預表明央行正在積極管理匯率。
+
+外匯存底變動： 在新台幣面臨升值壓力時，若外匯存底顯著增加，可能意味著央行進場買入美元以阻升；反之，若在新台幣貶值時外匯存底減少，則可能意味著央行拋匯阻貶 。但需注意，外匯存底變動也受投資收益和匯率評價變動影響 。
+
+官方溝通： 央行強調「維持動態穩定」、「調節不規則因素」等措辭，暗示其干預是有條件的 。若措辭轉變或對市場波動的容忍度提高，可能預示政策立場的變化。
+
+6. 其他相關指標：
+
+利率差： 台灣與美國（或其他主要國家）的利率差距影響資本流動的誘因 。利差擴大有利於美元，收窄則有利於新台幣。
+
+貿易數據： 月度貿易順差數據反映基本面的長期壓力 。超預期的數據可能短期影響市場情緒。
+
+主要亞洲貨幣走勢： 觀察韓元、人民幣等區域貨幣的動向，評估是否存在區域性的資金流動或共同影響因素 。
+
+美元指數（DXY）： 全球美元的強弱是影響新台幣匯率的重要外部因素 。
+
+B. 信號解讀原則
+
+綜合判斷，尋求確認： 不應依賴單一指標。有效的市場監控需要綜合分析多個指標，尋找信號的一致性。例如，若觀察到外資大量流入、NDF升值預期強烈、隱含波動率上升且風險逆轉指標顯示看漲情緒，則新台幣短期內面臨較大升值和波動風險的可能性較高。
+
+關注指標間的背離： 指標間的背離往往是重要的警示信號。例如，NDF市場顯示強烈升值預期，但實際外資流入卻趨緩或轉為流出，這可能意味著升值壓力主要來自離岸投機，其持續性存疑。或者，新台幣持續升值，但風險逆轉指標顯示看漲情緒正在減弱（負值縮小或轉正），可能預示升值動能即將衰竭。
+
+理解波動率的雙重性： 隱含波動率的上升反映市場不安，預示未來可能有較大價格變動，但本身不指示方向 。高波動環境對選擇權交易者和需要對沖風險的企業都意味著更高的成本和挑戰。波動率通常具有均值回歸的特性，但極端壓力下可能持續偏高 。
+
+區分投機與基本面驅動： NDF與DF的價差是判斷離岸投機壓力的重要參考 。由短期熱錢或投機驅動的匯率變動，其持續性通常不如由基本面（如持續貿易順差、長期資本流入）支撐的趨勢。
+
+動態追蹤央行態度： 央行的政策意圖和干預行為是影響新台幣匯率的關鍵變數。需密切關注其公開溝通和市場操作跡象，判斷其對匯率波動的容忍度和干預的決心。
+
+結合宏觀背景： 必須將所有指標置於當前的全球宏觀經濟環境（如全球經濟增長前景、主要央行貨幣政策週期、美元整體趨勢、地緣政治風險等）下進行解讀 。
+
+市場監控儀表板（範例）
+
+為了系統化地監控相關風險，建議建立如下的市場監控儀表板：
+
+指標名稱
+
+數據來源/頻率
+
+對TWD升值/波動風險的關聯性
+
+如何解讀信號 (風險升高信號)
+
+隱含波動率 (IV)
+
+選擇權市場/實時/日
+
+反映市場對未來波動的預期，衡量不確定性與恐懼程度
+
+IV顯著上升，或遠高於歷史平均水平
+
+風險逆轉 (RR)
+
+選擇權市場/實時/日
+
+衡量市場情緒偏向（升值vs貶值預期）
+
+RR為正值（看漲情緒）且持續擴大，或從深度負值快速回升
+
+外資淨匯入/買超 (FPI)
+
+證交所/金管會/日/月
+
+直接反映外資對TWD的需求壓力
+
+持續大量淨匯入，或單日/周出現異常巨額流入
+
+NDF/DF 價差 (1M)
+
+路透/彭博/實時/日
+
+反映離岸投機性升值預期強度
+
+NDF隱含升值幅度顯著大於DF（價差為較大的負值），且價差持續擴大
+
+央行外匯存底變動/聲明
+
+央行/月/不定期
+
+反映央行干預活動與政策意圖
+
+在升值壓力下外匯存底異常增加（阻升干預），或官方聲明對升值容忍度提高/干預意願降低
+
+美台利差 (例如10年期)
+
+財經數據平台/日
+
+影響資本流動誘因
+
+利差顯著收窄（有利TWD）
+
+貿易順差
+
+財政部/月
+
+反映基本面長期壓力
+
+持續維持高額順差，或單月數據遠超預期（短期可能提振情緒）
+
+透過持續監控這個儀表板中的各項指標及其相互關係，金融專業人士可以更早地識別出新台幣面臨異常升值和波動風險的跡象，從而做出更為及時和有效的應對。沒有任何單一指標是完美的，關鍵在於綜合運用、動態評估，並結合對宏觀經濟和政策環境的理解。
+
+VII. 結論與戰略考量
+
+A. 結論綜述
+
+本報告的分析表明，新台幣短期內出現大幅升值且伴隨高波動性的情境，其核心驅動力並非來自經濟基本面的突然轉變，而是源於金融市場內部複雜的動態交互作用。關鍵驅動因素包括：
+
+大規模、快速的資本流動： 尤其是針對台灣股市的外資流入（熱錢）。
+
+結構性參與者的行為： 壽險公司因其龐大海外資產而產生的匯率避險需求波動，以及出口商在匯率急升時可能出現的恐慌性結匯。
+
+投機活動與預期： 離岸NDF市場的投機性預期可能與在岸市場產生互動或引導作用。
+
+央行政策與市場解讀： 央行的干預策略、干預能力以及市場對其意圖的解讀，對市場波動性有顯著影響。特別是其大規模但透明度有限的外匯交換操作，在平抑日常波動的同時，也可能累積潛在風險。
+
+這些因素的疊加和共振，尤其是在市場情緒脆弱或存在外部壓力（如貿易爭端、地緣政治）的背景下，容易形成正回饋機制，導致匯率在短期內出現劇烈且不穩定的波動。
+
+B. 主要風險點
+
+此情境對台灣經濟和金融體系構成顯著風險：
+
+壽險業的系統性風險： 鑑於壽險業龐大的資產規模及其資產負債幣別錯配的結構性問題，未充分避險的匯率風險可能不僅是個別公司的問題，更可能在高波動升值情境下對整體金融穩定構成威脅。
+
+出口產業的差異化衝擊： 對於國內生產比重高、美元計價、利潤空間有限的出口產業（如機械、工具機）而言，新台幣急升可能導致嚴重的經營困難甚至倒閉潮，對特定行業的就業和供應鏈產生衝擊。
+
+金融產品的潛在巨虧： 未避險的海外債券投資組合面臨直接匯兌損失；結構複雜的衍生品（如TRF）可能因其槓桿和不對稱性給投資者帶來災難性後果；選擇權賣方則面臨難以管理的Gamma風險。
+
+資產泡沫風險： 如歷史經驗所示，由資本流入驅動的急劇升值若處理不當，可能引發資產價格（股市、房市）的非理性上漲，埋下未來泡沫破滅的隱患。
+
+C. 監控與管理的必要性
+
+鑑於上述風險，對相關市場動態進行持續、有效的監控至關重要。本報告提出的監控工具包，涵蓋了資本流向、衍生品市場指標（隱含波動率、風險逆轉、NDF）、央行動向以及基本面數據，旨在提供一個全面的視角。金融機構和企業應建立內部機制，利用這些指標來評估自身風險敞口，並預判市場可能的劇烈變動。
+
+D. 戰略性考量
+
+面對此類潛在風險，相關方應考慮以下戰略性問題：
+
+企業避險策略： 企業（尤其是出口商和壽險公司）需要制定更為主動和動態的匯率風險管理策略。這可能包括提高避險比例、運用更多樣化的避險工具（如選擇權組合）、建立更完善的內部風險評估和監控機制，以及在合同談判中考慮匯率條款 。消極應對或完全依賴央行穩定匯率的做法風險極高。
+
+投資組合管理： 機構和個人投資者在配置海外資產時，必須充分認識並評估匯率風險對總體報酬的影響，即使是投資於以新台幣計價的海外資產ETF 。應根據自身的風險承受能力，考慮是否需要對外幣曝險進行部分或全部對沖。
+
+政策制定者的挑戰： 央行在維持匯率穩定、抑制通膨和支持經濟增長之間面臨複雜的權衡。如何在管理短期波動的同時，避免過度干預扭曲市場信號、累積長期風險（如道德風險、資產泡沫），以及如何應對潛在的外部壓力，是持續的挑戰。提高匯率政策的透明度，加強與市場的溝通，以及考慮更為系統性的宏觀審慎工具來管理資本流動，可能是未來政策的發展方向 。同時，政府需要考慮如何提升受衝擊產業的長期競爭力和韌性，而非僅僅依賴匯率貶值 。
+
+總之，新台幣短期大幅升值伴隨高波動性是一個複雜且具有潛在破壞力的金融市場情境。理解其驅動機制、評估其潛在衝擊、借鑒歷史教訓並建立有效的監控框架，對於所有市場參與者和政策制定者而言，都是不可或缺的。
+
+引用的著作
+
+1. 台幣狂飆背後藏壓力？金融時報揭「這產業」避險恐是主因：央行操作空間有限, https://tw.stock.yahoo.com/news/%E5%8F%B0%E5%B9%A3%E7%8B%82%E9%A3%86%E8%83%8C%E5%BE%8C%E8%97%8F%E5%A3%93%E5%8A%9B-%E9%87%91%E8%9E%8D%E6%99%82%E5%A0%B1%E6%8F%AD-%E9%80%99%E7%94%A2%E6%A5%AD-%E9%81%BF%E9%9A%AA%E6%81%90%E6%98%AF%E4%B8%BB%E5%9B%A0-%E5%A4%AE%E8%A1%8C%E6%93%8D%E4%BD%9C%E7%A9%BA%E9%96%93%E6%9C%89%E9%99%90-002000583.html 2. 〈台幣強升〉熱錢狂浪催買氣分析師：這些類股有機會受惠, https://news.cnyes.com/news/id/5959321 3. 台幣飆9.53角收31.064元創2002年來最大單日升幅| 產經 - 中央社, https://www.cna.com.tw/news/afe/202505020247.aspx 4. 台幣升值背後的真相 - 上報Up Media, https://www.upmedia.mg/news_info.php?Type=2&SerialNo=229396 5. 台幣為何狂升？金融時報揭「關鍵原因」 央行恐進退維谷 - 奇摩新聞, https://tw.news.yahoo.com/%E5%8F%B0%E5%B9%A3%E7%82%BA%E4%BD%95%E7%8B%82%E5%8D%87-%E9%87%91%E8%9E%8D%E6%99%82%E5%A0%B1%E6%8F%AD-%E9%97%9C%E9%8D%B5%E5%8E%9F%E5%9B%A0-%E5%A4%AE%E8%A1%8C%E6%81%90%E9%80%B2%E9%80%80%E7%B6%AD%E8%B0%B7-073743423.html 6. 台幣為何狂升？金融時報揭「關鍵原因」 央行恐進退維谷 - 經濟日報, https://money.udn.com/money/story/5599/8714841 7. 新台幣強升行情速報：熱錢大舉匯入、出口商拋匯與央行「順勢」成三大推力 - 口袋證券, https://www.pocket.tw/school/report/newflash/5572/ 8. 403地震之際，台幣貶破32大關，與Fed的「風險逆轉」徹底失效？ - Mitrade, https://www.mitrade.com/zh/insights/forex-analysis/more/20240403m04-tw 9. www.cbc.gov.tw, https://www.cbc.gov.tw/tw/public/Attachment/832012113571.pdf 10. 新台幣匯率波動對我國產業出口競爭力之影響 - 經濟部, https://www.moea.gov.tw/Mns/cord/content/wHandMenuFile.ashx?file_id=1940 11. 央行貨幣政策與台灣經濟發展* - 中央銀行, https://www.cbc.gov.tw/dl-138375-a73c8ee3c09b483f9664ea762b5b25f4.html 12. 熱錢湧入！新台幣爆量升值「重返31元」 匯銀揭5大因素- 財經- 時報資訊 - 中時新聞網, https://www.chinatimes.com/realtimenews/20240820001822-260410 13. Welcome to TIER - Taiwan Institute of Economic Research, https://english.tier.org.tw/eng_forecast/annual.aspx 14. Taiwan - Trade Balance vs. Imports/Exports (YoY) - MacroMicro, https://en.macromicro.me/charts/121/tw-trade 15. 匯率的兩面刄，新台幣匯率該何去何從, https://www.econ.sinica.edu.tw/18/archives/5e433212636955e0 16. Shadow FX intervention in Taiwan: Solving a USD 100+ bn enigma - Council on Foreign Relations, https://www.cfr.org/sites/default/files/pdf/shadow-fx-intervention-in-taiwan-solving-a-usd-100-bn-enigma.pdf 17. 新台幣暴衝，2行業恐成重災區！央行放手不救？背後策略公開 - 風傳媒, https://www.storm.mg/lifestyle/5366731 18. 台幣強升衝擊債券ETF 他憂易跌難漲！網卻勸趁跌加碼| 聯合新聞網, https://udn.com/news/story/12806/8711019 19. 台幣閃電飆升？國際資金湧入、央行策略與投資人應對指南 - 方格子, https://vocus.cc/article/6816eca4fd89780001693f6a 20. 策略篇新台幣升值不停歇避險＋轉型新思維應對新匯率時代 - 台北市進出口商業同業公會, https://www.ieatpe.org.tw/magazine/ebook356/storypage05.html 21. Macroeconomic and Foreign Exchange Policies of Major Trading Partners of the United States - Treasury, https://home.treasury.gov/system/files/206/December-2020-FX-Report-FINAL.pdf 22. 資本流入對於資產價格的影響—台灣的實證研究* - 中央銀行, https://www.cbc.gov.tw/tw/public/Attachment/451316432371.pdf 23. 2025 USD to TWD Exchange Rate Trends and Investment Strategy Analysis - Markets.com, https://www.markets.com/research/2025-usd-to-twd-exchange-rate-trends-and-investment-strategy-analysis 24. Taiwan - Net Inflow of Foreign Investment vs. USD/TWD - MacroMicro, https://en.macromicro.me/charts/988/net-amount-of-foreign-investors-ntd 25. Taiwan - TAIEX Net Positions of Foreign Institutional Investors vs. TWD, https://en.macromicro.me/collections/71/new-taiwan-dollars/88798/net-amount-foreign-investor-accumulated 26. Record Taiwan Dollar Trading Volume Explodes Amid US Tariff Delay: A Forex Opportunity? - CoinStats, https://coinstats.app/news/33af683487929abd4b280383b9a470a04a92864ff08ceb0ac47187e4511f7670_Record-Taiwan-Dollar-Trading-Volume-Explodes-Amid-US-Tariff-Delay-A-Forex-Opportunity 27. FT專欄專家：壽險業避險急忙對沖美元部位引發台幣飆升| 外匯市場 - 經濟日報- 聯合報, https://money.udn.com/money/story/5616/8715719 28. 匯率風險對我國壽險業經營之短中長期影響 - 財團法人台北外匯市場發展基金會, https://www.tpefx.com.tw/uploads/download/tw/The%20Short,%20Median%20and%20Long%20Term%20Impacts%20of%20Currency%20Risk%20on%20Taiwan%20Life%20Insurance%20Industry.pdf 29. Top carry trade gets squeezed by Taiwan dollar's advance | AJOT ..., https://www.ajot.com/news/top-carry-trade-gets-squeezed-by-taiwan-dollaras-advance 30. 新台幣強升法人：有利資金流入、不利出口商和壽險| 聯合新聞網, https://udn.com/news/story/7239/8716756 31. Taiwan's proposed currency rules may cut hedging costs but ..., https://reinasia.com/proposed-currency-rules-may-cut-hedging-costs-but-increase-fx-risks-for-taiwan-life-insurers/ 32. FX Insights: New Taiwan Dollar (TWD) low volatility and activity - Silicon Valley Bank, https://www.svb.com/fx-insights-new-taiwan-dollar-low-volatility-and-activity/ 33. Carry Trade Destruction - Research Affiliates - Commentaries - Advisor Perspectives, https://www.advisorperspectives.com/commentaries/2025/04/09/trade-destruction-carry 34. Carry off, carry on - Bank for International Settlements, https://www.bis.org/publ/qtrpdf/r_qt2409a.htm 35. Amid rate cuts, do carry trades still work | J.P. Morgan Private Bank EMEA, https://privatebank.jpmorgan.com/eur/en/insights/markets-and-investing/amid-rate-cuts-do-carry-trades-still-work 36. What are carry trades and how do they impact global markets? - The World Economic Forum, https://www.weforum.org/stories/2024/08/explainer-carry-trades-and-how-they-impact-global-markets/ 37. 衍生性金融商品之操作實務 - 公務出國報告資訊網, https://report.nat.gov.tw/ReportFront/PageSystem/reportFileDownload/C09802465/001 38. PowerPoint 簡報, http://www.fcec.org.tw/word/%B1%D0%BE%C7%AA%A9.ppt 39. 無本金交割遠期外匯(NDF) - MoneyDJ理財網, https://www.moneydj.com/kmdj/wiki/wikiviewer.aspx?keyid=0351869a-1915-4e87-81be-dc468f920c6c 40. Non-deliverable forwards: impact of currency internationalisation and derivatives reform - Bank for International Settlements, https://www.bis.org/publ/qtrpdf/r_qt1612h.pdf 41. The markets for non-deliverable forwards in Asian currencies - Bank for International Settlements, https://www.bis.org/publ/qtrpdf/r_qt0406g.pdf 42. Offshore Currency Markets: Non-Deliverable Forwards (NDFs) in Asia in - IMF eLibrary, https://www.elibrary.imf.org/view/journals/001/2020/179/article-A001-en.xml 43. 《金融》市場憂奔2字頭新台幣NDF脫離基本面 - Yahoo股市, https://tw.stock.yahoo.com/news/%E9%87%91%E8%9E%8D-%E5%B8%82%E5%A0%B4%E6%86%82%E5%A5%942%E5%AD%97%E9%A0%AD-%E6%96%B0%E5%8F%B0%E5%B9%A3ndf%E8%84%AB%E9%9B%A2%E5%9F%BA%E6%9C%AC%E9%9D%A2-023057681.html 44. 「2字頭」要來了？新台幣NDF脫離基本面國泰世華點名背後3大兇手 - 工商時報, https://www.ctee.com.tw/news/20250503700038-439901 45. 市場憂奔2字頭新台幣NDF脫離基本面 - Yahoo股市, https://tw.stock.yahoo.com/news/%E5%B8%82%E5%A0%B4%E6%86%82%E5%A5%942%E5%AD%97%E9%A0%AD-%E6%96%B0%E5%8F%B0%E5%B9%A3ndf%E8%84%AB%E9%9B%A2%E5%9F%BA%E6%9C%AC%E9%9D%A2-201000696.html 46. Rupiah in NDF instrument plunges to IDR 17,200/US$ | IDNFinancials, https://www.idnfinancials.com/news/53637/rupiah-in-ndf-instrument-plunges-to-idr-17-200us 47. 台灣央行外匯市場干預對臺美匯率之影響媒體資料之應用 - 台大經濟系, https://econ.ntu.edu.tw/ter/new/data/new/TER46-2/TER462-4.pdf 48. 如何應對2025年外匯市場波動？台灣匯率與存底動態全解析 - 最新消息, https://www.ytyut.com/modules/news/article.php?storyid=3086 49. www.econ.ntu.edu.tw, https://www.econ.ntu.edu.tw/ter/new/data/new/TER46-2/TER462-4.pdf 50. 3月新台幣重挫央行拋匯阻貶外匯存底仍寫次高 - 中央社, https://www.cna.com.tw/news/afe/202504070274.aspx 51. 3月新台幣重挫央行拋匯阻貶外匯存底仍寫次高 - 經濟日報- 聯合報, https://money.udn.com/money/story/5616/8658478 52. 新聞稿-新台幣匯率維持動態穩定 - 中央銀行, https://www.cbc.gov.tw/tw/cp-302-181285-2250c-1.html 53. 央行對市場信心喊話！四大穩定匯率機制上膛- 金融 - 經濟日報, https://money.udn.com/money/story/5613/8658266 54. 金融風暴央行備戰---台美貿易爭端、匯率操縱國風險 - 余紀忠文教基金會, https://www.yucc.org.tw/info/7048 55. 選擇權短天期合約的隱藏危機：Gamma波動，投資者的警鐘！, https://www.guccidgi.com/2024/01/what-is-option-gamma-risk/ 56. How volatility broke loose: what options traders should know about the current regime | Saxo, https://www.home.saxo/content/articles/options/how-volatility-broke-loose---what-options-traders-should-know-about-the-current-regime-08042025 57. What Is Gamma in Investing and How Is It Used? - Investopedia, https://www.investopedia.com/terms/g/gamma.asp 58. Option Greeks: The 4 Factors to Measure Risk - Investopedia, https://www.investopedia.com/trading/getting-to-know-the-greeks/ 59. Options Greeks: Gamma Explained - Charles Schwab, https://www.schwab.com/learn/story/options-greeks-gamma-explained 60. 匯率衍生性商品研究報告, https://report.ndc.gov.tw/ReportFront/PageSystem/reportFileDownload/C10701126/001 61. 陸、市場風險, https://www.fsc.gov.tw/fckdowndoc?file=/BB-10010005880%E5%B8%82%E5%A0%B4%E9%A2%A8%E9%9A%AA.doc&flag=doc 62. Unlock the Key Drivers in Exchange Rate Volatility, https://www.numberanalytics.com/blog/unlock-key-drivers-exchange-rate-volatility 63. Switching Risk Off: FX Correlations and Risk Premia, https://www.ecb.europa.eu/events/pdf/conferences/131216/Third_FX_Workshop_Beber_RiskOnOffNov2013.pdf?b6447022f8728b48fa7d58532fbc2acc 64. 台幣飆升「這產業成苦主」 專家示警：明年恐怕發不出股利 - ETtoday財經雲, https://finance.ettoday.net/news/2954655 65. 新台幣強升法人：有利資金流入、不利出口商和壽險 - 經濟日報, https://money.udn.com/money/story/5612/8716756 66. 台幣急升9角，美債ETF大跌｜你投資的「出口公司」可能會少賺?-Money錢, https://cmnews.com.tw/article/money-3ed8572a-272b-11f0-989d-78ba4f8d4d88 67. 台幣狂飆出口商煎熬…關稅、匯率雙重夾擊 - 奇摩新聞, https://tw.news.yahoo.com/%E5%8F%B0%E5%B9%A3%E7%8B%82%E9%A3%86-%E5%87%BA%E5%8F%A3%E5%95%86%E7%85%8E%E7%86%AC-%E9%97%9C%E7%A8%85-%E5%8C%AF%E7%8E%87%E9%9B%99%E9%87%8D%E5%A4%BE%E6%93%8A-223123430.html 68. Multiple Asymmetries and Exchange Rate Exposure at Firm Level: Evidence from Taiwan Stock Market - ResearchGate, https://www.researchgate.net/publication/313133098_Multiple_Asymmetries_and_Exchange_Rate_Exposure_at_Firm_Level_Evidence_from_Taiwan_Stock_Market 69. 台幣暴衝！ 機械公會：出口為主企業面臨匯損壓力、獲利雪上加霜 - 知新聞, https://www.knews.com.tw/news/08D23032D0622EF49EA5FC8610EB3FCB 70. Sharp Taiwan dollar rise puts pressure on machine exporters | Taiwan News | May. 3, 2025 13:00, https://www.taiwannews.com.tw/en/news/6101188 71. 新台幣狂漲「越賣越虧」 機械業公會：漲到27元業者恐倒一半 - ETtoday財經雲, https://finance.ettoday.net/news/2954240 72. 新台幣飆漲重擊外銷！ 機械業公會憂「多賣多賠」：升破「這數字」業者恐倒一半 - Yahoo股市, https://tw.stock.yahoo.com/news/%E6%96%B0%E5%8F%B0%E5%B9%A3%E9%A3%86%E6%BC%B2%E9%87%8D%E6%93%8A%E5%A4%96%E9%8A%B7-%E6%A9%9F%E6%A2%B0%E6%A5%AD%E5%85%AC%E6%9C%83%E6%86%82-%E5%A4%9A%E8%B3%A3%E5%A4%9A%E8%B3%A0-%E5%8D%87%E7%A0%B4-%E9%80%99%E6%95%B8%E5%AD%97-060100471.html 73. 新台幣狂漲「多賣多賠」 機械業公會：漲到「這數字」業者恐倒掉一半 - 奇摩新聞, https://tw.news.yahoo.com/%E6%96%B0%E5%8F%B0%E5%B9%A3%E7%8B%82%E6%BC%B2-%E5%A4%9A%E8%B3%A3%E5%A4%9A%E8%B3%A0-%E6%A9%9F%E6%A2%B0%E6%A5%AD%E5%85%AC%E6%9C%83-%E6%BC%B2%E5%88%B0-%E9%80%99%E6%95%B8%E5%AD%97-073356704.html 74. 台幣狂飆單日升近1元關稅、匯率雙重夾擊出口商煎熬 - World Journal, https://www.worldjournal.com/wj/story/121221/8714952?from=wj_maintab_index 75. REFINITIV STREETEVENTS - EDITED TRANSCRIPT - 2330.TW - Q1 2024 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call (Chinese, English) EVENT DATE/TIME, https://investor.tsmc.com/chinese/encrypt/files/encrypt_file/reports/2024-04/34ff75e23e53246302ce3a8d90d0423c57c6b120/TSMC%201Q24%20Transcript.pdf 76. 匯率波動下企業如何進行外匯避險操作 - 新聞-大陸台商經貿網, https://www.chinabiz.org.tw/News/GetJournalShow?pid=162&cat_id=174&gid=20&id=295 77. 財務長的挑戰：淺談企業匯率風險管理| 勤業眾信 - Deloitte, https://www2.deloitte.com/tw/tc/pages/strategy-operations/articles/foreign-exchange-risk.html 78. 新台幣貶值為何壽險業還會產生匯損？ - 智勝, https://www.bestwise.com.tw/analyze/post.aspx?ipost=3149 79. 新台幣強升企業如何避險？進出口商教戰攻略一表看 - 工商時報, https://www.ctee.com.tw/news/20250503700042-439901 80. Banks Have Been Unloading Bonds at a Loss. Is That a Good Thing? | Bank Director, https://www.bankdirector.com/article/banks-have-been-unloading-bonds-at-a-loss-is-that-a-good-thing/ 81. 台幣匯率27元新時代台積電變護國神山見證轉型變化 - 中央社, https://www.cna.com.tw/news/firstnews/202101050109.aspx 82. 金管會將推動外匯價格變動準備金新制，協助壽險業提升避險策略之運作彈性以強化資本, https://www.ib.gov.tw/ch/home.jsp?id=239&parentpath=0,2,238&mcustomize=news_view.jsp&dataserno=202408290002&toolsflag=Y&dtable=News 83. Profit/loss, net value and exchange gains/losses of the insurance industry in March 2024, https://www.fsc.gov.tw/en/home.jsp?id=54&parentpath=0&mcustomize=multimessage_view.jsp&dataserno=202404300006&dtable=News 84. 強化保險業國外投資之匯率風險管理與監理機制之研究, https://www.tigf.org.tw/files/file_pool/1/0m081587899959956342/%E5%BC%B7%E5%8C%96%E4%BF%9D%E9%9A%AA%E6%A5%AD%E5%9C%8B%E5%A4%96%E6%8A%95%E8%B3%87%E4%B9%8B%E5%8C%AF%E7%8E%87%E9%A2%A8%E9%9A%AA%E7%AE%A1%E7%90%86%E8%88%87%E7%9B%A3%E7%90%86%E6%A9%9F%E5%88%B6%E4%B9%8B%E7%A0%94%E7%A9%B6%E6%9C%9F%E6%9C%AB%E5%A0%B1%E5%91%8Af.pdf 85. 財團法人台北外匯市場發展基金會108 年度委託研究計畫, https://www.tpefx.com.tw/uploads/download/tw/The%20Impacts%20of%20Bond%20ETFs%20on%20Taiwan%20Financial%20Markets%20and%20Proper%20Regulations.pdf 86. 我們可從TRF 學到什麼？, https://www.mjib.gov.tw/FileUploads/eBooks/3bedc5eaa6da4795a09978a723727fcb/Section_file/c578b56432fa4209bd619576c304d2b4.pdf 87. 目標可贖回遠期契約(Target Redemption Forward；TRF) - MoneyDJ理財網, https://www.moneydj.com/kmdj/wiki/wikiviewer.aspx?keyid=a534414b-543a-48c0-9347-b5ed88f36801 88. 什麼是「TRF」、「DKO」? (上) - 財團法人金融消費評議中心, https://www.foi.org.tw/Article.aspx?Lang=1&Arti=1294&k=&p=3&lid=1839 89. 金管會強化TRF管制規範銀行辦理衍生性金融商品業務內部作業制度及程序管理辦法修正內容介紹, https://m.leaven-china.com/TW/Newsletters/5582.htm 90. 《TRF 之相關問題探討》 - 中華民國證券商業同業公會, https://www.twsa.org.tw/B01/doc/TRF%E4%B9%8B%E7%9B%B8%E9%97%9C%E5%95%8F%E9%A1%8C%E6%8E%A2%E8%A8%8E.pdf 91. TRF是什麼？值得投資嗎？一次看懂TRF的風險與優缺點 - 市場先生, https://rich01.com/what-is-trf-0/ 92. Gamma - The Options Industry Council, https://www.optionseducation.org/advancedconcepts/gamma 93. Gamma Explained: Understanding Options Trading Greeks - Merrill Edge, https://www.merrilledge.com/investment-products/options/learn-understand-gamma-options 94. Outward portfolio investment and dollar funding in emerging Asia - Bank for International Settlements, https://www.bis.org/publ/qtrpdf/r_qt2112d.pdf 95. 台灣泡沫經濟- 維基百科，自由的百科全書, https://zh.wikipedia.org/zh-tw/%E5%8F%B0%E7%81%A3%E6%B3%A1%E6%B2%AB%E7%B6%93%E6%BF%9F 96. 台灣半世紀以來快速經濟發展的回顧與省思, https://www.tedc.org.tw/sol2017/sol/handout13.pdf 97. 台幣盤中暴升1.2元！ 專家想到1980年代金融史：「台股、房價暴跌」 - 奇摩新聞, https://tw.news.yahoo.com/%E5%8F%B0%E5%B9%A3%E7%9B%A4%E4%B8%AD%E6%9A%B4%E5%8D%871-2%E5%85%83-%E5%B0%88%E5%AE%B6%E6%83%B3%E5%88%B01980%E5%B9%B4%E4%BB%A3%E9%87%91%E8%9E%8D%E5%8F%B2-%E5%8F%B0%E8%82%A1-%E6%88%BF%E5%83%B9%E6%9A%B4%E8%B7%8C-143000613.html 98. 台幣匯率狂飆近1元！專家想到「1980年代股房雙跌」：憂歷史重演, https://www.nownews.com/news/6678478 99. Industrial Technology Upgrading and Innovation Policies: A Comparison of Taiwan and Thailand - researchmap, https://researchmap.jp/patarapong/published_papers/30147835/attachment_file.pdf 100. 新台幣強升現「30字頭」！專家示警「最慘劇本」：恐重演1985產業倒閉潮 - Yahoo股市, https://tw.stock.yahoo.com/news/%E6%96%B0%E5%8F%B0%E5%B9%A3%E5%BC%B7%E5%8D%87%E7%8F%BE-30%E5%AD%97%E9%A0%AD-%E5%B0%88%E5%AE%B6%E7%A4%BA%E8%AD%A6-%E6%9C%80%E6%85%98%E5%8A%87%E6%9C%AC-%E6%81%90%E9%87%8D%E6%BC%941985%E7%94%A2%E6%A5%AD%E5%80%92%E9%96%89%E6%BD%AE-012000118.html 101. 亞洲金融危機後南韓金融帳自由化之研究 - 中央銀行, https://www.cbc.gov.tw/tw/public/Attachment/56221182171.pdf 102. 回顧1997年亞洲金融風暴 - iQVALUE 智股網, https://www.iqvalue.com/tips/article?id=853&tipsCategoryId=8 103. 南韓因應全球金融危機之經驗及教訓, https://www.cbc.gov.tw/public/Attachment/171514235571.pdf 104. 前事: 1997~1998年亞洲金融風暴2 - 金融操作人看人生百態的..井觀隨筆....... - udn部落格, https://blog.udn.com/tawoo09/3332926 105. Asian Financial Crisis: Causes, Response, Lessons Learned - Investopedia, https://www.investopedia.com/terms/a/asian-financial-crisis.asp 106. Korean Crisis and Recovery - International Monetary Fund (IMF), https://www.imf.org/external/pubs/nft/seminar/2002/korean/ 107. 亞洲金融風暴- 維基百科, https://zh.wikipedia.org/zh-tw/%E4%BA%9E%E6%B4%B2%E9%87%91%E8%9E%8D%E9%A2%A8%E6%9A%B4 108. Asian financial crisis of 1997 | EBSCO Research Starters, https://www.ebsco.com/research-starters/history/asian-financial-crisis-1997 109. Timeline Of The Crash | The Crash | FRONTLINE - PBS, https://www.pbs.org/wgbh/pages/frontline/shows/crash/etc/cron.html 110. 1997 Asian financial crisis - Wikipedia, https://en.wikipedia.org/wiki/1997_Asian_financial_crisis 111. 南韓昔慘到老百姓「捐黃金」救國！謝金河揭這次遭大陸夾殺1產業完了 - Yahoo股市, https://tw.stock.yahoo.com/news/%E9%9F%93%E5%9C%8B1997%E6%9C%89%E5%A4%9A%E6%85%98-%E8%80%81%E7%99%BE%E5%A7%93-%E6%8D%90%E9%BB%83%E9%87%91-%E6%95%91%E5%9C%8B%E5%AE%B6-%E8%AC%9D%E9%87%91%E6%B2%B3%E6%8F%AD%E9%80%99%E6%AC%A1%E7%94%A2%E6%A5%AD%E9%81%AD%E9%99%B8%E5%A4%BE%E6%AE%BA-024624254.html 112. From 'miracle to debacle': Painful 'IMF days' of 1997-1998 - The Korea Herald, https://www.koreaherald.com/article/3212370 113. 期貨選擇權隱含波動率的解讀：股票投資者的市場情緒指標 - 方格子, https://vocus.cc/article/6766b4f2fd89780001024355 114. 選擇權入門-認識隱含波動率及VIX指數 - 統一期貨, https://www.pfcf.com.tw/product/detail/2923 115. 隱含波動率和歷史波動率：有何區別？ - 富達投信, https://www.fidelity.com.tw/insights-learning/education-centre/what-is-volatility/implied-vs-historical-volatility/ 116. Investor Attention and FX Market Volatility - Bayes Business School, https://www.bayes.citystgeorges.ac.uk/__data/assets/pdf_file/0004/152248/Wang_Qingwei_Attetion_FX.pdf 117. Decoding Implied Volatility in American Call Options - Interactive Brokers, https://www.interactivebrokers.com/campus/ibkr-quant-news/decoding-implied-volatility-in-american-call-options/ 118. What is Implied Volatility and How do you Use it? | IG International, https://www.ig.com/en/trading-strategies/what-is-implied-volatility-and-how-to-use-it-191021 119. Interpreting TTF implied volatility - Timera Energy, https://timera-energy.com/blog/interpreting-ttf-implied-volatility/ 120. What Is the Risk Reversal Strategy & How Does It Work? - SoFi, https://www.sofi.com/learn/content/risk-reversal/ 121. Risk Reversal: Definition, How It Works, and Examples - Investopedia, https://www.investopedia.com/terms/r/riskreversal.asp 122. Risk Reversal - SpotGamma Support Center, https://support.spotgamma.com/hc/en-us/articles/15412858897043-Risk-Reversal 123. Risk reversal - Wikipedia, https://en.wikipedia.org/wiki/Risk_reversal 124. The risk reversal (RR) and butterfly (BF) in FX markets simply explained - Finance Tutoring, https://www.finance-tutoring.fr/the-risk-reversal-%28rr%29-and-butterfly-%28bf%29-in-fx-markets-simply-explained/?mobile=1 125. 大戶動向：追蹤主力資金流向，讓您的投資更具智慧 - 方格子, https://vocus.cc/article/67504c54fd89780001c4a526 126. 外資怎麼看？每日整理最新個股評等，透過外資動向掌握資金流向｜評等情報局0715, https://www.sinotrade.com.tw/richclub/hotstock/%E5%A4%96%E8%B3%87%E6%80%8E%E9%BA%BC%E7%9C%8B-%E6%AF%8F%E6%97%A5%E6%95%B4%E7%90%86%E6%9C%80%E6%96%B0%E5%80%8B%E8%82%A1%E8%A9%95%E7%AD%89-%E9%80%8F%E9%81%8E%E5%A4%96%E8%B3%87%E5%8B%95%E5%90%91%E6%8E%8C%E6%8F%A1%E8%B3%87%E9%87%91%E6%B5%81%E5%90%91-%E8%A9%95%E7%AD%89%E6%83%85%E5%A0%B1%E5%B1%80-0715-6690ff415504794d6092dbc1 127. 夜盤怎麼看：瞭解夜間交易市場的重要性 - 康和期貨劉信源, https://gcfc.com.tw/%E6%9C%9F%E8%B2%A8%E6%95%99%E5%AD%B8/%E5%A4%9C%E7%9B%A4%E6%80%8E%E9%BA%BC%E7%9C%8B%EF%BC%9A%E7%9E%AD%E8%A7%A3%E5%A4%9C%E9%96%93%E4%BA%A4%E6%98%93%E5%B8%82%E5%A0%B4%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7/ 128. TWD NDF on EBS Market: Natural Interest and Depth of Liquidity - CME Group, https://www.cmegroup.com/articles/2023/twd-ndf-on-ebs-market-natural-interest-and-depth-of-liquidity.html 129. 台灣匯率貶值政策之探討 - 台大經濟系, https://www.econ.ntu.edu.tw/ter/new/data/new/TER47-1/TER471-2.pdf 130. 外匯干預下的利差交易策略: 台幣匯率基本面變數的經濟價值, https://www.econ.ntu.edu.tw/ter/new/data/new/TER46-3/TER463-2.pdf 131. 如何掌握新台幣升值、貶值的優劣勢分析 - Oanda, https://www.oanda.com/bvi-ft/lab-education/forex/ntd_revaluation_devaluation/ 132. 新台幣大幅升值卓榮泰：市場機制 - 好房網News, https://news.housefun.com.tw/news/article/192628462340.html 133. 台指選擇權隱含波動率指標之資訊內涵= The Information Content of the Volatility Index Implied by TAIEX Index Options, https://www.airitilibrary.com/Publication/Index?DocID=1023280X-200601-201501200009-201501200009-1-42

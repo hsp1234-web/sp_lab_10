@@ -1,0 +1,573 @@
+第一部分：開發者可讀的總結報告
+
+新台幣匯率風險儀表板 - 專案規劃總結與狀態報告 (v1.0)
+
+生成時間: 2025-05-05 22:13:00 Asia/Taipei (UTC+8)
+
+整體狀態: ⏳ 規劃階段完成，待開始開發 (Awaiting Development Start)
+
+核心功能:
+
+整合多維度金融數據 (市場、宏觀、情緒等)。
+
+計算量化風險指標。
+
+評估新台幣 (TWD) 匯率的綜合風險位階。
+
+以清晰、互動的儀表板視覺化呈現風險狀況與關鍵驅動因素。
+
+專案目標:
+
+目標 1: 在 Google Colab 環境中，開發一個可運行的儀表板原型 (v1.0)，實現核心數據流、基礎風險評估和靜態視覺化 (對應開發計畫階段一)。
+
+目標 2: 儀表板最終能提供兩層信息展示：快速總覽表格和詳細信息卡片。
+
+目標 3: (階段二目標) 實現進階指標計算和風險評估邏輯，並加入互動式圖表。
+
+目標 4: (階段三目標) 建立回測框架以驗證風險評估邏輯的有效性。
+
+(ℹ️ 目標的可衡量指標將在開發過程中進一步細化，例如定義「基礎風險評估」的具體指標範圍和「互動式圖表」的具體功能。)
+
+關鍵決策、假設與理由:
+
+決策: 選擇 Google Colab 作為主要開發環境。
+
+理由: 便於快速原型設計、整合 Python 生態系、利用免費計算資源、易於與 AI 協作。 (來源: 先前對話記錄/開發計畫總結)
+
+決策: 採用模組化 Colab 儲存格設計。
+
+理由: 遵循《通用模組化 Colab/Jupyter 專案設計準則 v3.3》，提高程式碼可讀性、可維護性、可測試性，方便分階段開發和 AI 協作。 (來源: 先前對話記錄/開發計畫總結)
+
+決策: 最終儀表板採用兩段式佈局 (總覽表格 + 詳細卡片)。
+
+理由: 根據使用者反饋，平衡快速掃描需求與詳細信息獲取需求，解決先前方案視覺雜亂問題。 (來源: 先前對話記錄/開發計畫總結)
+
+決策: 優先使用 Colab Secrets 管理 API 金鑰。
+
+理由: 根據《Colab 金融 API 最佳實踐》，此為 Colab 環境中最安全、便捷的方式。 (來源: 先前對話記錄/開發計畫總結)
+
+假設: 規劃文件中提及的核心指標可通過選定的 API (Alpha Vantage, FRED, yfinance) 獲取足夠的歷史數據。
+
+影響: 若數據獲取困難或質量不足，可能需要調整指標選擇或尋找替代數據源。 (來源: 4-1最終數據策略與 Colab 架構)
+
+假設: 開發者具備必要的 Python、Pandas 及金融知識來理解和實現指標計算與風險邏जिक。
+
+影響: 若技能不足，開發進度可能延遲或需要額外學習/支持。 (來源: 開發計畫總結)
+
+(ℹ️ 風險判斷邏輯的具體方法（評分卡 vs. 模型）將在開發階段二做出最終決策。)
+
+環境需求:
+
+Python 版本: 預計 3.10.x (ℹ️ 待 Cell 1 實際執行確認)
+
+關鍵函式庫: pandas, numpy, requests, requests-cache, python-dotenv (若用 Drive), yfinance, fredapi, tenacity, plotly, ipywidgets (ℹ️ 具體版本待 Cell 1 安裝後確認)
+
+硬體加速器: 無特別需求 (預設 Colab 環境)
+
+外部數據源: Alpha Vantage API, FRED API, Yahoo Finance API, Google Drive (用於日誌/緩存持久化)
+
+專案進度追蹤表:
+
+步驟 #
+
+步驟名稱
+
+狀態
+
+完成日期
+
+紀錄/困難點/相關決策
+
+0
+
+專案規劃與框架設計
+
+完成
+
+2025-05-05
+
+完成多份規劃文件，確定分階段計畫、Colab 結構、儀表板佈局。選擇 Colab 作為開發環境。
+
+1
+
+階段一：可用儀表板 - 初始化與設定 (Cell 1)
+
+待辦
+
+-
+
+需實現環境設定、API 金鑰管理、全局變數、日誌記錄。
+
+2
+
+階段一：可用儀表板 - 基礎數據獲取 (Cells 3-5 v1)
+
+待辦
+
+-
+
+需實現核心指標數據獲取，包含錯誤處理和速率限制。
+
+3
+
+階段一：可用儀表板 - 數據清洗與整合 (Cells 6-7)
+
+待辦
+
+-
+
+需實現基礎清洗、缺失值處理和數據對齊。
+
+4
+
+階段一：可用儀表板 - 基礎指標計算 (Cells 8-11 v1)
+
+待辦
+
+-
+
+需實現簡單指標計算。
+
+5
+
+階段一：可用儀表板 - 簡單風險邏輯 (Cell 12 v1)
+
+待辦
+
+-
+
+需實現初步的、基於規則/評分卡的風險判斷。
+
+6
+
+階段一：可用儀表板 - 基礎視覺化 (Cells 13-16 v1, HTML Gen)
+
+待辦
+
+-
+
+需生成靜態圖表和最終的兩段式 HTML 佈局。
+
+7
+
+階段二：進階分析
+
+待辦
+
+-
+
+包含擴展數據、進階指標、精煉風險邏輯、互動視覺化。
+
+8
+
+階段三：回測分析
+
+待辦
+
+-
+
+需設計並執行回測，驗證風險邏जिक。
+
+9
+
+階段四：交易指引 (可選)
+
+待辦
+
+-
+
+需開發者定義策略規則，謹慎進行。
+
+10
+
+執行追蹤摘要實現 (Cell Z)
+
+待辦
+
+-
+
+需實現最終的執行摘要報告。
+
+目前進度總結:
+
+✅ 專案規劃階段已完成。已產出詳細的開發計畫、分階段目標、模組化 Colab 結構設計、儀表板視覺方案（確定為兩段式佈局：總覽表+詳細卡片）以及相關的技術實踐準則文件。明確了專案的核心功能、目標和最終呈現效果。關鍵決策包括選擇 Colab 作為開發環境、採用模組化儲存格設計、確定兩段式儀表板佈局以及優先使用 Colab Secrets 管理金鑰。目前專案處於待開始開發狀態，下一步是著手實現開發計畫中的階段一，從 Cell 1 開始。
+
+已遇困難、待解決問題與潛在風險:
+
+困難/問題 (規劃階段): 先前因參考文件過多導致設計方向不易聚焦 (已通過制定計畫表解決)。
+
+待解決問題 (開發階段預期):
+
+API 速率限制可能影響數據獲取效率 (需實施健壯的處理機制)。
+
+部分進階指標 (如完整 IV 結構、細粒度 FPI) 的歷史數據可用性和質量可能受限。
+
+風險判斷邏輯的設計（評分卡 vs. 模型）需要在階段二做出最終決策並進行驗證。
+
+潛在風險:
+
+選定 API 的穩定性或未來政策變更。
+
+數據質量問題影響指標計算和風險判斷的準確性。
+
+回測分析可能發現風險邏輯效果不如預期，需要較大調整。
+
+(若進入階段四) 交易指引邏輯設計不當可能導致誤導性建議。
+
+參考資料需求（具體檔案與原因）：
+
+ℹ️ 目前提供的資訊充足，可基於現有規劃文件開始開發階段一。 在後續開發階段，將需要根據具體任務參考對應的文件：
+
+開發 Cell 1 時:
+
+檔案: 3.3通用模組化 Colab/Jupyter 專案設計準則 v3.3 (必要)
+
+需求: 嚴格遵循 Cell 1 結構、標頭、finally 區塊規範。
+
+原因: 確保專案基礎穩定、可追蹤。
+
+重要性: 高。
+
+檔案: Colab 金融 API 最佳實踐 (必要)
+
+需求: 參考 API 金鑰管理 (Colab Secrets)、日誌記錄、速率限制處理器設計思路。
+
+原因: 確保安全、健壯地與 API 交互。
+
+重要性: 高。
+
+檔案: 4-1最終數據策略與 Colab 架構 (必要)
+
+需求: 參考 PROJECT_CONFIG 中應包含的配置項，確認全局變數名稱。
+
+原因: 確保配置完整。
+
+重要性: 高。
+
+開發數據獲取 (Cells 3-5) 時:
+
+檔案: 4-1最終數據策略與 Colab 架構 (必要)
+
+需求: 獲取 API 來源、指標列表、端點、參數、更新頻率信息。
+
+原因: 指導數據獲取實現。
+
+重要性: 高。
+
+檔案: Colab 金融 API 最佳實踐 (必要)
+
+需求: 參考錯誤處理、速率限制、User-Agent (若需) 的實現範例。
+
+原因: 確保數據獲取健壯性。
+
+重要性: 高。
+
+開發指標計算 (Cells 8-11) 時:
+
+檔案: 2-2新台幣風險指標量化與閾值 (必要)
+
+需求: 參考指標的量化方法建議 (如 Z-score, 百分位)。
+
+原因: 指導量化指標的計算邏輯。
+
+重要性: 高。
+
+檔案: 階段2-1新台幣匯率風險指標篩選 (參考)
+
+需求: 回顧核心指標的篩選邏輯和風險指示意義。
+
+原因: 加深對指標的理解。
+
+重要性: 中。
+
+開發風險邏जिक (Cell 12) 時:
+
+檔案: 3-1TWD/USD 匯率風險位階定義 (必要)
+
+需求: 參考風險位階定義、判斷方法論（規則/評分卡/模型）、權重考量。
+
+原因: 指導核心風險評估邏輯的實現。
+
+重要性: 高。
+
+檔案: 2-2新台幣風險指標量化與閾值 (必要)
+
+需求: 參考閾值設定方法和示例，用於規則/評分卡設計。
+
+原因: 為風險判斷提供依據。
+
+重要性: 高。
+
+開發視覺化與 HTML 生成 (Cells 13-16, HTML Gen Cell) 時:
+
+檔案: 3-2風險儀表板設計方案 (必要)
+
+需求: 參考核心視覺元素、佈局設計、圖表類型建議、互動性要求。
+
+原因: 指導最終儀表板的呈現（兩段式佈局）。
+
+重要性: 高。
+
+檔案: 階段一TWD/USD 風險圖表規劃 (參考)
+
+需求: 回顧最初規劃的圖表內容。
+
+原因: 提供視覺化內容的參考。
+
+重要性: 中。
+
+各儲存格執行摘要:
+
+(ℹ️ 目前無儲存格執行記錄，此部分將在實際開發後由 Cell Z 生成。)
+
+關鍵全局變數快照與數據脈絡:
+
+(ℹ️ 目前無全局變數快照，此部分將在 Cell 1 及後續儲存格執行後記錄。)
+
+後續規劃:
+
+[進度表步驟 1] 實現 Cell 1 (初始化與設定): 嚴格按照準則完成 Colab 環境基礎搭建。這是立即要做的第一步。
+
+[進度表步驟 2] 實現 Cell 3-5 (基礎數據獲取): 開始編寫核心數據獲取邏輯，重點關注錯誤處理和速率限制。
+
+[進度表步驟 3] 實現 Cell 6-7 (數據清洗與整合): 處理獲取的數據，創建 df_master。
+
+[進度表步驟 4-6] 逐步完成階段一剩餘的基礎指標計算、簡單風險邏輯和基礎視覺化（生成兩段式 HTML）。
+
+第二部分：AI 可讀的結構化數據 (JSON)
+
+{
+  "reportMetadata": {
+    "reportVersion": "1.5",
+    "guidelineVersion": "1.5",
+    "reportGeneratedAt": "2025-05-05T22:10:00+08:00",
+    "generationConfidence": "High",
+    "contextCompleteness": "Full",
+    "missingInfoNotes": [
+      "Python 及關鍵函式庫的確切版本需等待 Cell 1 實際執行後確認。",
+      "風險判斷邏輯的具體方法 (評分卡 vs. 模型) 尚未最終確定，將在階段二決定。",
+      "部分進階指標的數據可用性及質量需在開發階段驗證。"
+    ]
+  },
+  "projectInfo": {
+    "projectName": "新台幣匯率風險儀表板",
+    "overallStatus": "PlanningComplete_AwaitingDevelopment",
+    "coreFeatures": [
+      "整合多維度金融數據 (市場、宏觀、情緒等)。",
+      "計算量化風險指標。",
+      "評估新台幣 (TWD) 匯率的綜合風險位階。",
+      "以清晰、互動的儀表板視覺化呈現風險狀況與關鍵驅動因素。"
+    ],
+    "projectGoals": [
+      {
+        "goalId": "G01",
+        "description": "在 Google Colab 環境中，開發一個可運行的儀表板原型 (v1.0)，實現核心數據流、基礎風險評估和靜態視覺化 (對應開發計畫階段一)。",
+        "status": "未開始",
+        "measurement": "成功運行 Notebook 並生成 v1.0 儀表板輸出"
+      },
+      {
+        "goalId": "G02",
+        "description": "儀表板最終能提供兩層信息展示：快速總覽表格和詳細信息卡片。",
+        "status": "未開始",
+        "measurement": "HTML 輸出包含兩段式佈局且功能正常"
+      },
+      {
+        "goalId": "G03",
+        "description": "(階段二目標) 實現進階指標計算和風險評估邏輯，並加入互動式圖表。",
+        "status": "未開始",
+        "measurement": "完成階段二開發內容"
+      },
+      {
+        "goalId": "G04",
+        "description": "(階段三目標) 建立回測框架以驗證風險評估邏輯的有效性。",
+        "status": "未開始",
+        "measurement": "完成回測分析並輸出評估報告"
+      }
+    ]
+  },
+  "projectContext": {
+    "keyDecisionsAndAssumptions": [
+      {
+        "decisionId": "D01",
+        "decision": "選擇 Google Colab 作為主要開發環境。",
+        "rationale": "便於快速原型設計、整合 Python 生態系、利用免費計算資源、易於與 AI 協作。",
+        "alternativesConsidered": ["本地 Jupyter Notebook", "雲端虛擬機"],
+        "contextSource": "先前對話記錄/開發計畫總結",
+        "timestamp": "2025-05-05T22:00:00+08:00"
+      },
+      {
+        "decisionId": "D02",
+        "decision": "採用模組化 Colab 儲存格設計。",
+        "rationale": "遵循《通用模組化 Colab/Jupyter 專案設計準則 v3.3》，提高程式碼可讀性、可維護性、可測試性，方便分階段開發和 AI 協作。",
+        "alternativesConsidered": ["單一長腳本"],
+        "contextSource": "先前對話記錄/開發計畫總結",
+        "timestamp": "2025-05-05T22:00:00+08:00"
+      },
+       {
+        "decisionId": "D03",
+        "decision": "最終儀表板採用兩段式佈局 (總覽表格 + 詳細卡片)。",
+        "rationale": "根據使用者反饋，平衡快速掃描需求與詳細信息獲取需求。",
+        "alternativesConsidered": ["僅表格", "僅卡片", "交互式表格"],
+        "contextSource": "先前對話記錄/開發計畫總結",
+        "timestamp": "2025-05-05T22:10:00+08:00"
+      },
+      {
+        "decisionId": "D04",
+        "decision": "優先使用 Colab Secrets 管理 API 金鑰。",
+        "rationale": "根據《Colab 金融 API 最佳實踐》，此為 Colab 環境中最安全、便捷的方式。",
+        "alternativesConsidered": ["Google Drive 配置文件", "硬編碼 (不推薦)"],
+        "contextSource": "先前對話記錄/開發計畫總結",
+        "timestamp": "2025-05-05T22:00:00+08:00"
+      },
+      {
+        "assumptionId": "A01",
+        "assumption": "規劃文件中提及的核心指標可通過選定的 API (Alpha Vantage, FRED, yfinance) 獲取足夠的歷史數據。",
+        "impact": "若數據獲取困難或質量不足，可能需要調整指標選擇或尋找替代數據源。",
+        "validationStatus": "待驗證 (開發階段)",
+        "contextSource": "4-1最終數據策略與 Colab 架構"
+      },
+       {
+        "assumptionId": "A02",
+        "assumption": "開發者具備必要的 Python、Pandas 及金融知識來理解和實現指標計算與風險邏जिक。",
+        "impact": "若技能不足，開發進度可能延遲或需要額外學習/支持。",
+        "validationStatus": "待驗證 (開發階段)",
+        "contextSource": "開發計畫總結"
+      }
+    ],
+    "rejectedAlternatives": [
+       {
+        "alternative": "儀表板總覽層顯示詳細多空評級理由",
+        "reasonRejected": "使用者反饋視覺效果雜亂，不利於快速掃描。",
+        "contextSource": "先前對話記錄"
+      },
+       {
+        "alternative": "使用交互式表格（展開/收合）進行兩層信息展示",
+        "reasonRejected": "使用者選擇了更明確的兩段式佈局（總覽表+卡片）。",
+        "contextSource": "先前對話記錄"
+      }
+    ],
+    "progressTrackingTable": [
+      {
+        "step": 0,
+        "name": "專案規劃與框架設計",
+        "status": "完成",
+        "completionDate": "2025-05-05",
+        "notes": "完成多份規劃文件，確定分階段計畫、Colab 結構、儀表板佈局。選擇 Colab 作為開發環境。",
+        "relatedDecisions": ["D01", "D02", "D03", "D04"],
+        "blockers": []
+      },
+      { "step": 1, "name": "階段一 - 初始化與設定 (Cell 1)", "status": "待辦", "completionDate": null, "notes": "需實現環境設定、API 金鑰管理、全局變數、日誌記錄。", "relatedDecisions": [], "blockers": [] },
+      { "step": 2, "name": "階段一 - 基礎數據獲取 (Cells 3-5 v1)", "status": "待辦", "completionDate": null, "notes": "需實現核心指標數據獲取，包含錯誤處理和速率限制。", "relatedDecisions": [], "blockers": ["依賴 API 可用性"] },
+      { "step": 3, "name": "階段一 - 數據清洗與整合 (Cells 6-7)", "status": "待辦", "completionDate": null, "notes": "需實現基礎清洗、缺失值處理和數據對齊。", "relatedDecisions": [], "blockers": [] },
+      { "step": 4, "name": "階段一 - 基礎指標計算 (Cells 8-11 v1)", "status": "待辦", "completionDate": null, "notes": "需實現簡單指標計算。", "relatedDecisions": [], "blockers": [] },
+      { "step": 5, "name": "階段一 - 簡單風險邏輯 (Cell 12 v1)", "status": "待辦", "completionDate": null, "notes": "需實現初步的、基於規則/評分卡的風險判斷。", "relatedDecisions": [], "blockers": [] },
+      { "step": 6, "name": "階段一 - 基礎視覺化 (Cells 13-16 v1, HTML Gen)", "status": "待辦", "completionDate": null, "notes": "需生成靜態圖表和最終的兩段式 HTML 佈局。", "relatedDecisions": ["D03"], "blockers": [] },
+      { "step": 7, "name": "階段二 - 進階分析", "status": "待辦", "completionDate": null, "notes": "包含擴展數據、進階指標、精煉風險邏輯、互動視覺化。", "relatedDecisions": [], "blockers": ["依賴階段一完成", "需確定風險邏輯方法"] },
+      { "step": 8, "name": "階段三 - 回測分析", "status": "待辦", "completionDate": null, "notes": "需設計並執行回測，驗證風險邏輯。", "relatedDecisions": [], "blockers": ["依賴階段二完成", "需充足歷史數據"] },
+      { "step": 9, "name": "階段四 - 交易指引 (可選)", "status": "待辦", "completionDate": null, "notes": "需開發者定義策略規則，謹慎進行。", "relatedDecisions": [], "blockers": ["依賴階段三完成", "需明確策略"] },
+      { "step": 10, "name": "執行追蹤摘要實現 (Cell Z)", "status": "待辦", "completionDate": null, "notes": "需實現最終的執行摘要報告。", "relatedDecisions": [], "blockers": [] }
+    ],
+    "progressSummary": "專案規劃階段已完成。已產出詳細的開發計畫、分階段目標、模組化 Colab 結構設計、儀表板視覺方案（確定為兩段式佈局：總覽表+詳細卡片）以及相關的技術實踐準則文件。明確了專案的核心功能、目標和最終呈現效果。關鍵決策包括選擇 Colab 作為開發環境、採用模組化儲存格設計、確定兩段式儀表板佈局以及優先使用 Colab Secrets 管理金鑰。目前專案處於待開始開發狀態，下一步是著手實現開發計畫中的階段一，從 Cell 1 開始。",
+    "difficultiesAndIssues": [
+       {
+        "issueId": "PLAN-01",
+        "description": "先前因參考文件過多導致設計方向不易聚焦",
+        "status": "已解決",
+        "impact": "規劃效率低",
+        "potentialSolutions": ["制定結構化開發計畫表"],
+        "owner": "開發者/AI",
+        "relatedProgressStep": 0,
+        "resolution": "已通過制定詳細的分階段開發計畫表和 AI 文件指引解決。"
+      },
+      {
+        "issueId": "DEV-P-01",
+        "description": "API 調用可能頻繁觸發限流 (Rate Limit)",
+        "status": "待解決 (預期)",
+        "impact": "數據獲取受阻，影響管道建置進度",
+        "potentialSolutions": ["實施指數退避重試", "申請更高配額", "優化調用頻率"],
+        "owner": "開發者",
+        "relatedProgressStep": 2
+      },
+       {
+        "issueId": "DEV-P-02",
+        "description": "部分進階指標的歷史數據可用性和質量可能受限",
+        "status": "待解決 (預期)",
+        "impact": "影響指標計算和風險評估的準確性/深度",
+        "potentialSolutions": ["尋找替代數據源", "調整指標選擇", "接受數據限制"],
+        "owner": "開發者",
+        "relatedProgressStep": 7
+      },
+      {
+        "issueId": "DEV-P-03",
+        "description": "風險判斷邏輯的設計與驗證",
+        "status": "待解決 (預期)",
+        "impact": "儀表板核心功能的有效性",
+        "potentialSolutions": ["仔細選擇評分卡/模型方法", "進行嚴格回測"],
+        "owner": "開發者",
+        "relatedProgressStep": 7
+      }
+    ],
+    "potentialRisksAndEdgeCases": [
+      { "riskId": "R01", "description": "選定 API 的穩定性或未來政策變更", "likelihood": "Medium", "impact": "High", "mitigationStatus": "待規劃", "mitigationPlan": "設計備用 API 方案，監控 API 狀態。" },
+      { "riskId": "R02", "description": "數據質量問題影響指標計算和風險判斷的準確性", "likelihood": "Medium", "impact": "High", "mitigationStatus": "待規劃", "mitigationPlan": "加強數據清洗和驗證步驟，對異常值進行處理。" },
+      { "riskId": "R03", "description": "回測分析可能發現風險邏जिक效果不如預期", "likelihood": "Medium", "impact": "Medium", "mitigationStatus": "待規劃", "mitigationPlan": "準備根據回測結果進行模型/邏輯迭代。" },
+      { "riskId": "R04", "description": "(若進入階段四) 交易指引邏輯設計不當可能導致誤導性建議", "likelihood": "High", "impact": "Very High", "mitigationStatus": "待規劃", "mitigationPlan": "極度謹慎設計規則，進行長時間模擬驗證，明確風險提示。" }
+    ],
+    "requiredContextResources": {
+      "files": [
+        {"fileName": "3.3通用模組化 Colab/Jupyter 專案設計準則 v3.3", "requiredInfo": "Cell 1 結構, finally 報告格式, 程式碼規範, Cell 結構", "reasonNeeded": "確保 Colab 筆記本基礎穩定、可追蹤、結構清晰", "criticality": "High", "status": "已提供"},
+        {"fileName": "Colab 金融 API 最佳實踐", "requiredInfo": "API 金鑰管理 (Colab Secrets), 日誌記錄, 速率限制處理器思路, 錯誤處理範例, User-Agent 建議", "reasonNeeded": "確保安全、健壯地與 API 交互", "criticality": "High", "status": "已提供"},
+        {"fileName": "4-1最終數據策略與 Colab 架構", "requiredInfo": "PROJECT_CONFIG 配置項, 指標與 API 策略, 數據獲取/處理策略, Cell 結構規劃", "reasonNeeded": "指導數據處理流程和 Colab 結構實現", "criticality": "High", "status": "已提供"},
+        {"fileName": "2-2新台幣風險指標量化與閾值", "requiredInfo": "指標量化方法建議 (Z-score, 百分位), 閾值設定思路與示例", "reasonNeeded": "指導指標計算和風險邏輯設計", "criticality": "High", "status": "已提供"},
+        {"fileName": "3-1TWD/USD 匯率風險位階定義", "requiredInfo": "風險位階定義, 判斷方法論比較 (規則/評分卡/模型), 權重考量", "reasonNeeded": "指導核心風險評估邏輯的實現", "criticality": "High", "status": "已提供"},
+        {"fileName": "3-2風險儀表板設計方案", "requiredInfo": "核心視覺元素, 佈局設計, 圖表建議, 互動要求", "reasonNeeded": "指導最終儀表板的呈現（兩段式佈局）", "criticality": "High", "status": "已提供"},
+        {"fileName": "階段一TWD/USD 風險圖表規劃", "requiredInfo": "初步規劃的圖表內容", "reasonNeeded": "提供視覺化內容參考", "criticality": "Medium", "status": "已提供"},
+        {"fileName": "階段2-1新台幣匯率風險指標篩選", "requiredInfo": "核心指標篩選邏輯和風險指示意義", "reasonNeeded": "加深對指標的理解", "criticality": "Medium", "status": "已提供"},
+        {"fileName": "1.5程式專案總結報告生成準則 v1.5 (強化版)", "requiredInfo": "本報告的生成規範", "reasonNeeded": "確保總結報告的格式與內容符合要求", "criticality": "High", "status": "已提供"}
+      ],
+      "notes": [],
+      "isContextSufficient": true
+    },
+    "nextSteps": [
+      {"stepId": "N01", "description": "實現 Cell 1 (初始化與設定)", "priority": "High", "relatedProgressStep": 1, "estimatedEffort": "0.5 天", "status": "待辦"},
+      {"stepId": "N02", "description": "實現 Cell 3-5 (基礎數據獲取)", "priority": "High", "relatedProgressStep": 2, "estimatedEffort": "1-2 天", "status": "待辦"},
+      {"stepId": "N03", "description": "實現 Cell 6-7 (數據清洗與整合)", "priority": "Medium", "relatedProgressStep": 3, "estimatedEffort": "1 天", "status": "待辦"},
+      {"stepId": "N04", "description": "逐步完成階段一剩餘步驟 (指標計算、風險邏जिक、視覺化/HTML生成)", "priority": "Medium", "relatedProgressStep": 4, "estimatedEffort": "2-3 天", "status": "待辦"}
+    ]
+  },
+  "environmentSnapshot": {
+    "pythonVersion": "無法確定 (待 Cell 1 執行)",
+    "keyLibraryVersions": {
+      "pandas": "無法確定", "numpy": "無法確定", "requests": "無法確定", "requests-cache": "無法確定",
+      "yfinance": "無法確定", "fredapi": "無法確定", "tenacity": "無法確定", "plotly": "無法確定", "ipywidgets": "無法確定"
+    },
+    "hardwareAccelerator": { "type": "None", "model": "N/A", "status": "Disabled (預期)" },
+    "externalDataSources": [
+      { "type": "Google Drive", "path": "待掛載", "status": "待掛載" },
+      { "type": "API", "endpoint": "Alpha Vantage", "authRequired": true, "status": "待測試" },
+      { "type": "API", "endpoint": "FRED", "authRequired": true, "status": "待測試" },
+      { "type": "API", "endpoint": "Yahoo Finance (via yfinance)", "authRequired": false, "status": "待測試" }
+    ],
+    "operatingSystem": "Linux (Colab 預期)"
+  },
+  "cellSummaries": [],
+  "keyGlobalVariables": [],
+  "resolvedIssuesLog": [
+     {
+      "issueId": "PLAN-01",
+      "description": "先前因參考文件過多導致設計方向不易聚焦",
+      "resolution": "已通過制定詳細的分階段開發計畫表和 AI 文件指引解決。",
+      "resolvedAt": "2025-05-05T22:05:00+08:00",
+      "resolvedBy": "開發者/AI",
+      "relevantCell": "N/A (規劃階段)"
+    },
+    {
+      "issueId": "PLAN-02",
+      "description": "儀表板總覽層顯示效果雜亂",
+      "resolution": "決定採用兩段式佈局 (總覽表+詳細卡片)。",
+      "resolvedAt": "2025-05-05T22:10:00+08:00",
+      "resolvedBy": "開發者/AI",
+      "relevantCell": "N/A (規劃階段)"
+    }
+  ]
+}

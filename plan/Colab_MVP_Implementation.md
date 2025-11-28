@@ -6,6 +6,637 @@
 ---
 
 ## 系統架構（簡化版）
+```mermaid
+graph LR
+    A[yfinance 數據] --> B[SQLite 資料庫]
+    B --> C[技術指標計算]
+    C --> D[Ollama 本地模型]
+    D --> E[AI 交易決策]
+    E --> F[回測引擎]
+    F --> G[績效報告]
+```
+---
+
+## Colab 環境配置
+### 硬體限制
+- **免費版 GPU**：T4 (16GB VRAM)
+- **運行時間**：最長 12 小時
+- **RAM**：12‑13 GB
+- **磁碟**：78 GB
+
+### 模型選擇策略
+> ✅ **推薦**：先用 `gemma3:4b` 開發，確認流程無誤後再換 `deepseek-r1:7b`
+
+## 📋 格式示範 4：使用箭頭 + 對比
+### 模型選擇策略
+```
+階段 1：開發測試
+   → 推薦模型：gemma3:4b
+   → 顯存需求：~4GB
+   → 速度：快 ⚡
+   → 推理能力：中等 ⭐⭐⭐
+
+階段 2：正式回測
+   → 推薦模型：deepseek-r1:7b
+   → 顯存需求：~7GB
+   → 速度：中等 ⚡⚡
+   → 推理能力：強 ⭐⭐⭐⭐
+
+階段 3：深度分析
+   → 推薦模型：qwen3:14b
+   → 顯存需求：~14GB
+   → 速度：慢 ⚡⚡⚡
+   → 推理能力：很強 ⭐⭐⭐⭐⭐
+```
+---
+## 📋 格式示範 2：使用 Emoji + 引用區塊
+### Colab 免費版 vs 付費版比較
+> 🆓 **免費版**
+> ├─ 使用 14B+ 模型：❌ 不支援
+> ├─ 連續運行 24 小時：❌ 不支援
+> ├─ 高速 GPU (V100/A100)：❌ 不支援
+> └─ 處理 10 年以上數據：⚠️ 速度慢
+>
+> > 💎 **Colab Pro ($9.99/月)**
+> > ├─ 使用 14B+ 模型：✅ 支援
+> > ├─ 連續運行 24 小時：✅ 支援
+> > ├─ 高速 GPU (V100/A100)：✅ 支援
+> > └─ 處理 10 年以上數據：✅ 速度快
+---
+## 資料庫設計（精簡版）
+### `daily_data` 表（每日市場數據）
+- `date` (DATE, PK)
+- `symbol` (VARCHAR(10))
+- 價格欄位：`open`, `high`, `low`, `close`, `volume`
+- 技術指標：`sma_20`, `sma_50`, `sma_200`, `rsi_14`, `macd`, `macd_signal`
+- 市場環境：`spy_return`, `vix`, `market_regime`
+
+### `ai_analysis` 表（AI 分析結果）
+- `date`, `symbol`
+- 市場看法：`market_view`
+- 技術分數：`technical_score` (0‑100)
+- 風險等級：`risk_level`
+- 決策：`action` (BUY/SELL/HOLD), `position_size` (0‑1), `confidence`
+- 推理過程：`reasoning`
+- 元數據：`model_used`, `tokens_used`, `processing_time`
+
+### `backtest_trades` 表（回測交易記錄）
+- `trade_id` (PK, AUTOINCREMENT)
+- `date`, `symbol`, `action` (BUY/SELL)
+- `shares`, `price`, `position_value`
+- `portfolio_value`, `cash`
+
+### `performance_metrics` 表（績效指標）
+- `date` (PK)
+- `total_value`, `daily_return`, `cumulative_return`
+- `max_drawdown`, `sharpe_ratio`, `win_rate`
+---
+## 分階段實施計劃
+### 🔵 Phase 1：基礎環境搭建（1 天）
+#### Notebook 1：`01_setup_environment.ipynb`
+```python
+# ==== 安裝 Ollama ====
+!curl -fsSL https://ollama.com/install.sh | sh
+
+# 啟動 Ollama 服務
+import subprocess, time
+proc = subprocess.Popen(['ollama', 'serve'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+time.sleep(5)
+
+# 下載模型
+!ollama pull gemma3:4b
+
+# ==== 安裝 Python 套件 ====
+!pip install yfinance pandas numpy sqlite3 ta-lib requests
+
+# ==== 建立資料庫 ====
+import sqlite3
+conn = sqlite3.connect('/content/trading_system.db')
+cursor = conn.cursor()
+# 建表（簡化版）
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS daily_data (
+    date DATE PRIMARY KEY,
+    symbol VARCHAR(10),
+    open REAL, high REAL, low REAL, close REAL, volume INTEGER,
+    sma_20 REAL, sma_50 REAL, sma_200 REAL,
+    rsi_14 REAL, macd REAL, macd_signal REAL,
+    spy_return REAL, vix REAL, market_regime TEXT
+)''')
+conn.commit()
+print('✅ 環境配置完成！')
+```
+---
+### 🟢 Phase 2：數據收集與處理（2 天）
+#### Notebook 2：`02_data_collection.ipynb`
+```python
+import yfinance as yf, pandas as pd
+from datetime import datetime, timedelta
+
+SYMBOLS = ['SPY', 'QQQ', 'IWM', 'DIA', 'VTI']
+START_DATE = '2020-01-01'
+END_DATE = '2024-12-31'
+
+def download_data(symbol, start, end):
+    data = yf.download(symbol, start=start, end=end)
+    data['Symbol'] = symbol
+    return data
+
+all_data = {sym: download_data(sym, START_DATE, END_DATE) for sym in SYMBOLS}
+
+# 計算技術指標（簡化版）
+def calculate_indicators(df):
+    df['SMA_20'] = df['Close'].rolling(20).mean()
+    df['SMA_50'] = df['Close'].rolling(50).mean()
+    df['SMA_200'] = df['Close'].rolling(200).mean()
+    delta = df['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
+    rs = gain / loss
+    df['RSI_14'] = 100 - (100 / (1 + rs))
+    exp1 = df['Close'].ewm(span=12, adjust=False).mean()
+    exp2 = df['Close'].ewm(span=26, adjust=False).mean()
+    df['MACD'] = exp1 - exp2
+    df['MACD_Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
+    return df
+
+for sym in SYMBOLS:
+    all_data[sym] = calculate_indicators(all_data[sym])
+
+# 市場狀態判斷（以 SPY 為基準）
+spy = all_data['SPY']
+
+def determine_market_regime(row):
+    if pd.isna(row['SMA_50']) or pd.isna(row['SMA_200']):
+        return 'Unknown'
+    if row['SMA_50'] > row['SMA_200']:
+        return 'Bull'
+    if row['SMA_50'] < row['SMA_200']:
+        return 'Bear'
+    return 'Sideways'
+
+spy['Market_Regime'] = spy.apply(determine_market_regime, axis=1)
+
+# 合併 VIX 資料
+vix = yf.download('^VIX', start=START_DATE, end=END_DATE)
+
+import sqlite3
+conn = sqlite3.connect('/content/trading_system.db')
+for sym, df in all_data.items():
+    df['Date'] = df.index
+    df['Symbol'] = sym
+    df = df.merge(spy[['Market_Regime']], left_on='Date', right_index=True, how='left')
+    df = df.merge(vix[['Close']].rename(columns={'Close': 'VIX'}), left_on='Date', right_index=True, how='left')
+    df['SPY_Return'] = spy['Close'].pct_change()
+    df.to_sql('daily_data', conn, if_exists='append', index=False)
+print('✅ 數據收集完成！')
+```
+---
+### 🟡 Phase 3：AI 決策引擎（3‑4 天）
+#### Notebook 3：`03_ai_decision_engine.ipynb`
+```python
+import requests, json, sqlite3, pandas as pd, time
+
+def query_ollama(prompt, model='gemma3:4b'):
+    url = 'http://localhost:11434/api/generate'
+    payload = {
+        'model': model,
+        'prompt': prompt,
+        'stream': False,
+        'options': {'temperature': 0.3, 'num_ctx': 4096}
+    }
+    resp = requests.post(url, json=payload)
+    data = resp.json()
+    return data['response'], data.get('eval_count', 0)
+
+# 市場分析範例
+def analyze_market(date, market_data):
+    prompt = f"你是一個專業量化分析師。請根據以下資料分析市場狀態：\n日期: {date}\nSPY 收盤: ${market_data['spy_close']:.2f}\nSMA_50: ${market_data['sma_50']:.2f}\nSMA_200: ${market_data['sma_200']:.2f}\nRSI: {market_data['rsi']:.1f}\nVIX: {market_data['vix']:.1f}\n市場趨勢: {market_data['regime']}\n\n請簡短回答（每項不超過 15 字）：\n1. 市場狀態？\n2. 風險等級？\n3. 建議倉位？"
+    resp, tokens = query_ollama(prompt)
+    return {'market_view': resp, 'tokens_used': tokens}
+```
+---
+### 🔴 Phase 4：回測引擎（2‑3 天）
+#### Notebook 4：`04_backtesting_engine.ipynb`
+```python
+import sqlite3, pandas as pd, numpy as np, time
+from tqdm import tqdm
+
+class SimpleBacktester:
+    def __init__(self, initial_capital=100000):
+        self.initial_capital = initial_capital
+        self.cash = initial_capital
+        self.positions = {}
+        self.portfolio_history = []
+
+    def get_ai_decision(self, date, symbol):
+        conn = sqlite3.connect('/content/trading_system.db')
+        df = pd.read_sql(f"SELECT * FROM ai_analysis WHERE date='{date}' AND symbol='{symbol}'", conn)
+        conn.close()
+        return df.iloc[0] if not df.empty else None
+
+    def get_price(self, date, symbol):
+        conn = sqlite3.connect('/content/trading_system.db')
+        df = pd.read_sql(f"SELECT close FROM daily_data WHERE date='{date}' AND symbol='{symbol}'", conn)
+        conn.close()
+        return df['close'].iloc[0] if not df.empty else None
+
+    def execute_trade(self, date, symbol, action, position_pct):
+        price = self.get_price(date, symbol)
+        if price is None:
+            return
+        if action == 'BUY':
+            target = self.cash * position_pct
+            shares = int(target / price)
+            if shares > 0:
+                self.cash -= shares * price
+                self.positions[symbol] = self.positions.get(symbol, 0) + shares
+        elif action == 'SELL':
+            shares = self.positions.get(symbol, 0)
+            if shares > 0:
+                self.cash += shares * price
+                self.positions[symbol] = 0
+
+    def get_portfolio_value(self, date):
+        total = self.cash
+        for sym, shares in self.positions.items():
+            if shares > 0:
+                price = self.get_price(date, sym)
+                if price:
+                    total += shares * price
+        return total
+
+    def run(self, start_date, end_date, symbols):
+        conn = sqlite3.connect('/content/trading_system.db')
+        days = pd.read_sql(f"SELECT DISTINCT date FROM daily_data WHERE date BETWEEN '{start_date}' AND '{end_date}' ORDER BY date", conn)['date']
+        conn.close()
+        for date in tqdm(days):
+            for sym in symbols:
+                decision = self.get_ai_decision(date, sym)
+                if decision is not None:
+                    self.execute_trade(date, sym, decision['action'], decision['position_size'])
+            self.portfolio_history.append({'date': date, 'value': self.get_portfolio_value(date)})
+        self.calculate_performance()
+        print('✅ 回測完成！')
+
+    def calculate_performance(self):
+        df = pd.DataFrame(self.portfolio_history)
+        df['return'] = df['value'].pct_change()
+        df['cum_return'] = (1 + df['return']).cumprod() - 1
+        df['peak'] = df['value'].cummax()
+        df['drawdown'] = (df['value'] - df['peak']) / df['peak']
+        max_dd = df['drawdown'].min()
+        sharpe = df['return'].mean() / df['return'].std() * np.sqrt(252)
+        conn = sqlite3.connect('/content/trading_system.db')
+        df.to_sql('performance_metrics', conn, if_exists='replace', index=False)
+        conn.close()
+        print(f"最大回撤: {max_dd*100:.2f}%")
+        print(f"Sharpe Ratio: {sharpe:.2f}")
+```
+---
+## 時間估算與成本
+### 開發時間表
+- **Phase 1**：環境搭建 – 1 天
+- **Phase 2**：數據收集 – 2 天
+- **Phase 3**：AI 決策引擎 – 3‑4 天
+- **Phase 4**：回測引擎 – 2‑3 天
+- **總計**：8‑10 天
+
+### Colab 免費版限制
+- ✅ 可行：輕量模型（4B‑7B）
+- ⚠️ 注意：12 小時運行限制
+- 💡 建議：分段處理，定期將資料庫備份至 Google Drive
+---
+## 下一步行動
+1. ✅ 完成環境搭建 Notebook（`01_setup_environment.ipynb`）
+2. ✅ 測試 Ollama + Gemma3 4B 在 Colab 上的運行
+3. ✅ 下載 SPY 歷史數據並建立資料庫
+4. ✅ 執行第一次 AI 決策測試
+
+如果您需要進一步調整或加入其他說明，隨時告訴我！
+
+## 目標
+在 Google Colab 免費環境下，使用 Ollama 本地模型建立 AI 交易決策系統的概念驗證版本。
+
+---
+
+## 系統架構（簡化版）
+```mermaid
+graph LR
+    A[yfinance 數據] --> B[SQLite 資料庫]
+    B --> C[技術指標計算]
+    C --> D[Ollama 本地模型]
+    D --> E[AI 交易決策]
+    E --> F[回測引擎]
+    F --> G[績效報告]
+```
+---
+
+## Colab 環境配置
+### 硬體限制
+- **免費版 GPU**：T4 (16GB VRAM)
+- **運行時間**：最長 12 小時
+- **RAM**：12‑13 GB
+- **磁碟**：78 GB
+
+### 模型選擇策略
+> ✅ **推薦**：先用 `gemma3:4b` 開發，確認流程無誤後再換 `deepseek-r1:7b`
+
+## 📋 格式示範 4：使用箭頭 + 對比
+### 模型選擇策略
+```
+階段 1：開發測試
+   → 推薦模型：gemma3:4b
+   → 顯存需求：~4GB
+   → 速度：快 ⚡
+   → 推理能力：中等 ⭐⭐⭐
+
+階段 2：正式回測
+   → 推薦模型：deepseek-r1:7b
+   → 顯存需求：~7GB
+   → 速度：中等 ⚡⚡
+   → 推理能力：強 ⭐⭐⭐⭐
+
+階段 3：深度分析
+   → 推薦模型：qwen3:14b
+   → 顯存需求：~14GB
+   → 速度：慢 ⚡⚡⚡
+   → 推理能力：很強 ⭐⭐⭐⭐⭐
+```
+---
+## 📋 格式示範 2：使用 Emoji + 引用區塊
+### Colab 免費版 vs 付費版比較
+> 🆓 **免費版**
+> ├─ 使用 14B+ 模型：❌ 不支援
+> ├─ 連續運行 24 小時：❌ 不支援
+> ├─ 高速 GPU (V100/A100)：❌ 不支援
+> └─ 處理 10 年以上數據：⚠️ 速度慢
+>
+> > 💎 **Colab Pro ($9.99/月)**
+> > ├─ 使用 14B+ 模型：✅ 支援
+> > ├─ 連續運行 24 小時：✅ 支援
+> > ├─ 高速 GPU (V100/A100)：✅ 支援
+> > └─ 處理 10 年以上數據：✅ 速度快
+---
+## 資料庫設計（精簡版）
+### `daily_data` 表（每日市場數據）
+- `date` (DATE, PK)
+- `symbol` (VARCHAR(10))
+- 價格欄位：`open`, `high`, `low`, `close`, `volume`
+- 技術指標：`sma_20`, `sma_50`, `sma_200`, `rsi_14`, `macd`, `macd_signal`
+- 市場環境：`spy_return`, `vix`, `market_regime`
+
+### `ai_analysis` 表（AI 分析結果）
+- `date`, `symbol`
+- 市場看法：`market_view`
+- 技術分數：`technical_score` (0‑100)
+- 風險等級：`risk_level`
+- 決策：`action` (BUY/SELL/HOLD), `position_size` (0‑1), `confidence`
+- 推理過程：`reasoning`
+- 元數據：`model_used`, `tokens_used`, `processing_time`
+
+### `backtest_trades` 表（回測交易記錄）
+- `trade_id` (PK, AUTOINCREMENT)
+- `date`, `symbol`, `action` (BUY/SELL)
+- `shares`, `price`, `position_value`
+- `portfolio_value`, `cash`
+
+### `performance_metrics` 表（績效指標）
+- `date` (PK)
+- `total_value`, `daily_return`, `cumulative_return`
+- `max_drawdown`, `sharpe_ratio`, `win_rate`
+---
+## 分階段實施計劃
+### 🔵 Phase 1：基礎環境搭建（1 天）
+#### Notebook 1：`01_setup_environment.ipynb`
+```python
+# ==== 安裝 Ollama ====
+!curl -fsSL https://ollama.com/install.sh | sh
+
+# 啟動 Ollama 服務
+import subprocess, time
+proc = subprocess.Popen(['ollama', 'serve'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+time.sleep(5)
+
+# 下載模型
+!ollama pull gemma3:4b
+
+# ==== 安裝 Python 套件 ====
+!pip install yfinance pandas numpy sqlite3 ta-lib requests
+
+# ==== 建立資料庫 ====
+import sqlite3
+conn = sqlite3.connect('/content/trading_system.db')
+cursor = conn.cursor()
+# 建表（簡化版）
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS daily_data (
+    date DATE PRIMARY KEY,
+    symbol VARCHAR(10),
+    open REAL, high REAL, low REAL, close REAL, volume INTEGER,
+    sma_20 REAL, sma_50 REAL, sma_200 REAL,
+    rsi_14 REAL, macd REAL, macd_signal REAL,
+    spy_return REAL, vix REAL, market_regime TEXT
+)''')
+conn.commit()
+print('✅ 環境配置完成！')
+```
+---
+### 🟢 Phase 2：數據收集與處理（2 天）
+#### Notebook 2：`02_data_collection.ipynb`
+```python
+import yfinance as yf, pandas as pd
+from datetime import datetime, timedelta
+
+SYMBOLS = ['SPY', 'QQQ', 'IWM', 'DIA', 'VTI']
+START_DATE = '2020-01-01'
+END_DATE = '2024-12-31'
+
+def download_data(symbol, start, end):
+    data = yf.download(symbol, start=start, end=end)
+    data['Symbol'] = symbol
+    return data
+
+all_data = {sym: download_data(sym, START_DATE, END_DATE) for sym in SYMBOLS}
+
+# 計算技術指標（簡化版）
+def calculate_indicators(df):
+    df['SMA_20'] = df['Close'].rolling(20).mean()
+    df['SMA_50'] = df['Close'].rolling(50).mean()
+    df['SMA_200'] = df['Close'].rolling(200).mean()
+    delta = df['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
+    rs = gain / loss
+    df['RSI_14'] = 100 - (100 / (1 + rs))
+    exp1 = df['Close'].ewm(span=12, adjust=False).mean()
+    exp2 = df['Close'].ewm(span=26, adjust=False).mean()
+    df['MACD'] = exp1 - exp2
+    df['MACD_Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
+    return df
+
+for sym in SYMBOLS:
+    all_data[sym] = calculate_indicators(all_data[sym])
+
+# 市場狀態判斷（以 SPY 為基準）
+spy = all_data['SPY']
+
+def determine_market_regime(row):
+    if pd.isna(row['SMA_50']) or pd.isna(row['SMA_200']):
+        return 'Unknown'
+    if row['SMA_50'] > row['SMA_200']:
+        return 'Bull'
+    if row['SMA_50'] < row['SMA_200']:
+        return 'Bear'
+    return 'Sideways'
+
+spy['Market_Regime'] = spy.apply(determine_market_regime, axis=1)
+
+# 合併 VIX 資料
+vix = yf.download('^VIX', start=START_DATE, end=END_DATE)
+
+import sqlite3
+conn = sqlite3.connect('/content/trading_system.db')
+for sym, df in all_data.items():
+    df['Date'] = df.index
+    df['Symbol'] = sym
+    df = df.merge(spy[['Market_Regime']], left_on='Date', right_index=True, how='left')
+    df = df.merge(vix[['Close']].rename(columns={'Close': 'VIX'}), left_on='Date', right_index=True, how='left')
+    df['SPY_Return'] = spy['Close'].pct_change()
+    df.to_sql('daily_data', conn, if_exists='append', index=False)
+print('✅ 數據收集完成！')
+```
+---
+### 🟡 Phase 3：AI 決策引擎（3‑4 天）
+#### Notebook 3：`03_ai_decision_engine.ipynb`
+```python
+import requests, json, sqlite3, pandas as pd, time
+
+def query_ollama(prompt, model='gemma3:4b'):
+    url = 'http://localhost:11434/api/generate'
+    payload = {
+        'model': model,
+        'prompt': prompt,
+        'stream': False,
+        'options': {'temperature': 0.3, 'num_ctx': 4096}
+    }
+    resp = requests.post(url, json=payload)
+    data = resp.json()
+    return data['response'], data.get('eval_count', 0)
+
+# 市場分析範例
+def analyze_market(date, market_data):
+    prompt = f"你是一個專業量化分析師。請根據以下資料分析市場狀態：\n日期: {date}\nSPY 收盤: ${market_data['spy_close']:.2f}\nSMA_50: ${market_data['sma_50']:.2f}\nSMA_200: ${market_data['sma_200']:.2f}\nRSI: {market_data['rsi']:.1f}\nVIX: {market_data['vix']:.1f}\n市場趨勢: {market_data['regime']}\n\n請簡短回答（每項不超過 15 字）：\n1. 市場狀態？\n2. 風險等級？\n3. 建議倉位？"
+    resp, tokens = query_ollama(prompt)
+    return {'market_view': resp, 'tokens_used': tokens}
+```
+---
+### 🔴 Phase 4：回測引擎（2‑3 天）
+#### Notebook 4：`04_backtesting_engine.ipynb`
+```python
+import sqlite3, pandas as pd, numpy as np, time
+from tqdm import tqdm
+
+class SimpleBacktester:
+    def __init__(self, initial_capital=100000):
+        self.initial_capital = initial_capital
+        self.cash = initial_capital
+        self.positions = {}
+        self.portfolio_history = []
+
+    def get_ai_decision(self, date, symbol):
+        conn = sqlite3.connect('/content/trading_system.db')
+        df = pd.read_sql(f"SELECT * FROM ai_analysis WHERE date='{date}' AND symbol='{symbol}'", conn)
+        conn.close()
+        return df.iloc[0] if not df.empty else None
+
+    def get_price(self, date, symbol):
+        conn = sqlite3.connect('/content/trading_system.db')
+        df = pd.read_sql(f"SELECT close FROM daily_data WHERE date='{date}' AND symbol='{symbol}'", conn)
+        conn.close()
+        return df['close'].iloc[0] if not df.empty else None
+
+    def execute_trade(self, date, symbol, action, position_pct):
+        price = self.get_price(date, symbol)
+        if price is None:
+            return
+        if action == 'BUY':
+            target = self.cash * position_pct
+            shares = int(target / price)
+            if shares > 0:
+                self.cash -= shares * price
+                self.positions[symbol] = self.positions.get(symbol, 0) + shares
+        elif action == 'SELL':
+            shares = self.positions.get(symbol, 0)
+            if shares > 0:
+                self.cash += shares * price
+                self.positions[symbol] = 0
+
+    def get_portfolio_value(self, date):
+        total = self.cash
+        for sym, shares in self.positions.items():
+            if shares > 0:
+                price = self.get_price(date, sym)
+                if price:
+                    total += shares * price
+        return total
+
+    def run(self, start_date, end_date, symbols):
+        conn = sqlite3.connect('/content/trading_system.db')
+        days = pd.read_sql(f"SELECT DISTINCT date FROM daily_data WHERE date BETWEEN '{start_date}' AND '{end_date}' ORDER BY date", conn)['date']
+        conn.close()
+        for date in tqdm(days):
+            for sym in symbols:
+                decision = self.get_ai_decision(date, sym)
+                if decision is not None:
+                    # 假設 decision 包含 action 與 position_size（0‑1）
+                    self.execute_trade(date, sym, decision['action'], decision['position_size'])
+            self.portfolio_history.append({'date': date, 'value': self.get_portfolio_value(date)})
+        self.calculate_performance()
+        print('✅ 回測完成！')
+
+    def calculate_performance(self):
+        df = pd.DataFrame(self.portfolio_history)
+        df['return'] = df['value'].pct_change()
+        df['cum_return'] = (1 + df['return']).cumprod() - 1
+        df['peak'] = df['value'].cummax()
+        df['drawdown'] = (df['value'] - df['peak']) / df['peak']
+        max_dd = df['drawdown'].min()
+        sharpe = df['return'].mean() / df['return'].std() * np.sqrt(252)
+        conn = sqlite3.connect('/content/trading_system.db')
+        df.to_sql('performance_metrics', conn, if_exists='replace', index=False)
+        conn.close()
+        print(f"最大回撤: {max_dd*100:.2f}%")
+        print(f"Sharpe Ratio: {sharpe:.2f}")
+```
+---
+## 時間估算與成本
+### 開發時間表
+- **Phase 1**：環境搭建 – 1 天
+- **Phase 2**：數據收集 – 2 天
+- **Phase 3**：AI 決策引擎 – 3‑4 天
+- **Phase 4**：回測引擎 – 2‑3 天
+- **總計**：8‑10 天
+
+### Colab 免費版限制
+- ✅ 可行：輕量模型（4B‑7B）
+- ⚠️ 注意：12 小時運行限制
+- 💡 建議：分段處理，定期將資料庫備份至 Google Drive
+---
+## 下一步行動
+1. ✅ 完成環境搭建 Notebook（`01_setup_environment.ipynb`）
+2. ✅ 測試 Ollama + Gemma3 4B 在 Colab 上的運行
+3. ✅ 下載 SPY 歷史數據並建立資料庫
+4. ✅ 執行第一次 AI 決策測試
+
+如果您需要我直接在此文件中加入其他說明或調整格式，請告訴我！
+
+## 目標
+在 Google Colab 免費環境下，使用 Ollama 本地模型建立 AI 交易決策系統的概念驗證版本。
+
+---
+
+## 系統架構（簡化版）
 
 ```mermaid
 graph LR
@@ -36,6 +667,44 @@ graph LR
 | 深度分析 | `qwen3:14b` | ~14GB | 慢 | 很強 |
 
 > ✅ **推薦**：先用 `gemma3:4b` 開發，確認流程無誤後再換 `deepseek-r1:7b`
+
+## 📋 格式示範 4：使用箭頭 + 對比
+### 模型選擇策略
+```
+階段 1：開發測試
+   → 推薦模型：gemma3:4b
+   → 顯存需求：~4GB
+   → 速度：快 ⚡
+   → 推理能力：中等 ⭐⭐⭐
+
+階段 2：正式回測
+   → 推薦模型：deepseek-r1:7b
+   → 顯存需求：~7GB
+   → 速度：中等 ⚡⚡
+   → 推理能力：強 ⭐⭐⭐⭐
+
+階段 3：深度分析
+   → 推薦模型：qwen3:14b
+   → 顯存需求：~14GB
+   → 速度：慢 ⚡⚡⚡
+   → 推理能力：很強 ⭐⭐⭐⭐⭐
+```
+
+---
+
+## 📋 格式示範 2：使用 Emoji + 引用區塊
+### Colab 免費版 vs 付費版比較
+> 🆓 **免費版**
+> ├─ 使用 14B+ 模型：❌ 不支援
+> ├─ 連續運行 24 小時：❌ 不支援
+> ├─ 高速 GPU (V100/A100)：❌ 不支援
+> └─ 處理 10 年以上數據：⚠️ 速度慢
+>
+> > 💎 **Colab Pro ($9.99/月)**
+> > ├─ 使用 14B+ 模型：✅ 支援
+> > ├─ 連續運行 24 小時：✅ 支援
+> > ├─ 高速 GPU (V100/A100)：✅ 支援
+> > └─ 處理 10 年以上數據：✅ 速度快
 
 ---
 

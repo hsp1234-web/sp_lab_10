@@ -1,0 +1,123 @@
+# RORO 動態風險管理策略配置檔案
+# 版本: 1.0
+# 更新日期: 2025年11月27日
+
+# API 金鑰配置
+api_keys:
+  fred: "c85a224a0e0d72a7bccb471c0021eb7b7b"
+
+# 數據來源配置
+data_sources:
+  fred_base_url: "https://api.stlouisfed.org/fred"
+  yahoo_finance_timeout: 30
+  fred_request_timeout: 60
+
+# 宏觀指標配置
+macro_indicators:
+  sofr_series: "SOFR"
+  dff_series: "DFF"
+  treasury_1y: "DGS1"
+  treasury_5y: "DGS5"
+  treasury_10y: "DGS10"
+  treasury_30y: "DGS30"
+  treasury_10y2y_spread: "T10Y2Y"
+  treasury_10y3m_spread: "T10Y3M"
+  high_yield_spread: "BAMLH0A0HYM2"
+  industrial_production: "INDPRO"
+  m2_money_supply: "M2SL"
+  vix_index: "VIX"
+  move_index: "^MOVE"
+
+# NY Fed 數據配置 (參考一級交易商數據)
+ny_fed:
+  # SBN (Securities Bought Net?) - 毛持有量
+  sbn_urls:
+    - "https://www.newyorkfed.org/medialibrary/media/research/data_indicators/sbn.xlsx"
+
+  # SBP (Securities Bought Paid?) - 淨持有量
+  sbp2013_urls:
+    - "https://www.newyorkfed.org/medialibrary/media/research/data_indicators/sbp.xlsx"
+    - "https://www.newyorkfed.org/medialibrary/media/research/data_indicators/sbp2001.xlsx"
+
+  # SBP 欄位加總配置
+  sbp2013_cols_to_sum:
+    - "PDPOSGSC-PDPOSGSC"
+    - "PDPOSGSC-PDPOSGSCT"
+    - "PDPOSGSC-PDPOSGSCF"
+
+  sbp2001_cols_to_sum:
+    - "PDPOSGSC"
+    - "PDPOSGSCT"
+    - "PDPOSGSCF"
+
+# 市場寬度配置
+market_width:
+  taiwan_indices:
+    main_index: "^TWII"
+    large_caps:
+      - "2330.TW"  # 台積電
+      - "2454.TW"  # 聯發科
+      - "2317.TW"  # 鴻海
+      - "2412.TW"  # 中華電
+      - "2382.TW"  # 廣達
+    small_caps:
+      - "9945.TW"  # 潤泰新
+      - "1434.TW"  # 福懋油
+      - "1707.TW"  # 葡萄王
+
+# RORO 狀態配置
+roro_states:
+  market_width_thresholds:
+    strong_bullish: 1.0
+    weak_bullish: 0.3
+    neutral: 0.0
+    weak_bearish: -0.3
+    strong_bearish: -1.0
+
+  pressure_thresholds:
+    low_pressure: -0.5
+    moderate_pressure: 0.0
+    high_pressure: 0.5
+    extreme_pressure: 1.0
+
+# 資產配置建議
+asset_allocation:
+  full_risk_on:      # 強風險開啟
+    TXF: 0.6
+    TLT: 0.3
+    GLD: 0.1
+
+  moderate_risk_on:  # 弱風險開啟
+    TXF: 0.4
+    TLT: 0.4
+    GLD: 0.2
+
+  neutral:           # 中性
+    TXF: 0.2
+    TLT: 0.5
+    GLD: 0.3
+
+  moderate_risk_off: # 弱風險關閉
+    TXF: 0.1
+    TLT: 0.6
+    GLD: 0.3
+
+  full_risk_off:     # 強風險關閉
+    TXF: 0.0
+    TLT: 0.7
+    GLD: 0.3
+
+# 回測配置
+backtest:
+  benchmark_ticker: "^TWII"
+  risk_free_rate: 0.02
+  confidence_level: 0.95
+
+# 報告配置
+reporting:
+  output_dir: "output"
+  html_template: "roro_report_template.html"
+  chart_style: "seaborn"
+
+
+

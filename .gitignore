@@ -72,8 +72,9 @@ pandas_test.txt
 
 # Jupyter Notebook
 .ipynb_checkpoints/
-*.ipynb
-!plan/*.ipynb    # 允許 plan 資料夾中的 Notebook 檔案
+# *.ipynb  # 已註解,允許所有 .ipynb 檔案被追蹤
+# !plan/**/*.ipynb      # 不再需要例外規則
+# !colab_env/**/*.ipynb # 不再需要例外規則
 
 # 環境變數
 .env

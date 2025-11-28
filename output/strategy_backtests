@@ -1,0 +1,120 @@
+{
+  "trades": [
+    {
+      "entry_date": "2020-06-12 00:00:00",
+      "entry_price": 11313.0,
+      "position": -0.2,
+      "market_state": "neutral",
+      "signal": "中性市小空頭",
+      "confidence": 0.6
+    },
+    {
+      "entry_date": "2020-06-12 00:00:00",
+      "exit_date": "2020-07-27 00:00:00",
+      "entry_price": 11313.0,
+      "exit_price": 12503.0,
+      "position": -0.2,
+      "pnl": 0.021037744188102184,
+      "holding_days": 45,
+      "exit_reason": "止盈: 獲利10.5%",
+      "market_state": "strong_bull"
+    },
+    {
+      "entry_date": "2021-02-26 00:00:00",
+      "entry_price": 15935.0,
+      "position": -0.2,
+      "market_state": "neutral",
+      "signal": "中性市小空頭",
+      "confidence": 0.6
+    },
+    {
+      "entry_date": "2021-02-26 00:00:00",
+      "exit_date": "2021-04-27 00:00:00",
+      "entry_price": 15935.0,
+      "exit_price": 17525.0,
+      "position": -0.2,
+      "pnl": 0.019956071540633825,
+      "holding_days": 60,
+      "exit_reason": "時間止損: 持有60天",
+      "market_state": "neutral"
+    },
+    {
+      "entry_date": "2021-05-04 00:00:00",
+      "entry_price": 17270.0,
+      "position": -0.2,
+      "market_state": "neutral",
+      "signal": "中性市小空頭",
+      "confidence": 0.6
+    },
+    {
+      "entry_date": "2021-05-04 00:00:00",
+      "exit_date": "2021-05-12 00:00:00",
+      "entry_price": 17270.0,
+      "exit_price": 15110.0,
+      "position": -0.2,
+      "pnl": -0.025014475969889982,
+      "holding_days": 8,
+      "exit_reason": "止損: 虧損-12.5%",
+      "market_state": "strong_bear"
+    },
+    {
+      "entry_date": "2021-06-21 00:00:00",
+      "entry_price": 17045.0,
+      "position": -0.2,
+      "market_state": "neutral",
+      "signal": "中性市小空頭",
+      "confidence": 0.6
+    },
+    {
+      "entry_date": "2021-06-21 00:00:00",
+      "exit_date": "2021-08-20 00:00:00",
+      "entry_price": 17045.0,
+      "exit_price": 16295.0,
+      "position": -0.2,
+      "pnl": -0.008800234672924612,
+      "holding_days": 60,
+      "exit_reason": "時間止損: 持有60天",
+      "market_state": "strong_bear"
+    },
+    {
+      "entry_date": "2022-06-13 00:00:00",
+      "entry_price": 15426.0,
+      "position": -0.2,
+      "market_state": "neutral",
+      "signal": "中性市小空頭",
+      "confidence": 0.6
+    },
+    {
+      "entry_date": "2022-06-13 00:00:00",
+      "exit_date": "2022-07-01 00:00:00",
+      "entry_price": 15426.0,
+      "exit_price": 13795.0,
+      "position": -0.2,
+      "pnl": -0.02114611694541683,
+      "holding_days": 18,
+      "exit_reason": "止損: 虧損-10.6%",
+      "market_state": "strong_bear"
+    }
+  ],
+  "daily_pnl": "<class 'list'> object",
+  "position_history": "<class 'list'> object",
+  "performance": {
+    "total_return": -0.09338963825524764,
+    "annualized_return": -0.01899450269598257,
+    "max_drawdown": -0.9697188389320537,
+    "sharpe_ratio": -3.1198615990128986,
+    "win_rate": 0.25,
+    "avg_win": 0.020496907864368002,
+    "avg_loss": -0.022397242330663942,
+    "profit_factor": 0.3050510647956839,
+    "total_trades": 8
+  },
+  "summary": {
+    "total_trades": 8,
+    "winning_trades": 2,
+    "losing_trades": 6,
+    "total_return": -0.09338963825524764,
+    "max_drawdown": -0.9697188389320537,
+    "sharpe_ratio": -3.1198615990128986
+  }
+}

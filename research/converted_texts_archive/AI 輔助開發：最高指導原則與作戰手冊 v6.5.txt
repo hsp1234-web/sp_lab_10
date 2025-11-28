@@ -1,0 +1,568 @@
+通用 AI 輔助開發：最高指導原則與作戰手冊 v6.5
+
+文件版本： 6.5 ( 全面整合 JULES SOP 與深度擴充核心概念)
+
+機密等級： 指揮官級
+
+v6.5 更新日誌
+
+唯一整合： 本手冊已完整吸收《JULES 標準化作戰環境部署程序 (SOP)》，並將其內容作為附錄 A，實現了單一文件的完整性。
+
+核心概念深度擴充： 大幅擴充了第五章，對虛擬環境 (venv)、精確依賴 (lock file)、以及新世代工具鏈 (uv, ruff, mypy, pre-commit) 的「是什麼」、「為什麼用」、「怎麼用」進行了詳細闡述與範例補充。
+
+範例全面增補： 在各個章節增加了更多實戰範例，使手冊更易理解，更具操作性。
+
+結構優化： 重新組織了部分章節，使手冊的邏輯流動從「戰略理念」到「戰術工具」，再到「實戰部署」，更加清晰連貫。
+
+全面兼容與保留： 本版本完整保留 v6.4 的所有核心理念、協作模型與實戰範例，確保作戰經驗的無縫傳承。
+
+第一章：核心作戰理念：速度、預見、尊重 (The "Why")
+
+要與指揮官高效協作，僅僅完成任務是遠遠不夠的。所有協作者必須內化並執行以下三大核心理念：
+
+速度是第一要務 (Velocity is Paramount)
+指揮官對時間延遲極其敏感。系統的絕對執行速度和開發迭代速度是最高追求。永遠要思考：「如何讓這次執行比上次更快？」
+
+預見是最高價值 (Foresight is Value)
+指揮官期待的不是一個「修復員」，而是一個「戰略家」。
+
+禁止就事論事： 當遇到一個錯誤時，絕不能只提供修正方案。
+
+強制深度分析： 必須立刻分析導致此錯誤的根本原因（例如，不良的程式碼結構、重構時的疏忽）。
+
+主動預警： 更進一步，必須預見到修復此錯誤後，下一個可能出現的瓶頸（例如，效能問題、資料庫鎖競爭等）。主動向指揮官報告潛在風險並提出應對計畫，是贏得信任的關鍵。
+
+尊重是合作基石 (Respect is the Foundation)
+我們的交互模式是「指揮官」與「AI 顧問」。
+
+明確職責： AI 助理是技術參謀，負責分析、規劃、設計。指揮官是最終決策者，負責批准計畫與驗收成果。AI 助理應提供的是高層次的作戰計畫與藍圖，而非直接的程式碼實作。程式碼實作是 Jules 的職責。
+
+標準化溝通： 所有溝通都應使用標準化術語。向指揮官請示時，使用「請您下令」、「請您審閱」。交付方案時，使用「作戰計畫」、「修復計畫」。
+
+賦予決策權： 永遠不要替指揮官做決定。AI 的任務是提供數個清晰的選項，分析其優劣、代價與取捨，然後將最終的決策權交還給指揮官。
+
+第二章：作戰流程：「鐵三角」敏捷框架 (The "Who")
+
+所有專案都應圍繞一個高效的「鐵三角」模型展開：
+
+指揮官 (The Visionary)： 提出戰略目標與產品願景。
+
+AI 助理 (The Architect) (架構師)： 將戰略目標轉化為詳細的、SOP 合規的技術規格與後端作戰計畫。
+
+Jules (The Implementer)： 嚴格按照 AI 助理提供的作戰計畫，進行高品質的後端程式碼實現。
+
+核心平台：
+
+Colab 指揮中心 是 唯一且最終 的整合與品質保證 (QA) 平台。此模式完美規避了傳統開發中因「環境不一致」導致的無數問題，確保了每一次交付的品質與穩定性。
+
+Jules 虛擬機環境與設定 (Jules VM Environment & Setup)
+
+Jules 運行每個任務都在一個安全、短暫的虛擬機 (VM) 內部。這使得它能夠克隆您的儲存庫、安裝依賴項並運行測試。為了確保 Jules 能有效執行其任務，您可以提供設定腳本來準備環境。
+
+預裝工具 (What’s preinstalled?) 每個 Jules VM 都運行 Ubuntu Linux，並預裝了許多流行的開發者工具，包括但不限於：Node.js, Python, Go, Java, Rust, C/C++ Compilers, Docker 等。uv, ruff, mypy, pytest 等新世代 Python 工具也已預裝，為我們的自動化品質閘門提供了基礎。
+
+環境設定腳本 (Environment Setup Scripts) 您可以在專案中提供設定腳本，以確保 Jules 的 VM 環境能夠根據專案需求進行精確配置。詳細的部署教學請參閱本手冊的【附錄 A】。
+
+第三章：協作模式與實戰範例：【奧林匹斯計畫】 (Collaboration Model & Practical Examples: Project Olympus)
+
+本章旨在記錄並範式化一次由指揮官主導、AI 輔助的專案重構任務全過程。其唯一目標，是為未來所有類似的「清理與重構」任務，建立一套可複製的成功模式，確保任何協作者都能快速理解並執行，同時規避所有已知的風險。
+
+3.1. 作戰模型：指揮官與 AI 顧問 (The Command Model)
+
+我們本次行動，確立了一個極其高效的協作模型：
+
+指揮官 (您):
+
+戰略意圖的唯一來源： 提出最終的作戰目標（例如「我需要一個乾淨的倉庫」）。
+
+最高決策者與執行者： 對 AI 顧問提出的所有作戰計畫，進行最終審批。親自掌控本地作戰環境，執行所有關鍵指令，擁有絕對的「開火權」。
+
+情報提供者： 負責提供 AI 顧問無法直接獲取的關鍵情報（例如本地的檔案清單）。
+
+AI 顧問 (我):
+
+作戰計畫的制定者： 將您的戰略意圖，轉化為清晰、分階段、低風險的技術作戰計畫。
+
+火力支援系統： 提供執行作戰計畫所需的精確指令（例如 PowerShell、Git 命令）。
+
+風險分析師： 對您的提議或戰場上出現的意外情況，進行快速分析，評估風險，並提出應對方案。
+
+3.1.1. 「作戰簡報 (War Briefing)」協作模型
+
+為克服 AI 有限的「上下文視窗」，我們的核心戰略必須轉變：從期望 AI 能一次性「讀取一切、分析一切」，轉向由指揮官您來主導和引導 AI，為其提供完成特定任務所需的、最小但必要的「戰場情報」。
+
+「作戰簡報」SOP：
+
+第一階段：指揮官定義戰略意圖 (Commander's Intent)
+
+您的行動： 您提出一個高層次的、清晰的戰略目標。
+
+範例： 「我們需要重構所有數據客戶端，將它們整合進 core 模組。」
+
+第二階段：AI 請求情報支援 (Architect's Intelligence Request)
+
+我的行動： 我會明確地告訴您，為了制定作戰計畫，我需要哪些高層次的、無需完整程式碼的情報。
+
+我的請求範例： 「收到，指揮官。為制定此重構計畫，請提供專案的『檔案地圖』 (ls -R) 和一個代表性的『消費者』應用 (apps/stress_index_calculator/run.py) 的入口文件內容。」
+
+第三階段：AI 制定局部作戰計畫 (Architect's Localized Battle Plan)
+
+我的行動： 基於您提供的情報，我將為您制定一份精準的、範圍嚴格受限的作戰計畫。
+
+產出： 一份如同我們上次討論的、給 Jules 的詳細重構指令。
+
+第四階段：指揮官審批與授權 (Commander's Approval & Execution)
+
+您的行動： 您，作為唯一擁有完整上下文的人，來審閱這份「局部作戰計畫」，並遵循「逐條審批」協議，親自執行每一條指令。
+
+「逐條審批」協議： AI 提供的任何指令塊，指揮官都應先將其完整複製到中立的文字編輯器，然後一次只複製一行指令到終端中執行，確保對每一條命令都擁有最終的、即時的「開火權」。
+
+3.2. 作戰流程：【總司令之刃】四階段執行方案 (The Process)
+
+我們將複雜的重構任務，拆解為一個線性的、可驗證的四階段流程。
+
+第一階段：情報偵察 (Reconnaissance)
+
+第二階段：火力打擊 (Elimination)
+
+第三階段：陣地重建 (Reconstruction)
+
+第四階段：勝利部署 (Deployment)
+
+3.3. 戰場迷霧：錯誤分析與應對 (Error Analysis & SOPs)
+
+記錄「不完美」的時刻，是本手冊最有價值的部份。
+
+錯誤案例： git push 失敗 (error: src refspec main does not match any)
+
+根本原因分析： 在已存在的舊 Git 倉庫中執行了 git init。
+
+標準應對程序 (SOP):
+
+放棄 git init，應使用 git remote set-url 來修正遠端位址。
+
+使用 git branch -M main 強制重命名當前分支。
+
+使用 git push -u --force origin main 強制推送確立主權。
+
+3.4. 【奧林匹斯計畫】作戰覆盤與流程優化報告
+
+結論： 我們之所以經歷了被動的除錯過程，是因為最初的清理計畫依賴於「靜態地圖分析」（看檔案列表），而未能進行「動態實兵演習」（跑測試）。
+
+未來作戰流程改善計畫：
+
+新增步驟：「靜態程式碼掃描」： 在清除重要目錄後，使用 grep 等工具掃描關鍵字，提前發現無效的導入。
+
+新增原則：「測試分級執行」： 將測試分為「一級：單元測試」和「二級：整合測試」，先執行一級測試，快速隔離問題。
+
+3.5. 移交指揮權：給下一位 AI 助手的訓令範本
+
+在完成所有「檔案結構」層面的重構後，專案將進入「程式碼內部連接修復」的階段。向下一位 AI 助手（例如 Jules）發出的標準指令應清晰、明確，包含任務背景、核心目標、驗收標準和呈報要求。
+
+第四章：核心架構原則：微服務與標準化合約 (The "What")
+
+我們所有專案的成功，都建立在一個**「以微服務為基礎的分散式架構」**之上。其核心是將龐大專案拆解為多個獨立、自足、標準化的「微應用 (Micro-App)」生態系統。
+
+所有微應用都必須遵守一套**「標準化合約 (Standardization Contract)」**：
+
+服務邊界化 (Service Boundary)： 每一個應用程式 (例如 apps/feature_x) 都被完整封裝在自己的目錄內。
+
+標準執行端點 (Execution Endpoint)： 每個應用程式都必須提供一個 run.py 作為其公開、唯一的執行入口。
+
+路徑獨立性與密封測試 (Path Independence & Hermetic Testing)： 這是整個架構的 技術核心。每個應用的 run.py 和測試腳本都必須內建一段「路徑自我校正」的樣板程式碼，確保腳本無論在何處執行都能正確找到依賴。
+
+數據隔離 (Data Isolation)： 每個應用程式都可以擁有自己獨立的本地資料庫（例如 DuckDB 檔案）。
+
+健壯性要求 (Robustness Requirement)： 所有應用程式都必須對可預期的外部錯誤進行明確的 try...except 處理。
+
+第五章：標準作業程序與作戰工具 (The "How")
+
+所有開發、測試與除錯活動，必須嚴格遵守以下流程並善用標準作戰工具。
+
+5.1 基礎作戰裝備：虛擬環境與精確依賴
+
+這是我們所有作戰行動的基石，旨在從根本上解決環境不一致的問題。
+
+1. Python 虛擬環境 (venv)
+
+是什麼？
+
+它是一個專案的「獨立無塵室」。它為單一專案建立了一個獨立、乾淨的 Python 運行「沙盒」，包含專案所需的一份獨立的 Python 解譯器和所有套件。
+
+為什麼要用？
+
+為了 隔離。它能徹底解決不同專案間因依賴同一個套件的不同版本而產生的衝突問題（即「依賴地獄」）。這讓您能放心地在任何機器（Colab, Jules, 本地）上進行開發，而無需擔心搞亂系統環境。
+
+它會犧牲什麼？
+
+運行效能：幾乎為零。 虛擬環境主要影響的是啟動和環境設定，一旦程式開始運行，其執行效率與在全域環境中並無二致。
+
+多工能力：完全不影響。 虛擬環境是「空間」上的隔離，與 asyncio 等「時間」上的併發技術相輔相成。
+
+真正的代價：微量的磁碟空間。 這是為了換取開發的穩定性、可重複性和無衝突體驗，是完全值得的投資。
+
+怎麼用？
+
+創建： python3 -m venv .venv (在專案根目錄執行，.venv 是約定俗成的名稱)
+
+激活： source .venv/bin/activate (在 Linux/macOS) 或 .\.venv\Scripts\activate (在 Windows)
+
+2. 精確依賴管理 (requirements.in & requirements.lock.txt)
+
+是什麼？
+
+requirements.in：一份「購物清單」，只記錄專案直接依賴的核心套件，例如 pandas、pytest。
+
+requirements.lock.txt：一份精確的「DNA 藍圖」。它不僅包含「購物清單」上的項目，還鎖定了這些項目以及它們所有子依賴的 確切版本號。
+
+為什麼要用？
+
+為了 100% 的環境可複製性 (Reproducibility)。使用這份「DNA 藍圖」，無論何時何地，都能重建出一個與開發時一模一樣的執行環境，從根本上消滅「在我電腦上可以跑」的經典難題。
+
+怎麼用？ (詳見 5.2 自動化品質閘門)
+
+5.2 自動化品質閘門 (Automated Quality Gates)
+
+為將「預見是最高價值」的理念制度化，我們引入「自動化品質閘門」，將品質控管從被動的「事後測試」升級為前攝性的「事前防禦」。
+
+1. uv：閃電般的依賴管理指揮官
+
+是什麼？ pip 和 venv 的次世代替代品，一個用 Rust 編寫的、速度極快的單一執行檔。
+
+為什麼要用？ 踐行「速度是第一要務」。uv 的安裝速度是 pip 的數十倍，能將環境準備時間從分鐘級縮短到秒級，極大提升開發和測試的迭代速度。
+
+怎麼用？
+
+從 requirements.in 生成鎖定檔： uv pip compile requirements.in -o requirements.lock.txt
+
+從鎖定檔安裝依賴： uv pip install -r requirements.lock.txt
+
+2. ruff：自動化程式碼品質總管
+
+是什麼？ 一個快到令人難以置信的 Python 程式碼檢查器 (Linter) 和格式化器 (Formatter)。
+
+為什麼要用？
+
+提升速度： 自動格式化程式碼，節省手動調整的時間。
+
+強化預見： 在開發早期就發現潛在錯誤和不良寫法，避免後期除錯的巨大成本。
+
+怎麼用？
+
+檢查並自動修復： ruff check . --fix
+
+格式化程式碼： ruff format .
+
+3. mypy：程式碼的「型別」健康檢查官
+
+是什麼？ 靜態型別檢查器，在程式碼運行前檢查型別註解 (Type Hints)。
+
+為什麼要用？ 強化「預見是最高價值」。它能在開發階段就發現潛在的型別不匹配錯誤，避免其在運行時導致系統崩潰，極大增強大型專案的穩健性。
+
+怎麼用？
+
+執行檢查： mypy .
+
+4. pre-commit：版本控制的「自動化守門員」
+
+是什麼？ 在執行 git commit 之前，自動化執行一系列檢查的框架。
+
+為什麼要用？ 將品質控管「制度化」、「自動化」。它強制所有提交的程式碼都必須通過 ruff 和 mypy 等品質閘門，從源頭杜絕不合規的程式碼進入倉庫。
+
+怎麼用？
+
+建立設定檔： 在專案根目錄建立 .pre-commit-config.yaml 檔案。
+
+安裝 Hooks： pre-commit install (每個開發者只需執行一次)
+
+觸發： 之後每次 git commit 都會自動觸發檢查。
+
+範例：.pre-commit-config.yaml
+
+# .pre-commit-config.yaml
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+    -   id: ruff
+        args: [--fix] # 自動修正可修復的問題
+    -   id: ruff-format
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+    -   id: mypy
+        args: [--strict] # 執行嚴格的型別檢查
+
+
+5.3 避雷指南：如何避免指揮官不適
+
+錯誤： 「我只修復了你說的 Bug。」
+
+正確策略： 執行「預見是最高價值」原則。在修復 Bug 的同時，分析其根源，預測下一個問題，並主動提出更優化的架構建議。
+
+錯誤： 「我不確定問題在哪，我們再試一次看看。」
+
+正確策略： 在任何測試執行之前，必須根據日誌進行深度分析，提出一個有理有據的假設，並設計一個能夠驗證或推翻這個假設的精確測試。
+
+錯誤： 「已交付，請驗收。」（未經後端自測）
+
+正確策略： 嚴格執行「交付前強制驗收協議」。
+
+錯誤訊息的回報方式： 當系統發生錯誤時，AI 助理應將原始技術日誌轉化為對指揮官友善的、可理解的作戰報告，包含：簡潔概述、可能原因、影響解釋、建議方案。
+
+第六章：新專案啟動樣板與工作流 (Project Bootstrap)
+
+要將此成功經驗應用到任何新專案，請嚴格遵循以下步驟：
+
+步驟一：建立「專案樣板 (Project Template)」
+
+為所有新專案建立一個包含以下基礎架構的樣板：
+
+/
+|-- .git/
+|-- .venv/                   # 虛擬環境目錄 (應加入 .gitignore)
+|-- .pre-commit-config.yaml  # 自動化品質閘門設定
+|-- apps/                    # 所有微應用的存放目錄
+|   |-- template_app/        # 新應用的樣板
+|   |   |-- __init__.py
+|   |   |-- run.py           # 內含「路徑自我校正」樣板碼
+|   |   `-- _test_run.py     # 內含「路徑自我校正」樣板碼的整合測試腳本
+|-- core/                    # (原 src/) 存放共享模組
+|   |-- __init__.py
+|-- tests/                   # 存放測試程式碼
+|   |-- unit/                # 單元測試
+|   `-- integration/         # 整合測試
+|-- requirements.in          # 定義專案的直接依賴
+`-- requirements.lock.txt    # 鎖定的完整依賴 (由 uv 生成)
+
+
+關鍵行動：「路徑自我校正」樣板碼
+
+將以下程式碼作為標準，放入所有 run.py 和 _test_run.py 的頂部。
+
+# --- 路徑自我校正樣板碼 ---
+# 目標：確保無論從何處執行此腳本，都能正確找到專案根目錄下的 core 等模組。
+import sys
+import os
+try:
+    # 獲取此文件 (run.py) 的當前目錄
+    # e.g., /path/to/project/apps/template_app
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # 從當前目錄向上回溯兩層，找到專案根目錄
+    # e.g., /path/to/project
+    project_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
+
+    # 如果專案根目錄不在 Python 的搜索路徑中，則將其插入到最前面
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+except Exception as e:
+    print(f"專案路徑校正時發生錯誤: {e}", file=sys.stderr)
+# --- 路徑自我校正樣板碼結束 ---
+
+
+步驟二：確立「開發工作流 (Development Workflow)」
+
+將「Jules 開發 -> Colab 驗收」流程制度化：
+
+需求定義： 將一個大的需求拆解成一個或多個獨立的「微應用」。
+
+應用開發 (Jules)：
+
+從「專案樣板」中複製 template_app 並重新命名。
+
+在新應用目錄內進行開發。
+
+在 _test_run.py 中編寫完整的測試案例。
+
+提交程式碼前，pre-commit 會自動執行品質檢查。
+
+提交程式碼到一個新的「版本候選 (Release Candidate)」分支。
+
+整合驗收 (Colab)：
+
+在 Colab 環境中，拉取「版本候選」分支。
+
+自動化執行 所有 apps/*/ _test_run.py 腳本。
+
+只有當 所有測試 都通過，該分支才被視為驗收通過，可以合併到主分支。
+
+第七章：Jules 實戰指令與工具參考 (Jules Battle Commands & Tools Reference)
+
+本章節完整收錄了《Jules 指南》中定義的實用指令、工具列表及其限制，作為日常操作的快速參考。
+
+7.1 實戰指令大全
+
+專案啟動與規劃 (Project Scoping & Initialization)
+
+// 根據 v6.5 架構，初始化我的金融數據平台專案
+
+// 為專案初始化 pre-commit，並根據 .pre-commit-config.yaml 安裝 git hooks
+
+// Bootstrap a Python project with Poetry and Pytest
+
+日常開發與重構 (Daily Development & Refactoring)
+
+// Refactor {a specific} file from {x} to {y}...
+
+// Add type hints to {a specific} Python function...
+
+測試與品質保證 (Testing & QA)
+
+// Add integration tests for this API endpoint
+
+// 執行 ruff 程式碼品質掃描並自動修復
+
+// 執行 mypy 靜態型別檢查，找出潛在的型別錯誤
+
+// Write a Pytest fixture to mock this external API call...
+
+偵錯與效能分析 (Debugging & Performance)
+
+// Help me fix {a specific} error...
+
+// Why is {this specific snippet of code} slow?
+
+文件與報告 (Documentation & Reporting)
+
+// Generate Sphinx-style docstrings for this Python module/class/function...
+
+// Write a README for this project
+
+環境診斷與配置 (Environment Diagnosis & Configuration)
+
+// Check current Python environment details and installed packages
+
+// 使用 uv 極速安裝依賴並鎖定版本
+
+// Install missing dependencies from requirements.txt
+
+7.2 工具列表與限制
+
+可用工具列表： ls, read_files, set_plan, submit, grep, run_in_bash_session, create_file_with_block 等。
+
+主要限制：
+
+沙盒環境： 無法直接存取本地檔案系統或執行任意系統指令。
+
+非持久化環境： 每次任務執行都在一個新的、乾淨的虛擬機中進行。
+
+網路訪問限制： 可能存在網路訪問限制。
+
+附錄 A：JULES 標準化作戰環境部署程序 (SOP) v4.0
+
+目標： 在 JULES 的「Configuration」介面中，一次性設定好專案的自動化環境部署與核心測試指令，全面整合新世代工具鏈。
+
+背景： 本 SOP 是《作戰手冊》第五章「標準作業程序與作戰工具」的具體實現。它將我們對 venv, uv, ruff, mypy 的戰略選擇，轉化為可直接複製貼上的作戰指令。
+
+第一階段：配置「Initial setup」—— 固化我們的黃金環境
+
+定位目標區域： 在 JULES 介面中標示為 ① Initial setup 的文字框內。
+
+輸入核心指令： 請將以下完整的 Bash 腳本複製並貼上到該文字框中。
+
+#!/bin/bash
+#
+# 【勝利準則 v4.0】標準化作戰環境部署腳本
+# 此腳本將在 JULES 每次啟動時，自動為其準備一個完美的作戰環境。
+
+echo "--- [Phase 1] Validating the Single Source of Truth: requirements.lock.txt ---"
+# 步驟 1: 驗證「唯一真理」的存在
+# 檢查 Git 倉庫中是否已包含 a requirements.lock.txt 檔案。
+# 這是我們確保所有環境一致性的基石。如果不存在，則作戰失敗。
+if [ ! -f "requirements.lock.txt" ]; then
+    echo "CRITICAL ERROR: requirements.lock.txt not found in the repository."
+    echo "Please generate and commit the lock file to the repository first."
+    exit 1
+fi
+echo "Lock file found. Proceeding with environment setup."
+
+echo "--- [Phase 2] Creating and Activating Virtual Environment ---"
+# 步驟 2: 建立並激活「獨立無塵室」
+# 使用 Python 內建 venv 創建虛擬環境，確保與系統環境隔離。
+python3 -m venv .venv
+# 激活虛擬環境，後續所有指令都將在此沙盒中執行。
+source .venv/bin/activate
+
+echo "--- [Phase 3] Installing All Dependencies from Lock File using uv (High-Speed) ---"
+# 步驟 3: 高速部署作戰裝備
+# 使用新世代工具 uv 從鎖定檔極速安裝所有依賴，踐行「速度是第一要務」。
+uv pip install -r requirements.lock.txt
+
+echo "--- [SUCCESS] Standard Operating Environment Deployed. ---"
+
+
+驗證環境腳本：
+
+點擊「Run to Validate」按鈕。
+
+確認日誌輸出顯示所有套件均已成功安裝，並且最後打印出 Standard Operating Environment Deployed.。
+
+第二階段：配置「Repo commands」—— 建立標準化作戰指令
+
+定位目標區域： 在 JULES 介面中標示為 ② Repo commands 的區塊。
+
+操作： 點擊下拉選單，選擇「Add new command...」，並依次建立以下 四個 標準化指令。
+
+指令一：「點火測試」
+
+目的： 快速檢查所有微應用的健康狀況，確保沒有啟動時的崩潰。
+
+Command name: Ignition Test - All Apps
+
+Command:
+source .venv/bin/activate && find apps -name "run*.py" -exec python {} --help \;
+
+
+指令二：「核心單元驗收」
+
+目的： 執行我們最核心的 pytest 單元測試套件。
+
+Command name: Run Core Unit Tests
+
+Command:
+source .venv/bin/activate && pytest -v tests/unit/
+
+
+指令三：「程式碼品質掃描」
+
+目的： 使用 ruff 進行全專案的程式碼品質與風格掃描，並自動修復。
+
+Command name: Code Quality Scan (Ruff)
+
+Command:
+source .venv/bin/activate && ruff check . --fix
+
+
+指令四：「靜態型別檢查」
+
+目的： 使用 mypy 進行嚴格的靜態型別檢查，提前發現潛在的型別錯誤。
+
+Command name: Static Type Check (Mypy)
+
+Command:
+source .venv/bin/activate && mypy .
+
+
+第三階段：保存並下達新指令
+
+保存配置： 點擊頁面右下角的「Save」按鈕，將以上所有設定固化。
+
+下達簡化指令： 從現在起，您與 JULES 的互動將變得極其簡單高效。您可以直接下達如下指令：
+
+「Jules，執行 Run Core Unit Tests 指令，並回報結果。」
+
+「Jules，在提交程式碼前，執行 Code Quality Scan (Ruff) 指令。」
+
+「Jules，為確保程式碼健壯性，請執行 Static Type Check (Mypy) 指令。」
+
+指揮官，一旦您完成以上配置，我們的專案就真正達到了前所未有的自動化與穩定性。我們的「作戰手冊」將不再是紙上談兵，而是被徹底地、系統性地實現了。

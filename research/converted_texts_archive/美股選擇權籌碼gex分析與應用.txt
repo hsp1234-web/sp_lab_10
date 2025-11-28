@@ -1,0 +1,847 @@
+美股選擇權籌碼分析：運用 OI、Volume 與 GEX 識別價格支撐與壓力
+
+1. 引言：選擇權市場流動分析的重要性
+
+1.1 概覽
+
+選擇權市場不僅僅是投機和避險的場所，其內部動態，特別是透過未平倉量 (Open Interest, OI)、成交量 (Volume) 和伽瑪值曝險 (Gamma Exposure, GEX) 等指標所反映的市場結構與資金流向，為理解標的資產價格行為提供了獨特的視角 。這些指標揭示了市場參與者的集體佈局、情緒以及潛在的市場壓力點，雖然它們本身並非直接的價格預測工具，但卻能顯著提升對市場動態的洞察力 。
+
+1.2 支撐與壓力背景
+
+傳統技術分析側重於歷史價格和成交量來識別支撐與壓力位。然而，納入選擇權市場的分析維度，可以揭示由選擇權倉位結構和相關對沖活動所引發的潛在買賣壓力區間 。本報告旨在深入探討如何利用 OI、Volume 及 GEX 等選擇權衍生指標，識別美股市場中潛在的價格支撐與壓力水平。
+
+1.3 造市商的角色
+
+在選擇權市場中，造市商 (Market Makers, MMs) 扮演著提供流動性的關鍵角色。他們通常不尋求方向性曝險，而是透過買賣價差獲利，並積極對沖其選擇權部位的風險，尤其是 Delta 風險 。造市商的對沖行為，特別是受到其整體伽瑪值曝險 (GEX) 影響的 Delta 對沖活動，可能對標的資產的價格產生實質影響，形成一種市場內生的反饋機制 。理解這一機制是 GEX 分析的核心。
+
+1.4 免費數據的焦點
+
+考量到許多個人交易者與分析師的資源限制，本報告特別強調使用免費公開的市場數據來源進行分析。這無可避免地帶來數據延遲、不完整、速率限制等挑戰。因此，報告將詳細討論應對這些限制的實務方法，包括慢速抓取、數據緩存及處理數據稀疏或缺失的技術 。
+
+選擇權市場分析的核心思想，是超越傳統的價格與成交量分析，將衍生性商品市場的結構性因素及其潛在的反饋迴路納入考量。傳統技術分析往往忽略了衍生性商品的影響力。然而，大規模的選擇權倉位，特別是造市商持有的倉位，必然引發在標的資產上的對沖交易。這些對沖資金流本身就能影響標的價格，形成一種市場的內在反身性 (reflexivity) ，而 GEX 這類基於選擇權的指標正是試圖量化這種潛在影響力。理解這種潛在的價格反饋機制，是進行此類分析的主要動機。
+
+2. 理解核心指標：未平倉量 (OI) 與成交量 (Volume)
+
+2.1 定義
+
+成交量 (Volume): 成交量定義為在特定期間內（通常是一個交易日）交易的選擇權合約總數 。它反映了市場的活躍程度或交易強度，並且每日重置 。每一筆買賣交易都計入當日的成交量統計 。
+
+未平倉量 (Open Interest, OI): 未平倉量是指在特定時間點，市場上所有尚未結算（未被平倉、履約或到期）的有效選擇權合約總數 。它代表了市場上所有活躍的、未了結的倉位總和，反映了市場參與者對該合約的持續興趣和資金投入程度，通常每日更新一次 。當一筆新的開倉交易（無論買入開倉或賣出開倉）發生時，OI 增加；當一筆平倉交易（買回先前賣出的合約或賣出先前買入的合約）、履約或合約到期時，OI 減少 。
+
+2.2 區分 OI 與 Volume
+
+成交量衡量的是特定期間內的交易流量或換手率，而未平倉量衡量的是市場上未了結倉位的存量 。這兩者是相關但不同的概念。一筆交易總是會增加成交量，但它對未平倉量的影響取決於交易雙方的倉位情況：
+
+新買家向新賣家買入合約：成交量增加 1，OI 增加 1。
+
+舊持倉者賣給新買家：成交量增加 1，OI 不變（倉位轉移）。
+
+新賣家向舊持倉者賣出（舊持倉者買回平倉）：成交量增加 1，OI 不變（倉位轉移）。
+
+舊持倉者賣給另一位舊持倉者（買回平倉）：成交量增加 1，OI 減少 1。
+
+理解這個差異至關重要，因為高成交量可能僅代表活躍的日內交易或倉位轉移，而高未平倉量則表明有大量的資金和承諾鎖定在該合約中 。例如，一個交易日中，一位交易者持有 10 張選擇權合約並將其賣給一位新進場的交易者，這筆交易會產生 10 的成交量，但未平倉量不變，因為只是合約的持有者發生了變化 。
+
+2.3 流動性指標
+
+高成交量和高未平倉量通常都意味著更好的流動性 。高成交量表示當前市場活躍，容易找到交易對手，通常伴隨著較窄的買賣價差，降低交易成本 。高未平倉量則表明該合約存在大量活躍的倉位，市場深度較好，同樣有利於交易者在公平的市場價格進出 。一個日交易量 500 張、OI 達 10,000 張的合約，其流動性遠高於日交易量 10 張、OI 僅 1,000 張的合約 。高 OI 代表著市場對該特定履約價和到期日的持續關注 。
+
+2.4 市場情緒與趨勢確認
+
+分析 OI 和 Volume 的變化與價格行為的關係，可以提供關於市場情緒和趨勢強度的線索 。
+
+OI 的變化：
+
+OI 增加通常表示有新資金流入市場，無論是看漲（買入看漲期權或賣出看跌期權）還是看跌（買入看跌期權或賣出看漲期權），這通常被視為對現有趨勢的確認 。
+
+OI 減少則表示資金正在流出市場，交易者正在平倉，可能預示著趨勢的減弱或即將反轉 。
+
+Volume 的變化：
+
+成交量放大通常伴隨著價格的顯著變動，可以確認趨勢的強度或突破的有效性 。例如，價格上漲伴隨著成交量放大，被視為更強的看漲信號 。
+
+成交量萎縮則可能表示趨勢動力減弱或市場猶豫 。
+
+結合分析： 將價格、OI 和 Volume 結合分析能提供更全面的圖像。下表總結了常見的解釋 ：
+
+價格趨勢
+
+未平倉量 (OI)
+
+成交量 (Volume)
+
+市場解讀
+
+上漲
+
+上升
+
+上升
+
+趨勢強勁，新資金流入看多 (看漲確認)
+
+上漲
+
+下降
+
+下降
+
+趨勢減弱，可能是空頭回補 (看跌警示)
+
+下跌
+
+上升
+
+上升
+
+趨勢強勁，新資金流入看空 (看跌確認)
+
+下跌
+
+下降
+
+下降
+
+趨勢減弱，多頭被迫平倉 (可能接近底部或賣壓高潮)
+
+注意：這些僅為一般性指引，實際市場情況可能更複雜。
+
+未平倉量代表了累積的倉位情況以及潛在的未來活動（如履約、平倉），而成交量則反映了即時的交易活動和市場信念強度。特定履約價上的高 OI 意味著大量市場參與者在該價格水平有既得利益，使其成為潛在的重要價位。成交量告訴我們今天發生了多少交易，但 OI 告訴我們從今天及以前的交易中，有多少合約仍然有效。某個履約價今天可能成交量不高，但如果其 OI 非常高（來自之前的交易活動），則表明仍有大量參與者持有與該價格相關的倉位，使其成為未來潛在的影響點（支撐/壓力、對沖活動）。這種區別是根本性的 。
+
+OI 的更新時間（通常是每日一次，在隔夜完成）意味著它滯後於日內交易活動，而成交量是實時的。這種滯後性是 OI 在日內分析中的一個限制，但使其適合用於分析數日或數週的倉位累積情況。由於 OI 反映的是每日結算後的倉位 ，它無法捕捉到日內高成交量所反映的倉位變化。交易者需要意識到，OI 分析主要提供基於前一交易日收盤的快照，而成交量則提供了市場的實時脈動 。
+
+3. 解碼伽瑪值曝險 (GEX)：造市商的足跡
+
+3.1 選擇權希臘字母簡介
+
+選擇權的價格變動受到多種因素影響，這些敏感性通常由一組稱為「希臘字母」(Greeks) 的指標來衡量 。對於理解 GEX 而言，最重要的兩個希臘字母是 Delta 和 Gamma：
+
+Delta ({\Delta}): Delta 衡量選擇權價格相對於標的資產價格變動 $1 的變化率 。看漲期權 (Call) 的 Delta 介於 0 到 1 之間，看跌期權 (Put) 的 Delta 介於 -1 到 0 之間。Delta 也常被解釋為選擇權到期時處於價內 (In-the-Money, ITM) 的近似機率 。它代表了選擇權的直接方向性曝險。
+
+Gamma ({\Gamma}): Gamma 衡量 Delta 相對於標的資產價格變動 $1 的變化率 。它描述了 Delta 變化的「加速度」。對於價平 (At-the-Money, ATM) 的選擇權，尤其是在接近到期日時，Gamma 值最高 。買入選擇權（無論看漲或看跌）具有正 Gamma，而賣出選擇權則具有負 Gamma 。
+
+下表總結了幾個關鍵的希臘字母及其衡量內容：
+
+希臘字母
+
+符號
+
+衡量內容
+
+參考資料
+
+Delta
+
+{\Delta}
+
+選擇權價格對標的價格變化的敏感度
+
+
+
+Gamma
+
+{\Gamma}
+
+Delta 對標的價格變化的敏感度
+
+
+
+Vega
+
+{\nu}
+
+選擇權價格對隱含波動率變化的敏感度
+
+
+
+Theta
+
+{\Theta}
+
+選擇權價格對時間流逝（時間衰減）的敏感度
+
+
+
+Rho
+
+{\rho}
+
+選擇權價格對無風險利率變化的敏感度
+
+
+
+3.2 定義伽瑪值曝險 (GEX)
+
+伽瑪值曝險 (Gamma Exposure, GEX) 是一個衡量市場（特別是推斷出的造市商）在特定標的資產上所有選擇權的總體 Gamma 倉位的指標 。它量化了為了應對標的資產價格的特定變動（通常標準化為 1% 的變動），造市商可能需要買入或賣出多少標的資產（如股票或期貨）來重新對沖其 Delta 曝險 。
+
+3.3 造市商與 Delta 對沖的角色
+
+造市商在選擇權市場中的主要目標是透過提供流動性並賺取買賣價差來獲利，而非進行方向性押注 。因此，他們會積極管理其選擇權組合的風險，尤其是方向性風險（Delta 風險）。
+
+Delta 對沖是一種風險管理策略，涉及買入或賣出標的資產，以抵銷其選擇權組合中不斷變化的 Delta 值，目標是維持 Delta 中性（即對標的資產價格的小幅變動不敏感）。由於選擇權的 Delta 會隨著標的資產價格的變動而變動（這種變動率由 Gamma 衡量），造市商需要持續調整其持有的標的資產數量來維持 Delta 中性 。
+
+3.4 解讀正負 GEX
+
+GEX 的符號（正或負）揭示了造市商對沖活動可能對市場波動性產生的影響：
+
+正 GEX (Long Gamma): 這通常發生在造市商淨買入選擇權時（或推斷為如此，例如，從散戶投資者那裡買入看漲期權/賣出看跌期權 ）。在這種情況下，當標的資產價格上漲時，造市商的總體 Delta 會增加，他們需要賣出標的資產來對沖；當價格下跌時，總體 Delta 減少，他們需要買入標的資產來對沖 。這種「逆勢」的對沖活動傾向於抑制市場波動性，促進價格的均值回歸或區間震盪，有時被稱為「價格錨定」(pinning) 效應 。
+
+負 GEX (Short Gamma): 這通常發生在造市商淨賣出選擇權時 。在這種情況下，當標的資產價格上漲時，造市商的總體 Delta 會減少（因為他們賣出的看漲期權 Delta 接近 -1，賣出的看跌期權 Delta 接近 0），他們需要買入標的資產來對沖；當價格下跌時，總體 Delta 增加（看漲期權 Delta 接近 0，看跌期權 Delta 接近 1），他們需要賣出標的資產來對沖 。這種「順勢」的對沖活動傾向於放大市場波動性，加速現有趨勢，甚至可能引發「伽瑪擠壓」(gamma squeeze) 。
+
+3.5 "伽瑪反轉點" (Gamma Flip) 或零伽瑪水平 (Zero Gamma Level)
+
+這個概念指的是標的資產的某個價格水平，在該水平上，市場推斷的總體造市商 Gamma 倉位從正轉負，或從負轉正 。這個點位之所以重要，是因為它標誌著市場動態可能發生轉變的潛在拐點：從波動性抑制轉向波動性放大，或者反之 。這個水平通常也被稱為高波動性水平 (High Volatility Level, HVL) 。
+
+GEX 提供了一個理解由對沖資金流驅動的潛在市場反身性的框架。它不僅關乎市場情緒，更關乎造市商因其累積的選擇權倉位而必須進行的、可能影響價格的機械式對沖行為。與 OI/Volume 主要反映交易者意圖和活動不同，GEX 聚焦於這些活動對造市商產生的後果，以及他們後續可能影響價格的對沖行為。這種機械式的影響是 GEX 分析的核心價值主張 。
+
+GEX 的影響力在具有大量 OI 的履約價附近以及接近到期日時最強，因為在這些條件下 Gamma 值本身最高 。Gamma 在價平選擇權達到峰值，並且隨著到期日的臨近而增加 。因此，與近期、價平附近的大量 OI 集中相關的對沖壓力 (GEX) 將不成比例地增大，使得這些水平成為需要特別監控的關鍵區域。
+
+4. 計算伽瑪值曝險：方法論與輸入
+
+4.1 必要輸入數據
+
+計算 GEX 需要一系列數據點，主要包括：標的資產價格 (Spot, S)、履約價 (Strike, K)、到期日 (Expiration Dates)、未平倉量 (OI) 或成交量 (Volume)、無風險利率 (Risk-Free Rate, r)、距離到期的時間 (Time to Expiry, {\tau} 或 T-t) 以及隱含波動率 (Implied Volatility, {\sigma} 或 IV) 。如果標的資產支付股息，還需要股息率 (Dividend Yield, q) 。
+
+4.2 計算選擇權 Gamma ({\Gamma})
+
+Gamma 值通常是通過選擇權定價模型計算得出的，最常用的模型是 Black-Scholes 模型（或考慮股息的 Black-Scholes-Merton 模型）。
+
+Black-Scholes Gamma 公式如下： \Gamma = \frac{N'(d_1) e^{-q\tau}}{S \sigma \sqrt{\tau}} 其中： d_1 = \frac{\ln(S/K) + (r - q + \sigma^2/2)\tau}{\sigma \sqrt{\tau}} 這裡，S 是標的資產現價，K 是履約價，{\tau} 是以年為單位的到期時間，r 是連續複利的無風險利率，q 是連續複利的股息率，{\sigma} 是隱含波動率，N'(x) 是標準常態分佈的機率密度函數 。
+
+需要注意的是，Black-Scholes 模型建立在一系列假設之上，例如：波動率恆定、利率恆定、無交易成本、歐式選擇權、標的資產價格呈對數常態分佈等 。這些假設在現實市場中並不完全成立，是該模型及其衍生指標（包括基於此模型計算的 Gamma 和 GEX）的內在局限性 。
+
+4.3 常見 GEX 計算方法
+
+GEX 的核心計算思想是將每個相關選擇權合約的 Gamma 貢獻進行加總，涵蓋所有相關的履約價和到期日 。然而，不同的數據提供商或分析工具可能採用不同的具體公式和表達方式，導致結果的單位和符號含義有所不同。以下是一些常見的計算方式變體：
+
+基於履約價（以股數計）： $$ \text{GEX}_{\text{strike (shares)}} = \Gamma \times \text{OI} \times \text{ContractSize} \times \text{Sign} $$ 這裡的 Sign 通常基於對造市商倉位的假設，例如，假設造市商通常做多看漲期權 Gamma（客戶買 Call，MM 賣 Call，MM 持有負 Gamma，但若從客戶角度看是正 Gamma）和做空看跌期權 Gamma（客戶買 Put，MM 賣 Put，MM 持有負 Gamma）。Squeezemetrics 的文獻 提出看漲期權用 +100（代表 MM 多頭 Gamma），看跌期權用 -100（代表 MM 空頭 Gamma）作為調整因子（ContractSize=100）。Quant StackExchange 的討論 也暗示了類似的符號區分。
+
+基於履約價（以美元價值計，每 1% 變動）： $$ \text{GEX}_{\text{strike ($/1% move)}} = \Gamma \times \text{OI} \times \text{ContractSize} \times S^2 \times 0.01 \times \text{Sign} $$ 這種形式試圖將 GEX 表示為標的資產價格每變動 1%，造市商需要對沖的美元名義價值。Spyder Academy 和 Perfiliev 的博客 提供了類似結構的公式。TradingFlow 和 Unusual Whales 也描述了這種以美元價值表示的 GEX。需要注意的是，不同來源對於 Sign 的定義可能不同，且有時公式中不顯式包含 Sign，而是將 Call Gamma 視為正貢獻，Put Gamma 視為負貢獻進行加總 。
+
+概念性定義： \text{GEX} = \frac{\Delta \text{Delta}}{\Delta \text{Price (1\%)} } 這種定義 強調了 GEX 的核心含義：標的資產價格每變動 1%，市場（推斷為造市商）需要調整的總 Delta 量。
+
+基於 OI vs. Volume： 一些工具可能允許基於當日成交量 (Volume) 而非未平倉量 (OI) 來計算 GEX，這反映的是日內交易活動引發的潛在對沖壓力，而非基於已建立倉位的靜態曝險 。
+
+計算方法差異總結
+
+由於缺乏統一的行業標準，不同來源的 GEX 值可能因計算基礎（OI 或 Volume）、單位（股數、美元名義值、每 1% 變動的美元值）以及符號約定（代表造市商曝險 vs. 客戶曝險，或簡單區分 Call/Put）而異。使用者在計算或解讀 GEX 時，必須首先理解所用工具或數據源的具體方法論。
+
+特徵
+
+來源示例 (部分)
+
+計算基礎
+
+單位示例
+
+符號約定示例
+
+股數
+
+Squeezemetrics , Quant SE
+
+OI
+
+股數
+
+Call (+), Put (-) (MM 視角)
+
+美元/1%變動
+
+Spyder Academy , Perfiliev
+
+OI
+
+美元
+
+可能隱含或需明確定義
+
+美元/1%變動 (工具)
+
+Unusual Whales , TradingFlow
+
+OI/Volume
+
+美元
+
+正值=Long Gamma, 負值=Short Gamma
+
+概念定義
+
+Babypips , TalkMarkets
+
+N/A
+
+Delta 變化量 / 1% 價格變動
+
+N/A
+
+GEX 的計算本質上依賴於多層模型和假設：首先是選擇權定價模型（如 Black-Scholes）用於獲取 Gamma ，其次是關於造市商倉位的假設（通常從 OI 推斷）用於匯總 Gamma 曝險 。任何一層中的錯誤或不準確性都會傳播到最終的 GEX 值。GEX 並非直接可觀測的市場量，而是一個派生指標。步驟通常是：1) 獲取 IV（通常來自市場，但可能含噪聲/稀疏）；2) 使用 IV 和其他輸入在 Black-Scholes 模型中計算每個選擇權的 Gamma；3) 獲取每個選擇權的 OI 或 Volume；4) 根據對 MM 倉位的假設（例如，Call 對應 MM 的 Long Gamma 曝險，Put 對應 Short Gamma 曝險）匯總 Gamma * OI (或 Volume)。這個涉及模型和假設的多步驟過程使得 GEX 對輸入數據的質量和模型的有效性非常敏感 。
+
+計算涵蓋所有履約價和到期日的 GEX 可能計算量巨大，特別是如果需要根據變化的現貨價格或 IV 動態重新計算時 。一個完整的 GEX 計算需要獲取選擇權鏈數據（可能包含數千個合約），為每個合約計算 Gamma（涉及複雜函數如 CDF），然後進行匯總 。頻繁執行此操作需要大量的數據帶寬和處理能力 。免費工具或個人實現可能為了管理這些成本而在計算範圍（例如，只考慮近期到期日或有限的履約價範圍 ）或更新頻率上做出妥協，這可能導致錯失整體 Gamma 分佈中的重要部分，影響準確性。
+
+5. 獲取免費選擇權數據：來源與實務
+
+5.1 潛在免費數據來源概覽
+
+對於希望利用公開數據進行選擇權分析的用戶，存在幾個潛在的免費或部分免費的來源：
+
+CBOE (芝加哥期權交易所): 作為主要的選擇權交易所，CBOE 網站提供每日市場統計數據，包括總體和特定指數（如 SPX, VIX）的 OI、Volume 和看跌/看漲比率 。它還提供可下載的歷史數據文件，通常是每日或每月的匯總數據 。CBOE 是權威數據源，其數據通常準確，但主要是日終數據或有延遲 。
+
+Yahoo Finance (透過 yfinance 函式庫): Yahoo Finance 是一個廣泛使用的財經資訊入口網站。雖然其官方 API 已停用 ，但開源 Python 函式庫 yfinance 提供了一種便捷的方式來抓取 Yahoo Finance 網站上的數據，包括股票的選擇權鏈信息（履約價、到期日、OI、Volume、買賣價、最新價、隱含波動率 IV）。yfinance 因其易用性和免費性而廣受歡迎 ，但其數據依賴於抓取，可能存在延遲（約 15 分鐘 ）且穩定性不如官方 API 。
+
+其他潛在來源: 一些金融數據平台（如 Alpha Vantage , Benzinga , Finviz ）可能提供有限的免費數據層級或 API 訪問權限。學術或研究機構（如 FRED 提供 VIX 數據）也可能提供相關的宏觀或市場指標。
+
+5.2 GEX 計算所需數據點的可獲取性
+
+根據第 4 節所述的 GEX 計算要求，評估免費來源提供這些數據點的能力至關重要：
+
+OI, Volume, 履約價, 到期日: CBOE 提供每日匯總數據 和歷史數據 。yfinance 則提供特定股票的選擇權鏈，包含這些數據 。
+
+標的資產價格 (Spot): yfinance 和幾乎所有財經網站都能輕鬆獲取。
+
+隱含波動率 (IV): yfinance 的選擇權鏈數據中包含每個合約的 IV 。然而，免費來源提供的 IV 數據的可靠性和準確性可能存在差異，這對 Gamma 計算至關重要。 CBOE 主要提供市場級別的波動率指數（如 VIX ），而非單個合約的 IV。
+
+無風險利率 (r): 通常需要從外部來源獲取，例如美國國債收益率數據（可從 FRED 等來源查找），一般不包含在基本的選擇權鏈數據中。
+
+到期時間 ({\tau}): 可以根據當前日期和選擇權的到期日計算得出。
+
+股息率 (q): 需要單獨查找，例如可以透過 yfinance 獲取股票的基本信息 ，或其他財經數據提供商。
+
+5.3 免費數據的局限性
+
+使用免費數據進行 GEX 等複雜分析時，必須認識到其固有的局限性：
+
+及時性/延遲: 免費數據通常存在延遲。yfinance 的數據延遲約 15 分鐘 ，而 CBOE 的每日統計是日終數據 。這使得基於這些數據進行實時或高頻的 GEX 計算變得困難。實時數據通常需要付費訂閱 。
+
+完整性/粒度: 免費來源可能缺乏歷史 tick 數據、精確的買賣盤規模或進行複雜建模和回測所需的細粒度歷史 IV 數據 。CBOE 的免費歷史數據可能是匯總形式 。對於流動性較差的選擇權，數據可能稀疏甚至缺失 。
+
+準確性: 免費數據源可能存在錯誤或不一致。透過非官方 API（如 yfinance）訪問的 Yahoo Finance 數據有時可能不可靠或格式發生變化 。相比之下，來自 CBOE 等主要交易所的日終數據通常更可靠。
+
+速率限制/封鎖: 過於頻繁地抓取免費來源（尤其是 Yahoo Finance）很可能觸發速率限制或 IP 封鎖 。這要求在實施數據抓取時必須謹慎（詳見第 9 節）。
+
+API 穩定性: 非官方 API（如 yfinance）依賴於抓取目標網站的結構。如果 Yahoo Finance 網站改版，yfinance 可能會失效，需要等待庫更新 。
+
+免費選擇權數據來源比較
+
+來源
+
+關鍵數據點 (示例)
+
+更新頻率
+
+訪問方式
+
+主要局限性
+
+CBOE
+
+OI, Volume, Put/Call Ratios (匯總/指數), VIX
+
+日終 (Daily)
+
+網站下載, API (部分)
+
+延遲, 匯總數據為主, 缺乏單合約 IV
+
+Yahoo Finance (via yfinance)
+
+選擇權鏈 (OI, Vol, IV, Bid, Ask, Last), Spot
+
+延遲實時 (~15min)
+
+Python 函式庫
+
+延遲, 速率限制, 數據可靠性/穩定性問題, 非官方 API
+
+FRED
+
+VIX, 無風險利率 (國債收益率)
+
+根據指標而定
+
+網站, API
+
+數據種類有限 (非選擇權鏈數據)
+
+完全依賴免費數據進行 GEX 計算，意味著需要在及時性、粒度和潛在的準確性方面做出妥協。對於日內交易或需要快速響應市場變化的應用來說，實時 GEX 計算實際上無法通過標準的免費延遲數據實現。基於日終數據的 GEX 計算是可行的，但可能依賴於前一交易日收盤時或延遲報價中可能已經過時的 IV 數據。此外，需要從外部獲取無風險利率和股息數據，增加了數據整合的複雜性和潛在的數據問題 。
+
+yfinance 函式庫雖然方便，但其本質是 Yahoo Finance 網站的抓取工具，使其易受網站變更和反抓取措施的影響。它的可靠性並無保證 。yfinance 並非官方的 Yahoo API ，它解析 HTML 並使用可能隨時更改的內部 Yahoo 端點 。這種固有的脆弱性意味著完全基於 yfinance 構建的策略需要強健的錯誤處理和監控機制。
+
+6. 利用 OI 與 Volume 識別支撐與壓力的策略
+
+6.1 分析 OI 集中區 ("OI 牆")
+
+履約價上累積的未平倉量 (OI) 是識別潛在支撐和壓力的常用方法。
+
+高 OI 水平: 某個履約價上相對於周圍履約價顯著偏高的 OI，通常被視為重要的心理價位或潛在的「錨定點」，尤其是在接近到期日時 。大量的未平倉合約意味著眾多市場參與者在該價格水平有倉位，可能引發在價格接近時的交易活動。
+
+看漲期權高 OI (High Call OI): 常被視為阻力位。當標的價格接近此履約價時，持有看漲期權的多頭可能選擇賣出標的資產（若履約）或平掉期權倉位獲利了結，而賣出看漲期權的空頭則可能積極防守此價位，共同構成潛在的賣壓 。
+
+看跌期權高 OI (High Put OI): 常被視為支撐位。當標的價格接近此履約價時，持有看跌期權的多頭可能賣出標的資產（若履約）或平倉，而賣出看跌期權的空頭（通常被認為是尋求收益或預期價格不會跌破該水平的參與者）可能在此價位買入標的資產進行對沖或接盤，共同構成潛在的買盤 。
+
+最大痛點 (Max Pain): 這是一個衍生概念，指在某個特定到期日，使所有未平倉選擇權（包括看漲和看跌）總體價值損失最大的那個履約價 。理論上，市場（或有影響力的參與者）可能傾向於在到期時將價格推向最大痛點，以使最大數量的選擇權以價外 (Out-of-the-Money, OTM) 狀態到期。因此，最大痛點有時被視為到期日附近的價格「磁吸區」。然而，最大痛點理論存在爭議，其有效性並未得到普遍證實，應謹慎使用。
+
+6.2 解讀關鍵履約價上的成交量激增
+
+成交量提供了關於市場在特定價格水平活躍程度的即時信息。
+
+即時興趣指標: 特定履約價上的高成交量表明當前市場對該價位存在顯著的交易興趣 。
+
+確認價格行為: 成交量可以確認價格突破或跌破關鍵 OI 水平的有效性。如果價格突破一個高 Call OI 的阻力位，並且該履約價的成交量同時顯著放大，則這次突破被認為更具說服力，表明有強烈的買盤意願推動價格 。類似地，價格跌破一個高 Put OI 的支撐位，若伴隨該履約價成交量放大，則確認了跌破的強度。
+
+成交量與 OI 變化的關係: 在高 OI 履約價附近出現高成交量，但 OI 並未相應增加（甚至減少），可能意味著交易主要是平倉活動（例如獲利了結或止損），而非建立新倉位。這可能暗示趨勢正在減弱或即將反轉 。
+
+6.3 結合 OI、Volume 與價格行為
+
+將 OI、Volume 和標的資產的價格行為結合起來分析，能提供更可靠的信號。
+
+趨勢確認應用於履約價: 第 2 節中討論的價格/OI/Volume 組合分析框架同樣適用於單個履約價水平。例如，如果價格上漲，某個看漲期權履約價的 OI 和 Volume 同時增加，這加強了對該履約價甚至更高價位的看漲預期 。
+
+情景分析示例 (綜合自 ): 假設某股票價格接近一個具有高 Call OI 的履約價 $100。
+
+情景 A (阻力生效): 價格在 $100 附近停滯。$100 Call 的成交量很高，但其 OI 沒有顯著增加（甚至可能減少）。這表明賣方活躍，或者多頭正在平倉。價格可能在此處反轉下跌。
+
+情景 B (突破成功): 價格強勢突破 $100。$100 Call 的成交量激增，並且 $100 Call（甚至可能包括 $105 Call）的 OI 也顯著增加。這表明買方信念堅定，突破得到確認，後續可能繼續上漲。
+
+6.4 動態性
+
+需要強調的是，由 OI 和 Volume 指示的支撐和阻力水平並非固定不變。OI 每日更新，反映倉位的累積變化；而 Volume 則提供了對這些水平是否正在被市場積極測試的實時確認或反駁 。分析時需要持續追蹤這些指標的變化。
+
+高 OI 的履約價之所以重要，是因為它們代表了大量市場參與者進行押注或對沖的區域。這種倉位的集中意味著當價格向這些履約價移動時，可能會觸發大量的交易活動（平倉、履約、造市商的對沖調整），從而強化了它們作為潛在支撐或阻力的作用。一個只有 10 張合約 OI 的履約價，其潛在市場影響力遠小於一個擁有 10,000 張合約 OI 的履約價。後者意味著當價格達到該水平時，可能出現更大的買賣壓力，無論是來自倉位了結還是與該履約價 Gamma 相關的造市商對沖活動 。
+
+雖然高 OI 暗示了潛在的支撐或阻力，但高 Volume 則確認了該水平在當前交易時段內正受到積極的爭奪或防守。高 OI 只是前一交易日的靜態快照。如果在同一履約價上，今天出現了高成交量，則表明交易者現在正在積極參與該價格水平的博弈。反之，如果儘管 OI 很高，但成交量低迷，則可能意味著該水平目前並非市場焦點或爭奪區域 。
+
+7. 利用 GEX 提供支撐、壓力及波動性洞察
+
+7.1 識別關鍵 GEX 水平
+
+GEX 分佈圖（通常按履約價展示）揭示了推斷的造市商 Gamma 曝險集中在哪些價格區域。
+
+高絕對 GEX 履約價: 具有大量絕對伽瑪值曝險（無論是正的 Call Gamma 還是負的 Put Gamma，取決於計算約定）的履約價，可能扮演價格「磁鐵」或「排斥區」的角色 。
+
+高正 Gamma (Call) 履約價: 可能充當阻力位，尤其是在整體 GEX 為正的環境下。當價格接近這些水平時，造市商可能需要賣出標的進行對沖，從而限制漲勢 。
+
+高負 Gamma (Put) 履約價: 可能充當支撐位，尤其是在整體 GEX 為正的環境下。當價格接近這些水平時，造市商可能需要買入標的進行對沖，從而提供支撐 。（注意：若整體 GEX 為負，這些水平反而可能加速價格跌穿。）
+
+伽瑪反轉點 (Gamma Flip / HVL / Zero Gamma): 如前所述，這是 GEX 從正轉負或從負轉正的關鍵價格水平 。它本身就是一個重要的潛在支撐/阻力位，標誌著波動性機制的轉變 。通常情況下，HVL 被視為一個重要的支撐水平 。
+
+7.2 利用淨 GEX 判斷市場機制
+
+將所有履約價和到期日的 GEX 加總得到的總體淨 GEX (Total Net GEX)，可以指示造市商整體對沖行為可能對市場產生的影響類型 。
+
+大的正淨 GEX: 表明造市商整體處於 Long Gamma 狀態。他們的對沖行為（跌買漲賣）傾向於抑制波動性，促使市場呈現均值回歸或區間震盪（錨定效應）。價格的大幅波動可能會受到抑制。
+
+大的負淨 GEX: 表明造市商整體處於 Short Gamma 狀態。他們的對沖行為（跌賣漲買）傾向於放大波動性，加速現有趨勢，增加發生伽瑪擠壓的可能性 。價格波動可能加劇。
+
+接近零的淨 GEX: 市場受造市商對沖活動的影響較小，價格可能更多地由其他基本面或技術面因素驅動 。
+
+7.3 分析 GEX 按履約價和到期日的分佈
+
+除了總體淨 GEX，分析 GEX 在不同維度上的分佈也很有價值。
+
+按履約價的 GEX Profile: 將 GEX 按履約價繪製成圖表（類似於成交量分佈圖 Volume Profile），可以直觀地看到對沖壓力集中在哪些價格區域 。這有助於識別潛在的強支撐/阻力區。
+
+按到期日的 GEX 分析: 分別考察不同到期日（特別是近期到期，如 0DTE，與較遠期到期）的 GEX 貢獻，可以了解短期和長期選擇權倉位的不同影響 。通常，近期到期選擇權的 Gamma 值更高，因此其 GEX 對市場的即時影響力更大 。一些工具允許查看累計到某個到期日的所有 GEX (Cumulative Expiration) 或僅查看選定到期日的 GEX (Selected Alone) 。
+
+GEX 水平之所以能指示潛在的支撐/阻力，不僅僅是因為交易者在這些價位的倉位（如 OI 所示），更重要的是因為在這些價位集中的預期對沖資金流。淨 GEX 的符號決定了這些資金流是傾向於抵抗價格向這些水平移動，還是加速價格向這些水平移動。一個高 OI 的看跌期權履約價暗示了潛在支撐。如果此時淨 GEX 為正，預計造市商會在價格跌向該履約價時買入，從而加強支撐。然而，如果淨 GEX 為負，預計造市商會在價格下跌時賣出，這可能導致該支撐位被跌破並加速下跌。GEX 為靜態的 OI 圖像增添了動態的、基於資金流的維度 。
+
+與高 GEX 水平相關的「錨定」效應在選擇權到期日 (OpEx) 附近最為顯著。隨著到期日臨近，價平選擇權的 Gamma 急劇升高，增加了對沖活動的頻率和規模，可能迫使價格結算在具有大量 GEX 的履約價附近 。到期後，這種對沖壓力消失（稱為 "unclenching"），可能釋放被壓抑的波動性，導致價格出現較大變動 。造市商需要在到期前最積極地管理其 Gamma 風險，因為 Delta 變化迅速（高 Gamma）。這種圍繞特定履約價的集中對沖活動可能壓倒其他市場力量，導致價格錨定。一旦選擇權到期，這種對沖壓力消失，價格可以更自由地移動 。
+
+8. 應對數據稀疏：插值、模擬與近似技術
+
+8.1 缺失/稀疏數據的挑戰
+
+在使用免費數據源進行選擇權分析時，數據的缺失或稀疏是一個常見問題。這可能發生在流動性較差的選擇權合約（例如深度價外或遠期合約）、特定的希臘字母數據（如果數據源只提供 IV 而非直接提供 Gamma），或者歷史數據序列中 。數據的不完整性會直接影響 GEX 計算的全面性和準確性，因為 GEX 需要匯總大量合約的信息。
+
+8.2 數據插值方法
+
+插值是一種基於已知數據點來估計缺失數據點值的技術 。在金融數據分析中，特別是處理時間序列或構建曲面（如波動率曲面）時，常用的插值方法包括：
+
+線性插值 (Linear Interpolation): 最簡單的方法，假設相鄰已知點之間呈線性關係 。計算簡單，但對於非線性關係（如波動率微笑曲線）可能不夠準確。
+
+樣條插值 (Spline Interpolation, 如三次樣條): 使用分段多項式擬合已知點，可以產生比線性插值更平滑的曲線或曲面 。更適合捕捉像波動率微笑這樣的曲線特徵。
+
+K-最近鄰插值 (k-NN Imputation): 利用與缺失點在多維空間中「最接近」的 k 個已知點的值來估計缺失值 。能夠捕捉更複雜的數據關係，但計算成本相對較高。
+
+其他提及的方法: 文獻中還提到了其他方法，如基於時間的均值/中位數插值 (Mean/Median Time of Day, ToD) 、數據處理分組方法 (Group Method of Data Handling, GMDH) 、徑向基函數插值 (Radial Basis Functions, RBF) 等。
+
+應用場景: 插值技術可以用於填補 OI 或 Volume 時間序列數據中的空白，但更關鍵的應用可能是在構建完整的隱含波動率 (IV) 曲面時，填補不同履約價和到期日之間缺失的 IV 值。一個平滑且完整的 IV 曲面是準確計算整個選擇權鏈上所有合約 Gamma 值的前提 。
+
+8.3 近似技術
+
+當由於數據缺失或計算資源限制而無法精確計算 Gamma 時，可能需要採用近似方法。例如：
+
+使用簡化的波動率假設（如假設某個範圍內的履約價共享相同的 IV）。
+
+使用價平 (ATM) 的 IV 作為附近價外 (OTM) 或價內 (ITM) 合約 IV 的近似值。
+
+使用緩存的或更新頻率較低的希臘字母值。
+
+需要注意的是，這些近似方法會引入額外的誤差，其影響程度需要評估。免費平台或個人實現的 GEX 計算可能為了效率而採用某些近似。
+
+8.4 蒙地卡羅模擬 (Monte Carlo Simulation)
+
+蒙地卡羅模擬是一種利用隨機抽樣來模擬和分析具有不確定性過程的計算技術 。在金融領域，它廣泛應用於複雜衍生品定價、風險管理和投資組合評估 。
+
+在處理數據缺失/不確定性方面的應用： 蒙地卡羅模擬本身不直接用於像插值那樣填補單個缺失數據點（如 OI 值），但它可以應用於以下相關場景：
+
+估計不確定參數下的期權價值： 當某些輸入參數（如未來的波動率或標的價格路徑）不確定或數據缺失時，可以通過模擬大量的標的資產價格路徑，來估計期權的期望價格，並可能從中反推出隱含的參數（如 IV 或希臘字母）。
+
+評估策略的穩健性： 可以使用蒙地卡羅模擬來評估基於 GEX 的交易策略在不同市場情景下或面對有噪聲、不完整的輸入數據時的表現和風險 。通過模擬多種可能的市場路徑和數據擾動，可以評估策略結果的分佈，而不僅僅是單一的回測結果。
+
+數據插補技術比較
+
+方法
+
+原理
+
+優點
+
+缺點
+
+適用性 (示例)
+
+線性插值
+
+假設點間線性關係
+
+計算簡單
+
+對非線性數據不準確
+
+填補時間序列數據間隙, 簡單 IV 插值
+
+樣條插值
+
+分段多項式擬合
+
+結果平滑, 適合曲線
+
+計算稍複雜
+
+構建平滑 IV 曲面
+
+k-NN 插值
+
+使用最近鄰點的值
+
+能捕捉複雜關係
+
+計算密集, 對 k 值敏感
+
+處理多維數據缺失, 複雜 IV 曲面構建
+
+蒙地卡羅模擬
+
+隨機抽樣模擬不確定性
+
+處理複雜模型和不確定性, 評估風險/穩健性
+
+計算密集, 結果依賴模型和抽樣次數
+
+估計不確定參數下的期權價值, 策略穩健性測試
+
+處理選擇權分析中的缺失或稀疏數據是不可避免的，尤其是在使用免費數據源時。所選擇的插補或近似方法本身會引入新的假設和潛在誤差，進而影響最終 GEX 計算的可靠性。插值法假設了數據點之間的某種關係（例如線性或平滑曲線），而這種關係可能並不成立 。蒙地卡羅模擬則依賴於所用模擬模型的有效性 。當面對不完整數據時，這些方法是必要的，但使用者必須意識到，它們為 GEX 估計增加了另一層潛在的不準確性。因此，進行穩健性檢查變得更加關鍵 。
+
+對於 GEX 計算而言，處理稀疏數據的主要挑戰往往在於構建一個可靠的隱含波動率曲面。不同履約價和到期日的 IV 數據點缺失，使得為 GEX 匯總所需的所有相關選擇權準確計算 Gamma 變得困難。GEX 需要匯總所有相關合約的 Gamma * OI (或 Vol) 。而計算 Gamma 需要每個合約的 IV 。如果許多價外或遠期選擇權的 IV 數據缺失（這在使用免費數據或分析流動性較差的標的時很常見），則在計算 Gamma 和匯總 GEX 之前，必須對 IV 曲面進行插值或外推。這個 IV 曲面構建的準確性至關重要 。
+
+9. 實務執行：免費數據的抓取、緩存與速率限制
+
+9.1 倫理與技術考量
+
+在嘗試從免費公開來源（尤其是像 Yahoo Finance 這樣並非設計為公共 API 的網站）抓取數據時，必須同時考慮倫理和技術因素：
+
+遵守規則: 尊重網站的 robots.txt 文件規定和服務條款 (Terms of Service) 。避免可能損害網站性能的過度頻繁或高併發的抓取行為 。抓取應限於公開可訪問的數據 。不當抓取可能涉及法律風險 。
+
+抓取的脆弱性: 必須認識到，依賴抓取免費來源（如透過 yfinance 抓取 Yahoo Finance）本質上是脆弱的。目標網站的結構或反抓取機制可能隨時變更，導致抓取腳本失效 。
+
+9.2 實施慢速/禮貌抓取
+
+為了降低對目標伺服器的負載並減少被封鎖的風險，應採用慢速和禮貌的抓取策略：
+
+請求間延遲: 在連續的請求之間加入延遲（例如，在 Python 中使用 time.sleep() 函數）。
+
+隨機化延遲: 將延遲時間稍微隨機化（例如，在一個小範圍內隨機選擇延遲秒數），可以更好地模擬人類瀏覽行為，進一步降低被檢測為機器人的可能性 。
+
+9.3 使用緩存 (requests-cache)
+
+緩存是提高抓取效率和穩定性的關鍵技術。
+
+緩存的好處:
+
+避免重複下載未變更的數據。
+
+顯著加快對已緩存數據的訪問速度。
+
+減少對目標伺服器的請求次數和負載。
+
+有助於遵守速率限制，降低被封鎖的風險 。
+
+實施示例 (Python): 可以使用 requests-cache 函式庫輕鬆實現。它可以與標準的 requests.Session 對象集成，也可以與 yfinance 結合使用（透過傳遞自定義 session）。
+import requests
+import requests_cache
+import yfinance as yf
+import time
+from datetime import timedelta
+
+# 設定緩存，例如緩存到 'yfinance_cache.sqlite' 文件，有效期 1 小時
+session = requests_cache.CachedSession(
+    'yfinance_cache',
+    use_cache_dir=True,  # 使用標準緩存目錄
+    expire_after=timedelta(hours=1),  # 設置緩存過期時間
+    allowable_methods=('GET', 'POST') # 允許緩存的方法
+)
+
+# (可選) 設置 User-Agent
+session.headers['User-agent'] = 'my-options-analyzer/1.0'
+
+# 將緩存 session 傳遞給 yfinance Ticker
+ticker_symbol = 'AAPL'
+aapl = yf.Ticker(ticker_symbol, session=session)
+
+# 第一次請求會從網路獲取並緩存
+print("Fetching options data for the first time...")
+start_time = time.time()
+try:
+    options_chain = aapl.option_chain(aapl.options) # 獲取第一個到期日的選擇權鏈
+    print(f"First fetch took {time.time() - start_time:.2f} seconds.")
+    print(f"Call options head:\n{options_chain.calls.head()}")
+except Exception as e:
+    print(f"Error fetching options: {e}")
+
+# 短時間內再次請求，應從緩存讀取，速度極快
+print("\nFetching options data for the second time...")
+start_time = time.time()
+try:
+    options_chain_cached = aapl.option_chain(aapl.options)
+    print(f"Second fetch took {time.time() - start_time:.2f} seconds.")
+    # 驗證數據是否相同
+    # print(f"Cached call options head:\n{options_chain_cached.calls.head()}")
+    print("Data likely retrieved from cache.")
+except Exception as e:
+    print(f"Error fetching cached options: {e}")
+
+# 可以在 session.cache 中查看緩存狀態
+# print(f"\nCache contains {len(session.cache.responses)} responses.")
+
+需要配置緩存的存儲位置（例如 SQLite 文件、內存、Redis 等）和緩存的過期策略（例如，固定時間後過期，或基於 HTTP 響應頭中的 Cache-Control）。
+
+9.4 實施速率限制 (pyrate-limiter)
+
+僅僅減慢請求可能不足以避免觸發嚴格的速率限制。主動在客戶端實施速率限制是更可靠的方法。
+
+必要性: 確保發出的請求頻率明確低於目標伺服器的已知或推測的限制（例如 Yahoo Finance 的限制）。
+
+實施示例 (Python): pyrate-limiter 函式庫可以與 requests Session 結合使用，通常與緩存一起實現（使用 requests_ratelimiter 提供的 LimiterMixin）。
+import requests
+import requests_cache
+from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
+from pyrate_limiter import Limiter, RequestRate, Duration
+import yfinance as yf
+import time
+from datetime import timedelta
+
+# 結合緩存和速率限制的 Session 類
+class CachedLimiterSession(CacheMixin, LimiterMixin, requests.Session):
+    pass
+
+# 創建 Session 實例
+# 限制：每 5 秒最多 2 個請求
+session = CachedLimiterSession(
+    limiter=Limiter(RequestRate(2, Duration.SECOND * 5)),
+    bucket_class=MemoryQueueBucket,
+    backend=requests_cache.SQLiteCache("yfinance_cache_limited", use_cache_dir=True, expire_after=timedelta(hours=1)),
+)
+
+# (可選) 設置 User-Agent
+session.headers['User-agent'] = 'my-options-analyzer/1.1'
+
+ticker_symbol = 'MSFT'
+msft = yf.Ticker(ticker_symbol, session=session)
+
+# 嘗試連續獲取多個到期日的選擇權鏈
+print(f"Fetching options for {ticker_symbol} with rate limiting...")
+expiries_to_fetch = msft.options[:3] # 獲取前 3 個到期日
+
+start_time_total = time.time()
+for expiry in expiries_to_fetch:
+    print(f"Fetching chain for expiry: {expiry}")
+    start_time_single = time.time()
+    try:
+        chain = msft.option_chain(expiry)
+        print(f"  Fetched {len(chain.calls)} calls and {len(chain.puts)} puts.")
+        print(f"  Fetch for {expiry} took {time.time() - start_time_single:.2f} seconds.")
+    except Exception as e:
+        print(f"  Error fetching chain for {expiry}: {e}")
+    # 速率限制器會自動處理請求間的等待
+
+print(f"\nTotal fetch time for {len(expiries_to_fetch)} expiries: {time.time() - start_time_total:.2f} seconds.")
+
+這裡定義了速率限制規則（例如，每 5 秒不超過 2 次請求 ）並將其應用於 Session。
+
+9.5 避免 IP 封鎖的策略
+
+對於更嚴格的反抓取機制，可能需要更進階的策略：
+
+User-Agent 輪換: 網站通過 User-Agent 字符串識別客戶端類型。定期更換 User-Agent，使其看起來像是來自不同的瀏覽器或設備，可以增加隱蔽性 。可以在 requests 的 headers 中設置 User-Agent 。yfinance 近期也加入了 User-Agent 輪換機制以應對 Yahoo 的限制 。
+
+代理 (Proxies): 代理伺服器充當請求的中介，隱藏抓取程序的真實 IP 地址 。
+
+類型: 包括數據中心代理、住宅代理 (Residential Proxies)、輪換代理 (Rotating Proxies) 等 。住宅代理和輪換代理通常更難被檢測到，因為它們使用真實的家庭或移動 IP 地址 。
+
+實現: 可以透過 requests 函式庫的 proxies 參數配置使用 。
+
+輪換: 為了避免單個代理 IP 被封鎖，通常需要使用代理輪換服務，即每次請求或每隔一段時間自動切換代理 IP 。
+
+注意事項: 使用代理服務需要考慮成本和來源的可靠性。免費代理通常速度慢、不穩定且存在安全風險 ，不建議用於生產環境。使用代理也必須遵守法律和道德規範。
+
+從免費、非官方來源進行穩健的數據檢索，需要結合多種技術（緩存、速率限制，可能還包括輪換策略）來管理技術限制並避免被阻止。簡單地循環發送請求很可能會失敗。免費的網絡資源並非為高頻程序化訪問而設計。它們會實施速率限制和機器人檢測 。成功的抓取策略必須通過仔細的請求管理（延遲、限制）、數據持久化（緩存）以及可能的混淆（輪換）來預測和緩解這些措施 。
+
+緩存對於選擇權數據尤其重要，因為選擇權鏈中的許多數據（如履約價、到期日）變化不頻繁，而價格/IV 則變化較快。有效的緩存策略可以顯著減少需要發出的實時請求數量。一個選擇權鏈可能包含數千個合約。重複獲取整個鏈條效率低下，且很可能觸發速率限制。緩存允許程序存儲靜態部分（合約細節），僅刷新動態部分（價格、IV、OI、成交量），或僅在緩存過期時才獲取數據，從而大大減少負載 。
+
+10. 整合 OI、Volume 與 GEX：綜合分析方法
+
+10.1 整合的理由
+
+雖然 OI、Volume 和 GEX 各自都能提供有價值的市場洞察，但將它們結合起來分析，可以提供更全面、更立體的視角，並可能增加分析的置信度 。OI 和 Volume 主要反映市場參與者的倉位和活動強度，而 GEX 則加入了由這些倉位引發的潛在對沖資金流影響的維度。
+
+10.2 確認與背離
+
+綜合分析的關鍵在於尋找指標間的確認信號或警示性的背離信號。
+
+確認 (Confirmation): 當多個指標指向同一方向時，分析的結論更為可靠。
+
+示例： 價格突破一個高 Call OI 的阻力位，同時該履約價的 Volume 顯著放大，並且此時 GEX 為正（暗示造市商可能買入回調以對沖，從而支撐突破）或 GEX 由負轉正/負值減小（暗示放大下跌的力量減弱），這就構成了一個較強的突破確認信號 。
+
+背離 (Divergence): 當不同指標發出相互矛盾的信號時，應保持警惕，這可能預示著不確定性增加或潛在的反轉。
+
+示例 1: 價格強勢上漲接近一個高 Call OI 的阻力位，Volume 放大，但此時總體淨 GEX 卻是強烈的負值。這意味著如果漲勢失敗，造市商的對沖行為（在價格下跌時賣出）可能會加劇下跌，增加了在該阻力位附近發生急劇反轉的風險 。
+
+示例 2: 高 Put OI 暗示某個價格是強支撐，但該履約價附近的 GEX 分佈顯示為大的負 Gamma（例如，大量的 Put Gamma 導致的負 GEX 貢獻）。這意味著一旦價格觸及或跌破該支撐，造市商的賣出對沖可能反而加速價格的下跌，使得這個看似強勁的 OI 支撐變得不可靠。
+
+10.3 應用場景示例
+
+突破確認: 價格接近阻力位（高 Call OI）。接近過程中，成交量放大。GEX Profile 顯示在該阻力位上方有顯著的正 Gamma 積累（例如，更高履約價的 Call OI 增加）。總體淨 GEX 為正。這種情況下，向上突破的可能性和可持續性增加。
+
+反轉識別: 價格接近支撐位（高 Put OI）。接近過程中，成交量萎縮。GEX Profile 顯示在該支撐位下方有大量的負 Gamma（例如，更低履約價的 Put OI 很大，或者整體處於負 GEX 狀態）。總體淨 GEX 為負。這種情況下，支撐位被跌破的風險增加，跌破後可能加速下跌，構成潛在的做空信號。
+
+區間評估: 價格在一個由高 Call OI/Gamma 構成的阻力區和高 Put OI/Gamma 構成的支撐區之間運行。總體淨 GEX 顯著為正。這暗示市場可能處於「錨定」狀態，波動性受抑制，有利於區間交易策略（如賣出跨式期權、鐵蝶式期權等）或等待區間突破 。
+
+10.4 建立系統化框架
+
+為了更一致地應用這些指標，可以考慮建立一個分析清單或流程圖：
+
+識別關鍵 OI 水平： 找出 Call 和 Put OI 異常集中的履約價。
+
+監控 Volume 行為： 觀察價格接近這些關鍵 OI 水平時，對應履約價的 Volume 變化（是放大確認還是萎縮背離？）。
+
+檢查 GEX 狀況：
+
+查看總體淨 GEX（判斷市場是處於波動抑制還是放大狀態？）。
+
+分析 GEX Profile（對沖壓力集中在哪裡？關鍵 OI 水平的 GEX 貢獻是正是負？）。
+
+關注 Gamma Flip / HVL 水平。
+
+尋找確認/背離： OI/Volume 的信號是否與 GEX 的暗示一致？是否存在矛盾？
+
+結合市場背景： 將這些選擇權衍生信號置於更廣泛的市場背景下考慮，包括宏觀經濟、行業新聞、其他技術指標（趨勢線、移動平均線等）和基本面因素。
+
+真正的價值在於將這些指標結合起來，構建一個關於市場倉位結構和潛在資金流動的故事。GEX 可以被視為解讀 OI/Volume 信號的一個「濾鏡」或「調節器」。OI 告訴我們倉位集中在哪裡。Volume 告訴我們這些區域現在是否活躍。GEX 則告訴我們基於總體 Gamma 狀況，造市商在這些區域周圍的潛在對沖行為可能產生的影響。將它們結合起來，可以獲得比單獨使用任何一個指標更豐富的解讀 (綜合自 等多個來源)。
+
+11. 重要考量：局限性、假設與風險
+
+11.1 GEX 模型的假設
+
+GEX 分析的有效性很大程度上取決於其背後假設的合理性。
+
+造市商行為假設:
+
+Delta 中性對沖: GEX 模型的核心假設是造市商會積極進行 Delta 對沖以維持中性倉位 。然而，現實中造市商可能面臨其他風險（如 Vega, Theta 風險）、交易成本、庫存限制或自身觀點，導致其對沖行為偏離理想化的 Delta 中性 。
+
+典型倉位推斷: 模型通常假設造市商在指數期權上淨空 Put / 淨多 Call，在個股期權上淨空 Put 和 Call 。這是一個基於普遍市場行為的「有根據的猜測」，但並非總是準確，因為無法直接觀測到造市商的實際倉位 。
+
+交易對手假設: GEX 模型常假設大部分交易的對手方是造市商。但在某些情況下，客戶之間的交易或機構之間的交易可能佔據重要比例，這些交易可能不會引發典型的造市商對沖流。
+
+DDOI vs. OI 的挑戰: GEX 計算通常使用總未平倉量 (OI) 作為輸入。然而，總 OI 中包含了已經被客戶對沖掉的倉位（例如，持有股票的投資者賣出 Covered Call），這些倉位可能不會引發造市商的對沖需求。理想情況下，GEX 應基於「交易商方向性未平倉量」(Dealer Directional Open Interest, DDOI)，即真正需要造市商對沖的淨敞口。但 DDOI 無法直接觀測，只能通過假設來估計，這給 GEX 計算帶來了不確定性 。使用總 OI 計算的 GEX 可能會高估或錯誤判斷實際的對沖壓力。
+
+11.2 數據質量與可靠性
+
+數據質量是 GEX 分析的另一個關鍵限制因素，尤其是在使用免費數據時。
+
+免費數據問題: 延遲、不準確、數據缺口（特別是 IV）、來源網站變更導致抓取失敗等問題普遍存在 。計算所需的輸入（尤其是 IV）可能不可靠 。
+
+流動性問題: 對於流動性差的標的或合約，選擇權數據（包括 OI, Volume, IV）可能非常稀疏甚至缺失，使得 GEX 計算結果不可靠或無法進行 。
+
+11.3 模型風險
+
+GEX 本身是一個派生指標，其計算依賴於其他模型。
+
+Black-Scholes 局限性: 用於計算 Gamma 的 Black-Scholes 模型有其固有的假設（如恆定波動率/利率、無跳躍、歐式行權等），這些假設與真實市場存在偏差 。Gamma 計算的準確性受模型有效性的限制。
+
+GEX 計算方法差異: 如第 4 節所述，不同的 GEX 計算公式和約定可能導致不同的結果和信號。使用者需要清楚自己所用方法的具體含義。
+
+11.4 指標滯後與誤讀
+
+滯後性: OI 是日終數據，基於 OI 計算的 GEX 也具有滯後性，無法反映日內快速變化 。
+
+動態性: GEX 水平並非靜態，會隨價格、時間和波動率變化而快速改變，尤其是在接近到期日時 。依賴某個靜態的 GEX 水平可能很快失效。
+
+相關性 vs. 因果性: GEX 與市場波動性機制相關，但並非單一決定因素。它反映的是可能促成市場動態的潛在資金流，而非必然的因果關係 。
+
+過度簡化: 將所有履約價和到期日的 Gamma 匯總成一個數字（淨 GEX）或一個 Profile，可能會掩蓋不同市場部分之間的重要細微差別 。
+
+11.5 過擬合與策略穩健性風險
+
+回測陷阱: 由於 GEX 分析的複雜性和依賴性（數據、模型、假設），基於 GEX 的交易策略在回測時容易產生過擬合 (overfitting) 。即策略在歷史數據上表現很好，但在未來實際應用中效果不佳。
+
+穩健性測試: 策略需要經過嚴格的穩健性測試，檢驗其對數據變異、參數微調和不同市場環境的適應能力 。
+
+11.6 市場事件衝擊
+
+重大的宏觀經濟新聞、公司特定事件或突發的金融危機，其影響力通常會壓倒由 GEX 暗示的內部市場流動 。在這些情況下，GEX 分析的參考價值會顯著下降，它更適用於分析常規市場環境下的潛在壓力點。
+
+GEX 分析建立在一系列應用於可能不完美數據的模型和假設鏈之上。應將其視為對潛在對沖資金流的概率性指示，而非對價格的確定性預測。整個過程涉及對造市商行為的假設 、用於計算 Gamma 的選擇權定價模型的有效性 以及輸入數據的質量 。每一步都可能引入誤差或與現實的偏差。因此，應謹慎對待 GEX 信號，並尋求其他證據的確認。
+
+隨著 GEX 分析和相關工具越來越受歡迎，其有效性可能會隨著時間推移而降低，因為越來越多的市場參與者會對相同的信號做出反應，導致預測優勢被侵蝕 (edge erosion) 。正如 和 所述，當一種交易策略或指標變得廣為人知和使用時，市場往往會適應，預測優勢隨之減弱。如果許多交易者都基於 GEX 水平來預期造市商的對沖行為，他們自身的交易活動可能會提前消化或抵消預期的對沖流。
+
+12. 結論與建議
+
+12.1 總結
+
+本報告深入探討了利用未平倉量 (OI)、成交量 (Volume) 和伽瑪值曝險 (GEX) 這三個核心選擇權市場指標來識別美股潛在價格支撐與壓力區間的方法論。分析強調，這些指標通過揭示市場參與者的倉位佈局、交易活躍度以及（特別是 GEX）由造市商對沖活動引發的潛在市場內部資金流，為傳統的價格分析提供了有價值的補充視角。
+
+12.2 關鍵要點
+
+OI 與 Volume: OI 反映市場累積的未平倉合約總量，指示潛在的支撐/阻力水平和市場承諾；Volume 反映即時的交易活躍度和趨勢強度。兩者結合分析可提供更可靠的市場情緒和趨勢確認信號。
+
+GEX: GEX 量化了推斷的造市商 Gamma 曝險，揭示了其 Delta 對沖活動可能對市場波動性產生的影響（正 GEX 傾向於抑制波動，負 GEX 傾向於放大波動）。關鍵 GEX 水平（如高絕對 GEX 履約價、Gamma Flip 點）可作為潛在的價格錨定點或拐點。
+
+整合分析: 將 OI、Volume 和 GEX 結合分析，尋找確認或背離信號，可以提供比單一指標更全面、更可靠的市場洞察。GEX 為 OI/Volume 分析增加了資金流影響的維度。
+
+免費數據挑戰: 依賴免費公開數據源（如 CBOE, Yahoo Finance via yfinance）進行分析是可行的，但必須應對數據延遲、不完整、潛在不準確以及速率限制等挑戰。需要採用慢速抓取、緩存、數據插補/近似等技術。
+
+假設與局限: GEX 分析建立在對造市商行為、選擇權定價模型和數據質量的多重假設之上，這些假設和模型的局限性是理解和應用 GEX 分析結果時必須考慮的關鍵因素。
+
+12.3 最佳實踐建議
+
+輔助而非主導: 將 OI, Volume, GEX 分析視為交易決策的輔助工具和匯合因素，而非獨立的交易信號系統。務必結合傳統的技術分析（趨勢、形態）、基本面分析以及宏觀市場背景。
+
+理解假設與局限: 深刻理解 GEX 計算背後的假設（特別是關於造市商行為和 DDOI vs OI 的問題）及其局限性。對使用免費數據源的數據質量問題保持高度警惕。
+
+明確計算方法: 在使用任何 GEX 工具或數據時，務必了解其具體的計算公式、單位和符號約定。
+
+穩健的數據處理與測試: 在實施數據抓取時，優先考慮使用緩存和速率限制等穩健的技術。對基於這些指標開發的任何交易策略，進行嚴格的回測和穩健性測試，防範過擬合。
+
+風險管理: 鑑於這些指標的概率性和局限性，必須配合嚴格的風險管理措施。它們不是水晶球，不能保證預測的準確性。
+
+12.4 未來考量
+
+選擇權市場結構持續演變，例如零日到期選擇權 (0DTE) 的興起 ，可能對市場動態和 GEX 等指標的解讀產生新的影響。分析師和交易者需要持續學習和調整分析方法，以適應不斷變化的市場環境。
+
+總之，透過對 OI、Volume 和 GEX 的深入理解和審慎應用，交易者和分析師可以獲得對市場結構和潛在價格動能的寶貴洞察，尤其是在識別關鍵支撐與壓力水平方面。然而，成功的關鍵在於認識到這些工具的局限性，將其與其他分析方法相結合，並始終以嚴謹的風險管理為前提。
+
+引用的著作
+
+1. Why Trading Volume and Open Interest Matter to Options Traders - Investopedia, https://www.investopedia.com/trading/options-trading-volume-and-open-interest/ 2. Intro to Open Interest in the Futures Market - Investopedia, https://www.investopedia.com/trading/intro-to-open-interest-in-futures-market/ 3. Gamma Exposure (GEX) Definition | Forexpedia™ by Babypips.com, https://www.babypips.com/forexpedia/gamma-exposure-gex 4. What is Gamma Exposure (GEX)? - Unusual Whales, https://unusualwhales.com/faq/what-is-gamma-exposure-gex 5. Understanding Support and Resistance in Options Trading - Stolo, https://stolo.in/blog/support-and-resistance/ 6. What is Gamma Exposure (GEX)? - Quant Data Help Center, https://help.quantdata.us/en/articles/7852449-what-is-gamma-exposure-gex 7. Vol Crash Course #2 Review Gamma, Gamma Exposure (GEX), Net Total GEX, and GEX Levels to What Prices to Enter at : r/Superstonk - Reddit, https://www.reddit.com/r/Superstonk/comments/1f1aana/vol_crash_course_2_review_gamma_gamma_exposure/ 8. Gamma-exposure.pdf, https://optionsoffice.ru/wp-content/uploads/2019/11/Gamma-exposure.pdf 9. Gamma & Gamma Exposure - What Traders Need to Know - Opinicus, https://opinicusholdings.com/options-trading-blog/market-maker-gamma-exposure 10. Where does gamma hedge drive the intraday market move? - The American Finance Association, https://afajof.org/management/viewp.php?n=129472 11. Cboe Global Markets, Inc. (CBOE) Stock Price, News, Quote & History - Yahoo Finance, https://ca.finance.yahoo.com/quote/CBOE/ 12. Cboe Daily Market Statistics, https://www.cboe.com/us/options/market_statistics/daily/ 13. yfinance Library – A Complete Guide | IBKR Quant, https://www.interactivebrokers.com/campus/ibkr-quant-news/yfinance-library-a-complete-guide/ 14. Reduce number of issues, errors, bugs, questions related to API Calls Limits #2325 - GitHub, https://github.com/ranaroussi/yfinance/issues/2325 15. Yfinance saying “Too many requests.Rate limited” : r/learnpython - Reddit, https://www.reddit.com/r/learnpython/comments/1isuc4h/yfinance_saying_too_many_requestsrate_limited/ 16. Challenges And Limitations Of Using Real Options - FasterCapital, https://fastercapital.com/topics/challenges-and-limitations-of-using-real-options.html 17. The Magnificent Seven Gamma Traps of Crypto - Panoptic, http://panoptic.xyz/research/crypto-gamma-traps 18. Volume vs. Open Interest: What's the Difference? - Investopedia, https://www.investopedia.com/ask/answers/050615/what-difference-between-open-interest-and-volume.asp 19. www.investopedia.com, https://www.investopedia.com/ask/answers/050615/what-difference-between-open-interest-and-volume.asp#:~:text=The%20Bottom%20Line,typically%20a%20single%20trading%20day. 20. Volume of Trade: How it Works, What it Means, and Examples - Investopedia, https://www.investopedia.com/terms/v/volumeoftrade.asp 21. What Is Volume of a Stock, and Why Does It Matter to Investors? - Investopedia, https://www.investopedia.com/terms/v/volume.asp 22. How To Use Stock Volume To Improve Your Trading - Investopedia, https://www.investopedia.com/articles/technical/02/010702.asp 23. Using Open Interest to Find Bull/Bear Signals - Investopedia, https://www.investopedia.com/articles/technical/02/112002.asp 24. How Do I Measure Option Liquidity? - Investopedia, https://www.investopedia.com/ask/answers/05/optionliquidity.asp 25. Open Interest: Definition, How It Works, and Example - Investopedia, https://www.investopedia.com/terms/o/openinterest.asp 26. Open Interest - Meaning, How Does it Work & Significance - Groww, https://groww.in/p/open-interest 27. The Ultimate Guide: Understanding OI-Based Strategies in Algo Trading, https://www.utradealgos.com/blog/the-ultimate-guide-understanding-oi-based-strategies-in-algo-trading 28. Volume vs. Open Interest: 2025 Comparison Guide - The Trading Analyst, https://thetradinganalyst.com/volume-vs-open-interest/ 29. A Newbie's Guide to Reading an Options Chain - Investopedia, https://www.investopedia.com/financial-edge/0412/a-newbies-guide-to-reading-an-options-chain.aspx 30. Options Chain: What It Is and How To Read and Analyze It - Investopedia, https://www.investopedia.com/terms/o/optionchain.asp 31. Open Interest & Stocks: Understanding Market Dynamics - Bookmap, https://bookmap.com/blog/open-interest-stocks-understanding-market-dynamics 32. The Top Technical Indicators for Options Trading - Investopedia, https://www.investopedia.com/articles/active-trading/101314/top-technical-indicators-options-trading.asp 33. Gamma - Overview, The Greeks, Black-Scholes Model - Corporate Finance Institute, https://corporatefinanceinstitute.com/resources/derivatives/gamma/ 34. Black-Scholes Formulas (d1, d2, Call Price, Put Price, Greeks) - Macroption, https://www.macroption.com/black-scholes-formula/ 35. The Basics Of Option Prices - Investopedia, https://www.investopedia.com/articles/optioninvestor/09/buying-options.asp 36. Options Strike Prices: How It Works, Definition, and Example - Investopedia, https://www.investopedia.com/terms/s/strikeprice.asp 37. Introduction to Gamma Exposure(GEX) - TradingFlow, https://www.tradingflow.com/blog/introduction-to-gamma-exposure-gex 38. Black Scholes|Greeks Derivation - QuantPie, https://quantpie.co.uk/bsm_formula/bs_summary.php 39. What Is GEX? The Ultimate Guide To Gamma Exposure - TalkMarkets, https://talkmarkets.com/content/options/what-is-gex-the-ultimate-guide-to-gamma-exposure?post=424672 40. How to Trade using Gamma Exposure (GEX) - Spyder Academy, https://www.spyderacademy.com/education/how-to-trade-using-gamma-exposure/ 41. Black–Scholes model - Wikipedia, https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model 42. GEX Profile [PRO] Real Auto-Updated Gamma Exposure Levels - TradingView, https://www.tradingview.com/script/v04Kzl4Q-GEX-Profile-PRO-Real-Auto-Updated-Gamma-Exposure-Levels/ 43. S&P 500 Index Gamma Exposure (GEX) - Barchart.com, https://www.barchart.com/stocks/quotes/%24SPX/gamma-exposure 44. GEX — Indicadores y estrategias - TradingView, https://es.tradingview.com/scripts/gex/?script_type=indicators&script_access=all 45. Unlock the Power of Gamma Exposure to Boost Your Options Trading - YouTube, https://www.youtube.com/watch?v=5RxWm-QLyu8 46. GEX — Indicatori e strategie - TradingView, https://it.tradingview.com/scripts/gex/?script_access=all 47. Why More Short-Dated Options Did Not Increase Market Volatility - MSCI, https://www.msci.com/www/blog-posts/why-more-short-dated-options/03811917065 48. Much Ado About 0DTEs: Separating Fact From Fiction - Interactive Brokers, https://www.interactivebrokers.com/campus/traders-insight/securities/options/much-ado-about-0dtes-separating-fact-from-fiction/ 49. How to Calculate Gamma Exposure (GEX) and Zero Gamma Level, https://perfiliev.com/blog/how-to-calculate-gamma-exposure-and-zero-gamma-level/ 50. How does SqueezeMetrics calculate GEX (dealer gamma exposure)? I cannot reproduce the results : r/algotrading - Reddit, https://www.reddit.com/r/algotrading/comments/g4poro/how_does_squeezemetrics_calculate_gex_dealer/ 51. Exchange Traded Options Market Making, Explained – Part 2 - Global X ETFs, https://www.globalxetfs.com/exchange-traded-options-market-making-explained-part-2/ 52. Black-Scholes Model: What It Is, How It Works, and Options Formula - Investopedia, https://www.investopedia.com/terms/b/blackscholes.asp 53. The Black-Scholes Model, https://www.columbia.edu/~mh2078/FoundationsFE/BlackScholes.pdf 54. Implied Volatility: Formula, Options, Python, Calculations and more - QuantInsti Blog, https://blog.quantinsti.com/implied-volatility/ 55. vollib.black_scholes package — vollib 0.1.5 documentation, https://vollib.org/documentation/python/0.1.5/apidoc/vollib.black_scholes.html 56. Black-Scholes Model - RTMath, https://rtmath.net/assets/docs/finmath/html/a3110fb0-1c47-4573-bc55-96175a2a1e76.htm 57. Deep Learning for Options Trading: An End-To-End Approach - arXiv, https://arxiv.org/pdf/2407.21791 58. How to forecast volatility using gamma exposure index?, https://quant.stackexchange.com/questions/72067/how-to-forecast-volatility-using-gamma-exposure-index 59. Dealer's directional open interest - Quantitative Finance Stack Exchange, https://quant.stackexchange.com/questions/76269/dealers-directional-open-interest 60. A Simple Overview of Quantitative Analysis - Investopedia, https://www.investopedia.com/articles/investing/041114/simple-overview-quantitative-analysis.asp 61. Limitations of Quantitative Claims About Trading Strategy Evaluation - ResearchGate, https://www.researchgate.net/publication/315340063_Limitations_of_Quantitative_Claims_About_Trading_Strategy_Evaluation 62. Data retrieval for Gamma Exposure : r/bloomberg - Reddit, https://www.reddit.com/r/bloomberg/comments/1hhuh29/data_retrieval_for_gamma_exposure/ 63. Historical Options Data Download - Cboe Global Markets, https://www.cboe.com/us/options/market_statistics/historical_data/ 64. Mutual Funds, Commodities, Futures, & Options - Business - Research by Subject at San Diego State University, https://libguides.sdsu.edu/c.php?g=253156&p=6591553 65. Data Providers | OpenBB Platform, https://my.openbb.co/app/platform/data-providers 66. Get Free Options Data with Python: Yahoo finance & Pandas Tutorial - CodeArmo, https://www.codearmo.com/python-tutorial/options-trading-getting-options-data-yahoo-finance 67. Downloading option chain and fundamental using Python | Ran Aroussi (Official Website), https://aroussi.com/post/download-options-data 68. Caching — yfinance - GitHub Pages, https://ranaroussi.github.io/yfinance/advanced/caching.html 69. yfinance - PyPI, https://pypi.org/project/yfinance/0.2.31b2/ 70. fredrik-corneliusson/yfinance-tz-cache: Download market data from Yahoo! Finance's API, https://github.com/fredrik-corneliusson/yfinance-tz-cache 71. CBOE Volatility Index: VIX (VIXCLS) | FRED | St. Louis Fed, https://fred.stlouisfed.org/series/VIXCLS 72. Rest API Documentation - IVolatility.com, https://www.ivolatility.com/api/docs 73. Get Real-Time Options Data with Python in Seconds! - InsightBig, https://www.insightbig.com/post/get-real-time-options-data-with-python-in-seconds 74. Quant Data, https://quantdata.us/ 75. Explore AD Derivatives - Amberdata, https://www.amberdata.io/derivatives-info 76. Gamma Exposure Effects in Options Trading - PyQuant News, https://www.pyquantnews.com/free-python-resources/gamma-exposure-effects-in-options-trading 77. Getting 429 error (rate-limit) when in loop, suggestion to add try-catch if fails · Issue #2125 · ranaroussi/yfinance - GitHub, https://github.com/ranaroussi/yfinance/issues/2125 78. Scraping Data from Yahoo Finance Using Python - Proxy-Seller, https://proxy-seller.com/blog/guide_to_scraping_yahoo_finance_data_with_python/ 79. Guide to Yahoo Finance API - Scrapfly, https://scrapfly.io/blog/guide-to-yahoo-finance-api/ 80. How do I prevent site scraping? [closed] - Stack Overflow, https://stackoverflow.com/questions/3161548/how-do-i-prevent-site-scraping 81. Open Interest Data - Calculation Of Support And Resistance - Elearnmarkets Blog, https://blog.elearnmarkets.com/calculate-by-open-interest-data/ 82. Advanced Options Trading using Gamma Exposure (GEX) Analysis - YouTube, https://m.youtube.com/watch?v=ABW2WrF6vMI&pp=ygUKI2dhbW1hMjI5OA%3D%3D 83. GEX Levels 1 to 10 - Menthor Q, https://menthorq.com/guide/gex-levels/ 84. How Gamma Exposure Works - Advanced Option Strategies - YouTube, https://m.youtube.com/watch?v=w4CPm3opieY&pp=ygUPI2V4cG9zdXJlbGV2ZWxz 85. Research on Interpolation Method for Missing Electricity Consumption Data - ResearchGate, https://www.researchgate.net/publication/378534203_Research_on_Interpolation_Method_for_Missing_Electricity_Consumption_Data 86. The Impact of Missing Data and Imputation Methods on the Analysis of 24-Hour Activity Patterns - PMC, https://pmc.ncbi.nlm.nih.gov/articles/PMC9590093/ 87. Analysis of the Impact of Interpolation Methods of Missing RR-intervals Caused by Motion Artifacts on HRV Features Estimations - MDPI, https://www.mdpi.com/1424-8220/19/14/3163 88. Analysis of interpolation algorithms for the missing values in IoT time series: a case of air quality in Taiwan | Request PDF - ResearchGate, https://www.researchgate.net/publication/335752555_Analysis_of_interpolation_algorithms_for_the_missing_values_in_IoT_time_series_a_case_of_air_quality_in_Taiwan 89. Interpolation of non-random missing values in financial statements' big data using CatBoost, https://ideas.repec.org/a/spr/jcsosc/v5y2022i2d10.1007_s42001-022-00165-9.html 90. Exploring Advanced Statistical Data Analysis Techniques for Interpolating Missing Observations and Detecting Anomalies in Mining Influenced Water Data - ACS Publications, https://pubs.acs.org/doi/10.1021/acsestwater.3c00163 91. GBERESEARCH/volvisualizer: Extract and visualize implied volatility from option chain data, https://github.com/GBERESEARCH/volvisualizer 92. Monte Carlo Simulation: What It Is, How It Works, History, 4 Key Steps - Investopedia, https://www.investopedia.com/terms/m/montecarlosimulation.asp 93. Monte Carlo (Market Risk & Option Pricing) - QFE University, https://qfeuniversity.com/monte-carlo-market-risk-option-pricing/ 94. The Monte Carlo Simulation: Understanding the Basics - Investopedia, https://www.investopedia.com/articles/investing/112514/monte-carlo-simulation-basics.asp 95. (PDF) Application of Conditional Monte Carlo Simulation in Determining European Option Contract Pricing (Case Study on Toyota Motor Corporation (TM) Stock) - ResearchGate, https://www.researchgate.net/publication/390053788_Application_of_Conditional_Monte_Carlo_Simulation_in_Determining_European_Option_Contract_Pricing_Case_Study_on_Toyota_Motor_Corporation_TM_Stock/download 96. Monte Carlo Methods in Financial Engineering - Bauer College of Business, https://www.bauer.uh.edu/spirrong/Monte_Carlo_Methods_In_Financial_Enginee.pdf 97. Options Pricing with Monte Carlo Simulation - TEJ, https://www.tejwin.com/en/insight/options-pricing-with-monte-carlo-simulation/ 98. Pricing American Options using Monte Carlo Methods - DiVA portal, https://www.diva-portal.org/smash/get/diva2:301061/FULLTEXT01.pdf 99. Robustness Tests and analysis - StrategyQuant, https://strategyquant.com/blog/robustness-tests-and-analysis/ 100. Guide on How to Scrape Financial Data With Python - Bright Data, https://brightdata.com/blog/web-data/how-to-scrape-financial-data 101. Web Scraping Best Practices to Avoid Blocks: A Guide - Bardeen AI, https://www.bardeen.ai/answers/how-to-web-scrape-without-being-blocked 102. How to limit rate of requests to web services in Python? - Stack Overflow, https://stackoverflow.com/questions/401215/how-to-limit-rate-of-requests-to-web-services-in-python 103. How to scrape Yahoo Finance in Python - Apify Blog, https://blog.apify.com/scrape-yahoo-finance-python/ 104. Persistent HTTP cache for python requests - GitHub, https://github.com/requests-cache/requests-cache 105. I published my 3rd python lib for stealth web scraping : r/webscraping - Reddit, https://www.reddit.com/r/webscraping/comments/1j0x8wy/i_published_my_3rd_python_lib_for_stealth_web/ 106. Python requests with Proxy tutorial - SerpApi, https://serpapi.com/blog/python-requests-with-proxy-tutorial/ 107. Avoiding IP Blocks with Proxy Rotation in Python Web Scraping - Zenscrape, https://zenscrape.com/avoiding-ip-blocks-with-proxy-rotation-in-python-web-scraping/ 108. Gamma — Trading Ideas on TradingView, https://www.tradingview.com/ideas/gamma/ 109. ex-drl: hedging against heavy losses with extreme distributional reinforcement learning - arXiv, https://arxiv.org/pdf/2408.12446 110. What is GEX? ULTIMATE Guide to Gamma Exposure - YouTube, https://www.youtube.com/watch?v=SLXTDE3yphU 111. Robust Strategies for Quantitative Investment Management - Gib Bassett, https://gib.people.uic.edu/Robust%20Strategies%20for%20Investment%20Management

@@ -1,0 +1,49 @@
+{
+  "analysis_period": {
+    "start_date": "2020-01-01",
+    "end_date": "2024-12-01",
+    "total_months": 59
+  },
+  "buy_hold_strategy": {
+    "total_return": -0.7141383545467979,
+    "annualized_return": -0.22484663177135344,
+    "volatility": 0.18783609775656085,
+    "sharpe_ratio": -1.350908756948727,
+    "max_drawdown": -0.7533214967629895
+  },
+  "roro_strategy": {
+    "total_return": -0.9617717704576666,
+    "annualized_return": -0.4851610929480844,
+    "volatility": 0.2177943794350156,
+    "sharpe_ratio": -2.93806081559662,
+    "max_drawdown": -0.9605438429043287,
+    "total_signals": 14106,
+    "avg_signal_per_month": 239.08474576271186
+  },
+  "performance_comparison": {
+    "return_difference": -0.24763341591086874,
+    "annualized_return_difference": -0.26031446117673096,
+    "volatility_difference": 0.02995828167845474,
+    "sharpe_ratio_difference": -1.587152058647893,
+    "drawdown_improvement": 0.20722234614133916,
+    "outperformance_ratio": -1.3467583197768733
+  },
+  "market_conditions_analysis": {},
+  "monthly_performance": {
+    "months_analyzed": 59,
+    "roro_better_months": "19",
+    "buy_hold_better_months": "40",
+    "equal_months": "0",
+    "avg_monthly_outperformance": -0.032178641895398874,
+    "best_month_outperformance": 0.16113407212336542,
+    "worst_month_outperformance": -0.2702461987419714,
+    "outperformance_volatility": 0.08136533052019146
+  },
+  "risk_adjusted_metrics": {
+    "sortino_ratio_bh": -1.6898528394823664,
+    "sortino_ratio_roro": -2.959026088052908,
+    "calmar_ratio_bh": 0.947986162104014,
+    "calmar_ratio_roro": 1.001278367002619,
+    "information_ratio": -1.369994869438015
+  }
+}

@@ -1,0 +1,57 @@
+{
+    "job_name": "dual_ma_trend_following_backtest",
+    "mode": "incremental",
+    "database_path": "records/dual_ma_backtest.db",
+    "system": {
+        "max_workers": "auto",
+        "batch_size": 20
+    },
+    "predictors": [],
+    "condition_pairs": [
+        {
+            "entry": [
+                "DUAL_MA"
+            ],
+            "exit": [
+                "DUAL_MA"
+            ]
+        }
+    ],
+    "indicator_params": {
+        "DUAL_MA_strategy_1": {
+            "fast_period": [
+                20
+            ],
+            "slow_period": [
+                60
+            ],
+            "volume_multiplier": [
+                1.2
+            ],
+            "risk_per_trade": [
+                0.01
+            ],
+            "stop_loss_atr_multiplier": [
+                2.0
+            ],
+            "max_monthly_drawdown": [
+                0.05
+            ]
+        }
+    },
+    "data": {
+        "source": "duckdb",
+        "db_path": "data/taifex.db",
+        "symbol": "TX",
+        "interval": "1d",
+        "start_date": "2018-01-01",
+        "end_date": "2024-12-31"
+    },
+    "trading": {
+        "initial_capital": 1000000,
+        "transaction_cost": 0.0004,
+        "slippage": 1,
+        "trade_delay": 0,
+        "trade_unit": 1
+    }
+}

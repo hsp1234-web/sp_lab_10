@@ -1,0 +1,9 @@
+yfinance
+FinMind
+pandas
+numpy
+requests
+beautifulsoup4
+duckdb
+ta-lib-binary  # Colab 友善版 TA-Lib
+ollama

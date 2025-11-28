@@ -1,0 +1,3804 @@
+框架
+
+好的，這就為您將我們目前為止所有關於「美股多時間維度風險計算系統」的討論內容，以及我們完成的第一步實作程式碼，進行一個詳細的總結與打包。這份資料應該能方便您在其他地方繼續開發。
+
+地點： 台灣
+
+時間： 2025年4月18日 星期五 下午6:53
+
+
+
+美股多時間維度風險計算系統 - 設計總結與初步實作 (v2.1)
+
+I. 專案願景與核心目標
+
+核心目標： 建立一個評估美國股市在極短 (1-7天)、短期 (約 60 天)、中期 (約 160 天) 及長期 (約 10 年) 四個時間維度下量化風險的系統原型。
+
+開發主軸： 以免費 API 和開源工具作為主要開發路徑。
+
+設計彈性與現實考量： 框架需具備接入付費 API 的彈性，因為研究已確認，獲取可靠的、高頻的日內數據（對極短/短期風險評估尤其重要）必須使用付費數據源。
+
+II. 風險維度、指標與數據挑戰
+
+風險維度與概念指標：
+
+極短 (1-7 天): 即時動態、事件風險、情緒動能 (例如：超短期波動率、事件衝擊評估)。
+
+短期 (約 60 天): 波動性、尾部風險 (例如：預測波動率、CVaR)。
+
+中期 (約 160 天): 趨勢、回撤風險 (例如：MDD 預測/概率)。
+
+長期 (約 10 年): 宏觀週期、系統風險 (例如：宏觀調整波動率、系統風險概率)。
+
+數據來源與核心挑戰 (研究確認)：
+
+免費來源 (主用): FRED, yfinance, FMP (免費層), Finnhub (免費層), AV (免費層), News API (免費層) 等。
+
+嚴峻限制： 免費 API 無法提供可靠的即時/高頻期貨、選擇權深度數據及日內利率變動；存在嚴格的請求限制、數據延遲、覆蓋不全、質量與穩定性風險 (尤其 yfinance)。
+
+結論： 完全依賴免費 API 無法構建可靠的日內高頻風險系統，僅適用於日終分析、研究或中長週期評估。
+
+技術應對： 數據緩存 (Caching)。
+
+III. 系統框架設計藍圖
+
+設計原則： 模組化、可配置、健壯、可擴展。
+
+核心模組： 設定管理 (含 API 選擇/金鑰)、數據獲取與緩存 (含抽象層)、新聞/情緒處理、特徵工程、模型訓練/管理、風險預測、主控流程、結果輸出。
+
+數據獲取抽象化： 設計通用接口，內部根據配置調用特定 API 的 Wrapper，為未來接入付費 API 保留彈性。
+
+IV. 核心解決方案：互動式、分層、優化的處理流程 (針對免費 API 主軸)
+
+為應對免費 API 限制，採用半自動化流程：
+
+步驟 0：初步快速評估 (Quick Estimate):
+
+目的： 即時、極粗略的四維度風險快照。
+
+方法： 最少量/快取數據，簡易計算。
+
+輸出： 初步風險標籤/指標 (低精度警告)。
+
+步驟 1：呈現快速評估並詢問是否詳解:
+
+詢問使用者是否繼續 (Enter/Y = Yes, N = No)。
+
+步驟 2：(若 Yes) 第一層分析 (寬鬆 API):
+
+目的： 獲取較全面的宏觀/市場背景。
+
+執行： 調用 FRED, yfinance (注意風險)。
+
+限制： 無法獲取可靠即時期貨/選擇權深度數據。
+
+步驟 3：(若 Yes) 呈現第一層結果並進行優化互動:
+
+目的： 引導使用者決定是否調用限制性 API。
+
+執行： 展示結果，使用優化互動 ("按 Enter 執行預設", "明確列出可選項")。
+
+步驟 4：(若 Yes 且指示) 第二層分析 (條件式調用限制性 API):
+
+目的： 獲取特定深度數據。
+
+執行： 僅在使用者指示下調用 FMP, Finnhub, AV, News API 免費層。
+
+步驟 5：(若 Yes) 最終整合與分析:
+
+目的： 產生基於可用免費數據的最終風險評估。
+
+執行： 特徵工程 -> 模型 -> 輸出四維度量化風險評估。
+
+詮釋： 需理解結果未包含可靠即時期貨/選擇權深度信息。
+
+V. 方案選擇與適用性
+
+免費方案 (互動流程): 開發重點。適用於研究、原型、學習、中低頻監控。承認數據局限，無法做可靠日內高頻分析。
+
+付費方案 (潛在自動流程): 未來擴展方向。需要付費。可實現全自動化及可靠日內分析。框架已考慮接入彈性。
+
+VI. 結論
+
+我們已規劃出一套詳細、務實的系統設計方案。該方案以免費 API 為主，透過創新的互動式流程應對其限制，旨在提供有價值的多維度風險評估框架，同時明確其能力邊界，並為未來的功能增強保留了空間。
+
+
+
+VII. 實作程式碼：第一步 (基礎框架、設定管理、FRED 數據獲取與緩存)
+
+Python
+
+# -*- coding: utf-8 -*-
+
+# ==============================================================================
+
+# 系統名稱: 美股多時間維度風險計算系統 - 初步實作 v0.1
+
+# 功能: 建立基礎框架，安全讀取設定，從 FRED 獲取數據並實現本地緩存。
+
+# 主要函式庫: pandas, fredapi, pyarrow
+
+# ==============================================================================
+
+
+
+# ==============================================================================
+
+# 1. 設定與配置 (@param forms)
+
+# ==============================================================================
+
+# @markdown --- API 金鑰設定 (API Key Settings) ---
+
+# @markdown **說明:** 請選擇一種方式提供 FRED API 金鑰：
+
+# @markdown 1.  **直接在下方欄位貼上您的 FRED API 金鑰。** (最方便，但注意公開筆記本時的安全)
+
+# @markdown 2.  **將下方欄位留空，並預先將金鑰添加到 Colab 左側邊欄的「密鑰」(Secrets) 中，名稱設為 `FRED_API_KEY`。** (較安全)
+
+# @markdown *程式會優先使用您直接在此處輸入的金鑰。如果留空，才會嘗試從 Secrets 讀取。*
+
+# @markdown ---
+
+# @markdown **FRED API Key** ([點此取得金鑰](https://fred.stlouisfed.org/docs/api/api_key.html))
+
+fred_api_key_form_input = "" # @param {type:"string"}
+
+
+
+# ==============================================================================
+
+# 2. 環境檢查與函式庫導入
+
+# ==============================================================================
+
+import os
+
+import pandas as pd
+
+from datetime import datetime, timedelta
+
+import traceback # 用於打印詳細錯誤信息
+
+import time # 用於可能的延遲控制
+
+
+
+# --- 檢查環境並嘗試安裝/匯入函式庫 ---
+
+IN_COLAB = False
+
+fredapi_loaded = False
+
+pyarrow_installed = False # 用於 Parquet 格式
+
+
+
+try:
+
+    import google.colab
+
+    IN_COLAB = True
+
+    print("偵測到 Google Colab 環境，嘗試安裝/更新 fredapi 和 pyarrow...")
+
+    # 在 Colab 中靜默安裝 (-q)
+
+    !pip install fredapi pyarrow -q
+
+    print("函式庫安裝/更新完成。")
+
+    from google.colab import userdata
+
+except ImportError:
+
+    print("非 Colab 環境，請確保已安裝 fredapi 和 pyarrow (pip install fredapi pyarrow)")
+
+
+
+# 嘗試匯入 fredapi
+
+try:
+
+    from fredapi import Fred
+
+    fredapi_loaded = True
+
+    print("fredapi 函式庫載入成功。")
+
+except ImportError:
+
+    print("錯誤：無法載入 fredapi 函式庫。")
+
+
+
+# 檢查 pyarrow 是否已安裝
+
+try:
+
+    import pyarrow
+
+    pyarrow_installed = True
+
+    print("pyarrow 函式庫載入成功 (用於 Parquet 格式)。")
+
+except ImportError:
+
+     print("警告：未找到 pyarrow 函式庫。Parquet 緩存功能可能無法使用。請嘗試 'pip install pyarrow'")
+
+
+
+
+
+# ==============================================================================
+
+# 3. API 金鑰處理 (雙重方案邏輯)
+
+# ==============================================================================
+
+FRED_API_KEY = None
+
+api_key_source = "未設定"
+
+
+
+# 優先使用表單輸入的金鑰 (去除前後空格)
+
+fred_api_key_direct = fred_api_key_form_input.strip()
+
+
+
+if fred_api_key_direct:
+
+    FRED_API_KEY = fred_api_key_direct
+
+    api_key_source = "表單直接輸入 (Form Input)"
+
+else:
+
+    # print("表單欄位為空，嘗試從其他來源獲取 FRED API 金鑰...") # 執行時再詳細打印
+
+    if IN_COLAB:
+
+        try:
+
+            fred_secret_key = userdata.get('FRED_API_KEY')
+
+            if fred_secret_key: FRED_API_KEY = fred_secret_key; api_key_source = "Colab Secrets"
+
+            else: api_key_source = "未找到 (Colab Secrets)"
+
+        except Exception: api_key_source = "讀取錯誤 (Colab Secrets)"
+
+    else:
+
+        fred_env_key = os.environ.get('FRED_API_KEY')
+
+        if fred_env_key: FRED_API_KEY = fred_env_key; api_key_source = "環境變數"
+
+        else: api_key_source = "未找到 (環境變數)"
+
+
+
+# ==============================================================================
+
+# 4. 數據獲取與緩存函數
+
+# ==============================================================================
+
+
+
+# --- 定義緩存目錄 ---
+
+CACHE_DIR = "data_cache"
+
+if not os.path.exists(CACHE_DIR):
+
+    try:
+
+        os.makedirs(CACHE_DIR)
+
+        print(f"已創建數據緩存目錄: {os.path.abspath(CACHE_DIR)}")
+
+    except OSError as e:
+
+        print(f"錯誤：創建緩存目錄 '{CACHE_DIR}' 失敗: {e}")
+
+        # 如果無法創建目錄，後續緩存會失敗
+
+else:
+
+    print(f"數據緩存目錄: {os.path.abspath(CACHE_DIR)}")
+
+
+
+
+
+def get_fred_series_with_cache(series_id: str,
+
+                               api_key: str,
+
+                               observation_start: str | None = None,
+
+                               force_reload: bool = False
+
+                               ) -> pd.Series | None:
+
+    """
+
+    獲取 FRED 數據序列，優先從本地 Parquet 緩存讀取，僅下載更新部分。
+
+    包含詳細的打印信息和錯誤處理。
+
+    """
+
+    print(f"\n處理 FRED 序列: {series_id}...")
+
+    # --- 前置檢查 ---
+
+    if not api_key:
+
+        print(f"  ! 錯誤：未提供 FRED API 金鑰。")
+
+        return None
+
+    if not fredapi_loaded:
+
+        print(f"  ! 錯誤：fredapi 函式庫未載入。")
+
+        return None
+
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+
+    if not can_use_cache and not force_reload:
+
+        print(f"  ! 警告：無法使用 Parquet 緩存 (pyarrow未安裝或目錄創建失敗)。將嘗試直接下載。")
+
+        force_reload = True # 強制直接下載
+
+
+
+    cache_file_path = os.path.join(CACHE_DIR, f"fred_{series_id}.parquet")
+
+    cached_data = None
+
+    fetch_start_date = observation_start # API 請求的起始日期
+
+
+
+    # --- 1. 嘗試從緩存加載 ---
+
+    if not force_reload and can_use_cache:
+
+        try:
+
+            cached_data = pd.read_parquet(cache_file_path)
+
+            print(f"  + 成功從緩存 '{os.path.basename(cache_file_path)}' 加載 {len(cached_data)} 筆數據。")
+
+            if not cached_data.empty:
+
+                last_cached_date = cached_data.index.max()
+
+                # 從緩存最後記錄的下一天開始請求更新
+
+                fetch_start_date_obj = last_cached_date + timedelta(days=1)
+
+                fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+
+                print(f"  + 緩存最新日期: {last_cached_date.strftime('%Y-%m-%d')}，將從 {fetch_start_date} 開始請求更新。")
+
+            else:
+
+                print(f"  + 緩存文件為空，將嘗試獲取所有數據。")
+
+                fetch_start_date = observation_start # 緩存為空，按指定或默認起始日期
+
+        except FileNotFoundError:
+
+            print(f"  * 緩存文件 '{os.path.basename(cache_file_path)}' 不存在，將嘗試獲取數據。")
+
+            fetch_start_date = observation_start
+
+        except Exception as e:
+
+            print(f"  ! 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+            traceback.print_exc()
+
+            cached_data = None # 視為無緩存
+
+
+
+    if force_reload:
+
+         print(f"  * 強制重新加載，將獲取從 {observation_start or '最早'} 開始的所有數據。")
+
+         fetch_start_date = observation_start
+
+         cached_data = None # 清空，以便完全替換
+
+
+
+    # --- 2. 調用 API 獲取新數據 (如果需要) ---
+
+    new_data = None
+
+    needs_fetch = True
+
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
+
+
+    if fetch_start_date and fetch_start_date > today_str:
+
+         print(f"  * 計算出的獲取開始日期 {fetch_start_date} 晚於今天，無需獲取更新。")
+
+         needs_fetch = False
+
+
+
+    if needs_fetch:
+
+        print(f"  > 呼叫 FRED API (序列: {series_id}, 開始日期: {fetch_start_date or '最早'})...")
+
+        try:
+
+            start_time = time.time()
+
+            fred = Fred(api_key=api_key)
+
+            new_data = fred.get_series(series_id, observation_start=fetch_start_date)
+
+            end_time = time.time()
+
+            print(f"  > API 調用耗時: {end_time - start_time:.2f} 秒。")
+
+
+
+            if new_data is not None and not new_data.empty:
+
+                print(f"  + 成功從 API 獲取 {len(new_data)} 筆新數據。")
+
+            elif new_data is not None: # API 返回空 Series
+
+                 print(f"  * API 未返回 {fetch_start_date or '最早'} 之後的新數據。")
+
+            # else: # fredapi 出錯會拋異常，在 except 中處理
+
+
+
+        except Exception as e:
+
+            print(f"  ! 錯誤：獲取 FRED 序列 {series_id} (從 {fetch_start_date or '最早'} 開始) 時發生 API 錯誤。")
+
+            print(f"  ! 詳細錯誤: {e}")
+
+            traceback.print_exc()
+
+            new_data = None # 確保出錯時 new_data 為 None
+
+
+
+    # --- 3. 合併數據 ---
+
+    combined_data = None
+
+    if new_data is not None and not new_data.empty:
+
+        if cached_data is not None:
+
+            # 合併：優先保留新數據的值（處理可能的重疊）
+
+            combined_data = new_data.combine_first(cached_data)
+
+            combined_data.sort_index(inplace=True)
+
+            print(f"  + 已合併緩存與新數據，總計 {len(combined_data)} 筆。")
+
+        else:
+
+            combined_data = new_data
+
+            print(f"  + 僅使用新獲取的數據，總計 {len(combined_data)} 筆。")
+
+    elif cached_data is not None:
+
+        combined_data = cached_data
+
+        print(f"  * 無新數據獲取/API出錯，使用現有緩存數據，總計 {len(combined_data)} 筆。")
+
+    else:
+
+        print(f"  ! 警告：無緩存數據也未能獲取新數據，序列 {series_id} 無法提供。")
+
+        return None # 關鍵：確保返回 None
+
+
+
+    # --- 4. 保存到緩存 ---
+
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+
+        try:
+
+            combined_data.to_parquet(cache_file_path)
+
+            print(f"  + 成功將數據保存到緩存 '{os.path.basename(cache_file_path)}'。")
+
+        except Exception as e:
+
+            print(f"  ! 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+            traceback.print_exc()
+
+    elif not can_use_cache:
+
+         print(f"  * 跳過保存到 Parquet 緩存 (pyarrow 未安裝或目錄無法創建)。")
+
+
+
+    return combined_data
+
+
+
+# ==============================================================================
+
+# 5. 主執行區塊
+
+# ==============================================================================
+
+if __name__ == "__main__":
+
+    print("\n" + "="*40)
+
+    print(f"開始執行腳本 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
+
+    print(f"使用的 FRED API 金鑰來源: {api_key_source}")
+
+    print("="*40)
+
+
+
+    if FRED_API_KEY and fredapi_loaded:
+
+        # --- 獲取 DGS10 (10年期公債殖利率) ---
+
+        dgs10_data = get_fred_series_with_cache(
+
+            series_id='DGS10',
+
+            api_key=FRED_API_KEY,
+
+            force_reload=False # 設為 True 可強制刷新
+
+        )
+
+
+
+        # --- 處理並顯示最新結果 ---
+
+        if dgs10_data is not None and not dgs10_data.empty:
+
+            try:
+
+                latest_date = dgs10_data.index.max()
+
+                latest_value = dgs10_data.loc[latest_date]
+
+                print("\n--- DGS10 最新數據 (來自緩存或更新) ---")
+
+                print(f"日期: {latest_date.strftime('%Y-%m-%d')}")
+
+                print(f"數值 (%): {latest_value}")
+
+            except Exception as e_process:
+
+                 print(f"\n! 處理最終 DGS10 數據時發生錯誤: {e_process}")
+
+                 traceback.print_exc()
+
+        else:
+
+            print("\n! 未能成功獲取或處理 DGS10 數據。")
+
+
+
+        # --- 示例：獲取 T10Y2Y (10年與2年期利差) ---
+
+        # 您可以仿照 DGS10 的方式，加入獲取其他序列的程式碼
+
+        # t10y2y_data = get_fred_series_with_cache(
+
+        #     series_id='T10Y2Y',
+
+        #     api_key=FRED_API_KEY
+
+        # )
+
+        # if t10y2y_data is not None and not t10y2y_data.empty:
+
+        #     # ... 處理和顯示 T10Y2Y 的最新數據 ...
+
+        #     pass
+
+
+
+    else:
+
+        print("\n! 由於缺少 API 金鑰或必要函式庫問題，跳過數據獲取。")
+
+
+
+
+
+    print("\n" + "="*40)
+
+    print("腳本執行完畢。")
+
+    print("="*40)
+
+
+
+
+
+VIII. 後續步驟與如何使用
+
+依賴：
+
+pandas: 數據處理。
+
+fredapi: 連接 FRED API。
+
+pyarrow: 用於讀寫 Parquet 緩存文件（如果不用 Parquet，可以改用 CSV，則此項非必需）。
+
+請確保已安裝這些庫 (pip install pandas fredapi pyarrow)。
+
+API 金鑰設定：
+
+Colab: 在左側 Secrets 中添加名為 FRED_API_KEY 的密鑰，或者直接在程式碼頂部的表單欄位中貼上您的金鑰。
+
+本地: 設置名為 FRED_API_KEY 的環境變數，或修改程式碼以從 .env 文件讀取。
+
+執行： 直接運行此 Python 腳本。
+
+緩存目錄： 程式碼會在腳本所在的目錄下自動創建一個名為 data_cache 的子目錄，用於存放 Parquet 緩存文件 (例如 fred_DGS10.parquet)。
+
+後續開發建議：
+
+增加更多 FRED 序列： 仿照 DGS10 的方式，在主執行區塊調用 get_fred_series_with_cache 來獲取其他您需要的宏觀指標。
+
+接入 yfinance： 編寫類似的帶有緩存和錯誤處理的函數來獲取 yfinance 的數據（例如股票歷史價格），但要特別注意其穩定性風險。
+
+逐步實現互動流程： 在獲取了更多第一層數據後，開始設計和實現「初步快速評估」以及後續的互動環節。
+
+完善錯誤處理與日誌： 隨著系統變複雜，加入更完善的日誌記錄 (logging) 會很有幫助。
+
+這份統整報告和程式碼希望能為您提供一個清晰的起點，方便您在其他環境中繼續開發這個風險評估系統。祝您開發順利！
+
+
+
+
+
+
+
+v3
+
+好的，這就為您將我們目前為止關於「美股多時間維度風險計算系統」專案的所有討論、進展與最終的 v0.9 程式碼進行一個詳細的總結與打包。這份資料應該能幫助您在其他地方順利地接續開發。
+
+地點： 台灣 時間： 2025年4月18日 星期五 下午7:32 CST
+
+美股多時間維度風險計算系統 - 開發總結與階段成果 (v3.0)
+
+I. 專案願景與核心目標 (與 v2.1 相同)
+
+核心目標： 建立一個評估美國股市在極短 (1-7天)、短期 (約 60 天)、中期 (約 160 天) 及長期 (約 10 年) 四個時間維度下量化風險的系統原型。
+
+開發主軸： 以免費 API 和開源工具作為主要開發路徑。
+
+設計彈性與現實考量： 框架需具備接入付費 API 的彈性，因為研究已確認，獲取可靠的、高頻的日內數據必須使用付費數據源。
+
+II. 風險維度、指標與數據 (階段性實現)
+
+風險維度與概念指標 (同 v2.1): 極短、短、中、長期風險概念不變。
+
+數據來源與核心挑戰 (同 v2.1):
+
+主用免費來源: FRED, yfinance, (未來可擴展 FMP, Finnhub, AV, News API 免費層)。
+
+嚴峻限制: 仍確認免費 API 無法提供可靠即時/高頻數據，存在限制、延遲、覆蓋、質量風險。
+
+已實現數據整合:
+
+FRED: 成功整合 fredapi，實現了如 DGS10 (10年期公債殖利率)、VIXCLS (VIX指數) 等序列的獲取與 Parquet 格式本地緩存 (含增量更新邏輯)。
+
+yfinance: 成功整合 yfinance，實現了股票 (如 SPY) 的日線 OHLCV 數據獲取與 Parquet 格式本地緩存 (含增量更新與基本數據清洗)。
+
+技術應對: 數據緩存 (Caching) 已通過 Parquet 格式實現。
+
+III. 系統框架設計藍圖 (部分實現)
+
+設計原則 (同 v2.1): 模組化、可配置、健壯、可擴展。
+
+核心模組實現進度:
+
+設定管理: 已實現 API Key 的安全讀取 (Colab Secrets / 環境變數 / 表單輸入)。
+
+數據獲取與緩存: 已建立針對 FRED 和 yfinance 的帶緩存獲取函數 (get_fred_series_with_cache, get_yfinance_data_with_cache)。
+
+新聞/情緒處理: 未實現。
+
+特徵工程: 未實現。
+
+模型訓練/管理: 未實現。
+
+風險預測 (初步):
+
+實現了基於最新 DGS10 和 VIX 的「初步快速評估」邏輯 (generate_quick_estimate)。
+
+實現了將實際指標值 (VIX, DGS10) 線性映射到 0-100 範圍的數值化方法。
+
+主控流程: 基本的順序執行流程已建立 (獲取數據 -> 評估 -> 輸出)。
+
+結果輸出:
+
+控制台文字輸出 (獲取數據日誌、最新值、文字版快速評估)。
+
+使用 plotly 實現了四個獨立儀表圖的視覺化輸出，顯示各維度風險評級的顏色區間和映射後的數值。
+
+IV. 核心解決方案：互動式、分層、優化處理流程 (初步實現)
+
+已實現部分:
+
+步驟 0 (初步快速評估 - Quick Estimate):
+
+目的: 即時、極粗略的四維度風險快照。
+
+方法: 已實現基於最新緩存/獲取的 DGS10 和 VIX 數據，通過簡易規則 (generate_quick_estimate) 產生分類狀態，並通過線性映射 (plot_risk_gauges) 產生儀表數值。
+
+輸出: 控制台文字評估 + Plotly 四儀表視覺化圖表。
+
+未實現部分:
+
+步驟 1: 呈現快速評估並詢問是否詳解 (互動)。
+
+步驟 2: (若 Yes) 第一層分析 (需要定義具體計算內容，如波動率、均線等)。
+
+步驟 3: (若 Yes) 呈現第一層結果並進行優化互動 (決定是否調用限制性 API)。
+
+步驟 4: (若 Yes 且指示) 第二層分析 (調用 FMP, Finnhub 等)。
+
+步驟 5: (若 Yes) 最終整合與分析 (特徵工程 -> 模型 -> 輸出)。
+
+V. 方案選擇與適用性 (同 v2.1)
+
+免費方案 (互動流程 - 部分實現): 目前開發重點。適用於研究、原型、學習、中低頻監控。已實現基礎數據獲取和初步評估，承認數據局限。
+
+付費方案 (潛在自動流程): 未來擴展方向。
+
+VI. 階段結論
+
+目前已成功搭建了系統的基礎框架，實現了從核心免費數據源 (FRED, yfinance) 獲取數據並進行本地緩存的功能。
+
+初步實現了「快速風險評估」模塊，能夠根據最新的 VIX 和 DGS10 指數給出四個時間維度的初步風險狀態判斷，並通過 Plotly 儀表圖進行了視覺化展示（數值反映指標映射值，顏色區分等級）。
+
+通過多次迭代，優化了 Plotly 圖表的佈局，解決了文字重疊問題。
+
+系統現在具備了獲取基礎數據、進行初步評估和視覺化展示的能力，為後續實現更詳細的分析和互動流程奠定了基礎。
+
+VII. 實作程式碼：階段成果 (v0.9)
+
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# 系統名稱: 美股多時間維度風險計算系統 - 初步實作 v0.9
+# 功能: 獲取 FRED/yfinance 數據(含緩存)，執行初步風險評估，
+#       並使用 Plotly 繪製四個獨立儀表圖(數值映射版，移除狀態文字)。
+# 主要函式庫: pandas, fredapi, yfinance, pyarrow, plotly
+# ==============================================================================
+
+# --- 1. 設定與配置 ---
+# @markdown --- API 金鑰設定 ---
+fred_api_key_form_input = "" # @param {type:"string"}
+# @markdown --- 股票代碼設定 ---
+ticker_symbol_form_input = "SPY" # @param {type:"string"}
+
+# --- 2. 環境檢查與函式庫導入 ---
+import os
+import pandas as pd
+from datetime import datetime, timedelta
+import traceback
+import time
+
+IN_COLAB = False; fredapi_loaded = False; yfinance_loaded = False; pyarrow_installed = False; plotly_installed = False
+try:
+    import google.colab; IN_COLAB = True
+    print("偵測到 Google Colab 環境，嘗試安裝/更新 fredapi, yfinance, pyarrow, plotly...")
+    get_ipython().system('pip install fredapi yfinance pyarrow plotly -q')
+    print("函式庫安裝/更新完成。")
+    from google.colab import userdata
+except (ImportError, NameError):
+    IN_COLAB = False; # print("非 Colab 環境，請確保已安裝 fredapi, yfinance, pyarrow, plotly")
+
+try: from fredapi import Fred; fredapi_loaded = True; print("fredapi 載入成功。")
+except ImportError: print("錯誤：無法載入 fredapi。")
+try: import yfinance as yf; yfinance_loaded = True; print("yfinance 載入成功。")
+except ImportError: print("錯誤：無法載入 yfinance。")
+try: import pyarrow; pyarrow_installed = True; print("pyarrow 載入成功。")
+except ImportError: print("警告：未找到 pyarrow。")
+try: import plotly.graph_objects as go; from plotly.subplots import make_subplots; plotly_installed = True; print("plotly 載入成功。")
+except ImportError: print("錯誤：無法載入 plotly。請安裝 'pip install plotly'")
+
+# --- 3. API 金鑰處理 ---
+FRED_API_KEY = None; api_key_source = "未設定"
+fred_api_key_direct = fred_api_key_form_input.strip()
+if fred_api_key_direct: FRED_API_KEY = fred_api_key_direct; api_key_source = "表單直接輸入"
+else:
+    if IN_COLAB:
+        try: fred_secret_key = userdata.get('FRED_API_KEY')
+        except: fred_secret_key = None
+        if fred_secret_key: FRED_API_KEY = fred_secret_key; api_key_source = "Colab Secrets"
+        else: api_key_source = "未找到 (Colab Secrets)"
+    else:
+        fred_env_key = os.environ.get('FRED_API_KEY')
+        if fred_env_key: FRED_API_KEY = fred_env_key; api_key_source = "環境變數"
+        else: api_key_source = "未找到 (環境變數)"
+
+
+# --- 4. 數據獲取函數 ---
+CACHE_DIR = "data_cache"
+if not os.path.exists(CACHE_DIR):
+    try: os.makedirs(CACHE_DIR)
+    except OSError as e: print(f"錯誤：創建緩存目錄 '{CACHE_DIR}' 失敗: {e}")
+
+def get_fred_series_with_cache(series_id: str, api_key: str, observation_start: str | None = None, force_reload: bool = False) -> pd.Series | None:
+    """獲取 FRED 數據序列，帶緩存 (Parquet) 和增量更新。"""
+    # (v0.6 code - simplified logging)
+    if not api_key: print(f"  ! FRED 錯誤：未提供 API 金鑰 ({series_id})。"); return None
+    if not fredapi_loaded: print(f"  ! FRED 錯誤：fredapi 函式庫未載入 ({series_id})。"); return None
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+    if not can_use_cache and not force_reload: print(f"  ! FRED 警告：無法使用 Parquet 緩存 ({series_id})。將嘗試直接下載。"); force_reload = True
+    safe_series_id = ''.join(c if c.isalnum() else '_' for c in series_id); cache_file_path = os.path.join(CACHE_DIR, f"fred_{safe_series_id}.parquet")
+    cached_data = None; fetch_start_date = observation_start
+    if not force_reload and can_use_cache:
+        try:
+            cached_data = pd.read_parquet(cache_file_path).squeeze();
+            if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+            if not cached_data.empty: last_cached_date = cached_data.index.max(); fetch_start_date_obj = last_cached_date + timedelta(days=1); fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+            else: fetch_start_date = observation_start
+        except FileNotFoundError: fetch_start_date = observation_start
+        except Exception as e: print(f"  ! FRED 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}"); cached_data = None
+    if force_reload: fetch_start_date = observation_start; cached_data = None
+    new_data = None; needs_fetch = True; today_str = datetime.now().strftime('%Y-%m-%d')
+    try:
+        if fetch_start_date and datetime.strptime(fetch_start_date, '%Y-%m-%d') > datetime.now(): needs_fetch = False
+    except ValueError: fetch_start_date = None; needs_fetch = True
+    if needs_fetch:
+        try: fred = Fred(api_key=api_key); series_data = fred.get_series(series_id, observation_start=fetch_start_date); new_data = series_data
+        except Exception as e: print(f"  ! FRED 錯誤：API 獲取 {series_id} 失敗: {e}"); new_data = None
+    combined_data = None
+    if new_data is not None and not new_data.empty:
+        if not isinstance(new_data.index, pd.DatetimeIndex): new_data.index = pd.to_datetime(new_data.index)
+        if cached_data is not None and not cached_data.empty:
+            combined_data = cached_data.copy(); combined_data.update(new_data); new_index = new_data.index.difference(cached_data.index)
+            if not new_index.empty: combined_data = pd.concat([combined_data, new_data.loc[new_index]])
+            combined_data.sort_index(inplace=True);
+        else: combined_data = new_data.copy();
+    elif cached_data is not None and not cached_data.empty: combined_data = cached_data.copy();
+    else: print(f"  ! FRED 警告：序列 {series_id} 無法提供。"); return None
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+        try: combined_data.to_frame(name=series_id).to_parquet(cache_file_path) # Store as DataFrame
+        except Exception as e: print(f"  ! FRED 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+    # Ensure returning a Series
+    if isinstance(combined_data, pd.DataFrame):
+        return combined_data.squeeze()
+    return combined_data
+
+def get_yfinance_data_with_cache(ticker: str, start_date: str | None = None, end_date: str | None = None, interval: str = '1d', force_reload: bool = False) -> pd.DataFrame | None:
+    """獲取 yfinance 股票數據，帶緩存 (Parquet) 和增量更新。"""
+    if not ticker: print(f"  ! yfinance 錯誤：未提供股票代碼。"); return None
+    if not yfinance_loaded: print(f"  ! yfinance 錯誤：yfinance 函式庫未載入。"); return None
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+    if not can_use_cache and not force_reload: print(f"  ! yfinance 警告：無法使用 Parquet 緩存 ({ticker})。將嘗試直接下載。"); force_reload = True
+    safe_ticker = ''.join(c if c.isalnum() else '_' for c in ticker); cache_file_path = os.path.join(CACHE_DIR, f"yf_{safe_ticker}_{interval}.parquet")
+    cached_data = None; fetch_start_date = start_date
+    if not force_reload and can_use_cache:
+        try:
+            cached_data = pd.read_parquet(cache_file_path);
+            if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+            if not cached_data.empty: last_cached_date = cached_data.index.max(); fetch_start_date_obj = last_cached_date + timedelta(days=1 if interval == '1d' else 0); fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+            else: fetch_start_date = start_date
+        except FileNotFoundError: fetch_start_date = start_date
+        except Exception as e: print(f"  ! yfinance 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}"); cached_data = None
+    if force_reload: fetch_start_date = start_date; cached_data = None
+    new_data = None; needs_fetch = True; today_dt = datetime.now(); effective_end_date = end_date or today_dt.strftime('%Y-%m-%d')
+    try:
+        start_dt = datetime.strptime(fetch_start_date, '%Y-%m-%d') if fetch_start_date else None; end_dt = datetime.strptime(effective_end_date, '%Y-%m-%d')
+        if start_dt and start_dt > end_dt + timedelta(days=1): needs_fetch = False # Allow fetching today's data
+    except ValueError: needs_fetch = True
+    if needs_fetch:
+        api_start = fetch_start_date; api_end = (datetime.strptime(effective_end_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d') if effective_end_date else None # yf end is exclusive
+        try:
+            ticker_obj = yf.Ticker(ticker); new_data = ticker_obj.history(start=api_start, end=api_end, interval=interval, auto_adjust=False, repair=False) # repair=True can be slow/problematic
+            if new_data is None or new_data.empty: new_data = None
+            else:
+                original_len = len(new_data); new_data.dropna(subset=['Open', 'High', 'Low', 'Close', 'Volume'], how='any', inplace=True)
+                new_data = new_data[new_data['Volume'] > 0]; cleaned_len = len(new_data)
+                if not isinstance(new_data.index, pd.DatetimeIndex): new_data.index = pd.to_datetime(new_data.index)
+                # Ensure consistent timezone handling (e.g., make naive)
+                if new_data.index.tz is not None: new_data.index = new_data.index.tz_localize(None)
+                new_data = new_data[['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']]
+        except Exception as e: print(f"  ! yfinance 錯誤：API 獲取 {ticker} 失敗: {e}"); new_data = None
+    combined_data = None
+    if new_data is not None and not new_data.empty:
+        if cached_data is not None and not cached_data.empty:
+             # Ensure cache is also timezone naive before combining
+            if cached_data.index.tz is not None: cached_data.index = cached_data.index.tz_localize(None)
+            combined_data = cached_data.copy(); combined_data.update(new_data); new_index = new_data.index.difference(cached_data.index)
+            if not new_index.empty: combined_data = pd.concat([combined_data, new_data.loc[new_index]])
+            combined_data = combined_data[~combined_data.index.duplicated(keep='last')] # Ensure unique index
+            combined_data.sort_index(inplace=True);
+        else: combined_data = new_data.copy();
+    elif cached_data is not None and not cached_data.empty:
+         if cached_data.index.tz is not None: cached_data.index = cached_data.index.tz_localize(None) # Ensure consistent TZ before return
+         combined_data = cached_data.copy();
+    else: print(f"  ! yfinance 警告：標的 {ticker} 無法提供。"); return None
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+        try: combined_data.to_parquet(cache_file_path);
+        except Exception as e: print(f"  ! yfinance 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+    return combined_data
+
+
+# --- 5. 初步快速評估函數 ---
+def generate_quick_estimate(dgs10_latest: float | None, vix_latest: float | None, spy_close_latest: float | None = None) -> dict:
+    """根據最新的 DGS10 和 VIX 值，生成初步的四維度風險狀態。"""
+    # (v0.3 code)
+    estimate = {
+        "極短期 (1-7天)": {"狀態": "數據不足", "理由": ""}, "短期 (~60天)": {"狀態": "數據不足", "理由": ""},
+        "中期 (~160天)": {"狀態": "數據不足", "理由": ""}, "長期 (~10年)": {"狀態": "數據不足", "理由": ""}
+    }
+    # VIX Logic
+    if vix_latest is not None:
+        status = "數據不足"; reason = f"VIX = {vix_latest:.2f}. "
+        if vix_latest < 20: status = "低"; reason += "VIX < 20，預期波動低。"
+        elif vix_latest < 30: status = "中"; reason += "20 <= VIX < 30，預期波動溫和。"
+        elif vix_latest < 40: status = "高"; reason += "30 <= VIX < 40，預期波動高，短期不確定性大。"
+        else: status = "極高"; reason += "VIX >= 40，預期波動極高，短期風險極大。"
+        estimate["極短期 (1-7天)"]["狀態"] = estimate["短期 (~60天)"]["狀態"] = status
+        estimate["極短期 (1-7天)"]["理由"] = estimate["短期 (~60天)"]["理由"] = reason
+    else: estimate["極短期 (1-7天)"]["理由"] = estimate["短期 (~60天)"]["理由"] = "缺少 VIX 數據。"
+    # DGS10 Logic
+    if dgs10_latest is not None:
+        status = "數據不足"; reason = f"DGS10 = {dgs10_latest:.2f}%. "
+        if dgs10_latest < 2.5: status = "低"; reason += "DGS10 < 2.5%，利率環境寬鬆。"
+        elif dgs10_latest < 4.0: status = "中"; reason += "2.5% <= DGS10 < 4.0%，利率溫和。"
+        elif dgs10_latest < 5.0: status = "偏高"; reason += "4.0% <= DGS10 < 5.0%，利率偏高，存緊縮/估值壓力。"
+        else: status = "高"; reason += "DGS10 >= 5.0%，利率高位，宏觀壓力顯著。"
+        estimate["中期 (~160天)"]["狀態"] = estimate["長期 (~10年)"]["狀態"] = status
+        estimate["中期 (~160天)"]["理由"] = estimate["長期 (~10年)"]["理由"] = reason
+    else: estimate["中期 (~160天)"]["理由"] = estimate["長期 (~10年)"]["理由"] = "缺少 DGS10 數據。"
+    return estimate
+
+def print_quick_estimate(estimate: dict):
+    """打印格式化的快速評估結果"""
+    # (v0.3 code)
+    print("\n" + "="*20 + " 初步快速評估 (v1 - 簡易版) " + "="*20)
+    print("注意：此評估僅基於最新的 VIX 和 DGS10 絕對值，非常初步。")
+    print("-" * (40 + len(" 初步快速評估 (v1 - 簡易版) ")))
+    # Use display names for printing
+    display_names = {
+        "極短期 (1-7天)": "極短期 (1-7天) ",
+        "短期 (~60天)":  "短期 (~60天)  ",
+        "中期 (~160天)": "中期 (~160天)",
+        "長期 (~10年)":  "長期 (~10年) "
+    }
+    for internal_name, result in estimate.items():
+        display_name = display_names.get(internal_name, internal_name) # Get display name or default
+        print(f"{display_name:<15}: {result['狀態']:<5} ({result['理由']})")
+    print("=" * (40 + len(" 初步快速評估 (v1 - 簡易版) ")) + "\n")
+
+
+# --- 6. 繪製風險儀表圖函數 ---
+def plot_risk_gauges(estimate: dict,
+                     dgs10_latest: float | None,
+                     vix_latest: float | None):
+    """根據快速評估結果和實際指標值，繪製四個獨立儀表圖 (移除狀態文字)。"""
+    # (v0.9 code)
+    if not plotly_installed:
+        print("! Plotly 未安裝，無法繪製儀表圖。")
+        return
+
+    def map_vix_to_gauge(vix):
+        if vix is None: return 0
+        value = ((vix - 10) / (50 - 10)) * 100
+        return max(0, min(100, value))
+    def map_dgs10_to_gauge(dgs10):
+        if dgs10 is None: return 0
+        value = ((dgs10 - 1) / (6 - 1)) * 100
+        return max(0, min(100, value))
+
+    dimensions = list(estimate.keys())
+    if len(dimensions) != 4:
+        print("! 評估結果維度數量不為 4，無法繪製 2x2 網格。")
+        return
+
+    fig = make_subplots(
+        rows=2, cols=2,
+        specs=[[{'type': 'indicator'}, {'type': 'indicator'}],
+               [{'type': 'indicator'}, {'type': 'indicator'}]],
+        subplot_titles=(dimensions[0], dimensions[1], dimensions[2], dimensions[3]),
+        vertical_spacing = 0.25,
+    )
+
+    gauge_style = {
+        'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkblue", 'tickfont': {'size': 9}},
+        'bar': {'color': "rgba(0,0,0,0.6)"}, 'bgcolor': "white", 'borderwidth': 1, 'bordercolor': "gray",
+        'steps': [
+            {'range': [0, 25], 'color': 'rgba(0, 255, 0, 0.3)'},
+            {'range': [25, 50], 'color': 'rgba(255, 255, 0, 0.4)'},
+            {'range': [50, 75], 'color': 'rgba(255, 165, 0, 0.5)'},
+            {'range': [75, 100], 'color': 'rgba(255, 0, 0, 0.6)'}
+        ],
+    }
+
+    positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
+    for i, dim in enumerate(dimensions):
+        gauge_value = 0; indicator_text = ""
+        if i < 2: # VIX
+            gauge_value = map_vix_to_gauge(vix_latest)
+            indicator_text = f"VIX: {vix_latest:.2f}" if vix_latest is not None else "N/A"
+        else:     # DGS10
+            gauge_value = map_dgs10_to_gauge(dgs10_latest)
+            indicator_text = f"DGS10: {dgs10_latest:.2f}%" if dgs10_latest is not None else "N/A"
+
+        title_text = f"<span style='font-size:0.9em;color:gray'>{indicator_text}</span>" # Only indicator text
+
+        row, col = positions[i]
+        fig.add_trace(go.Indicator(
+            mode = "gauge+number", value = gauge_value,
+            number = {'suffix': "", 'font':{'size':26}},
+            title = {'text': title_text, 'font': {'size': 12}},
+            gauge = gauge_style,
+            ), row=row, col=col)
+
+    fig.update_layout(
+        title_text="多時間維度風險初步評估儀表 (數值映射版)", title_font_size=18,
+        height=680, margin=dict(l=30, r=30, t=110, b=30),
+        annotations=[
+            go.layout.Annotation(
+                text=fig.layout.annotations[i].text, align='center', showarrow=False,
+                xref='paper', yref='paper',
+                x=fig.layout.annotations[i].x, y=fig.layout.annotations[i].y,
+                font=dict(size=13)
+            ) for i in range(len(fig.layout.annotations)) ]
+    )
+    fig.show()
+
+
+# --- 7. 主執行區塊 ---
+if __name__ == "__main__":
+    print("\n" + "="*50)
+    print(f"開始執行腳本 v0.9 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
+    print(f"使用的 FRED API 金鑰來源: {api_key_source}")
+    target_ticker = ticker_symbol_form_input.strip() or "SPY"
+    print(f"目標 yfinance 股票代碼: {target_ticker}")
+    print("="*50)
+
+    latest_dgs10 = None; latest_vix = None; latest_spy_close = None; stock_data = None
+
+    # --- 獲取 FRED 數據 ---
+    print("--- 開始獲取 FRED 數據 ---")
+    if FRED_API_KEY and fredapi_loaded:
+        dgs10_data = get_fred_series_with_cache('DGS10', FRED_API_KEY)
+        if dgs10_data is not None and not dgs10_data.empty:
+            try: latest_dgs10 = dgs10_data.iloc[-1]
+            except IndexError: pass
+        vix_data = get_fred_series_with_cache('VIXCLS', FRED_API_KEY)
+        if vix_data is not None and not vix_data.empty:
+            try: latest_vix = vix_data.iloc[-1]
+            except IndexError: pass
+        print(f"--- FRED 數據獲取完畢: DGS10={latest_dgs10:.2f}% ({dgs10_data.index.max().strftime('%Y-%m-%d') if dgs10_data is not None else 'N/A'}), VIX={latest_vix:.2f} ({vix_data.index.max().strftime('%Y-%m-%d') if vix_data is not None else 'N/A'}) ---")
+    else: print("\n! 跳過 FRED 數據 (缺少 API Key 或函式庫未載入)。")
+    print("-" * 50)
+
+    # --- 獲取 yfinance 數據 ---
+    print(f"--- 開始獲取 yfinance 數據 ({target_ticker}) ---")
+    if yfinance_loaded:
+        # 獲取數據，可以指定一個較近的起始日期以提高效率，例如最近 3 年
+        start_fetch_date = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
+        stock_data = get_yfinance_data_with_cache(ticker=target_ticker, start_date=start_fetch_date, interval='1d')
+        if stock_data is not None and not stock_data.empty:
+            try:
+                latest_record = stock_data.iloc[-1]; latest_spy_close = latest_record['Close']
+                print(f"--- yfinance {target_ticker} 數據獲取完畢: 最新收盤價={latest_spy_close:.2f} ({stock_data.index.max().strftime('%Y-%m-%d')}) ---")
+            except Exception as e: print(f"! 處理 {target_ticker} 數據時出錯: {e}")
+        else: print(f"! 未能獲取 {target_ticker} 的 yfinance 數據。")
+    else: print("\n! 跳過股票數據獲取 (yfinance 函式庫未載入)。")
+    print("-" * 50)
+
+    # --- 執行初步快速評估 ---
+    print("--- 開始執行初步快速評估 ---")
+    quick_risk_estimate = generate_quick_estimate(latest_dgs10, latest_vix, latest_spy_close)
+    print_quick_estimate(quick_risk_estimate)
+    print("-" * 50)
+
+    # --- 繪製風險儀表圖 ---
+    print("--- 開始繪製風險儀表圖 ---")
+    plot_risk_gauges(quick_risk_estimate, latest_dgs10, latest_vix)
+
+    print("\n" + "="*50)
+    print("腳本執行完畢。")
+    print("="*50)
+
+
+
+VIII. 如何使用與後續步驟
+
+依賴庫: 請確保您的 Python 環境中安裝了以下函式庫：
+
+pandas
+
+fredapi
+
+yfinance
+
+pyarrow (用於 Parquet 緩存)
+
+plotly (用於繪圖) 您可以使用 pip install pandas fredapi yfinance pyarrow plotly 來安裝。
+
+API 金鑰:
+
+FRED: 需要申請免費的 FRED API Key。您可以：
+
+在 Colab 的 Secrets 中添加名為 FRED_API_KEY 的密鑰。
+
+設置同名的環境變數。
+
+直接在程式碼頂部的 @param 表單 fred_api_key_form_input 中粘貼 (注意安全風險)。
+
+執行:
+
+直接運行此 Python 腳本 (v0.9)。
+
+首次運行會從 API 下載數據並創建 data_cache 目錄及緩存文件。後續運行會讀取緩存並只下載增量數據。
+
+可以修改頂部的 ticker_symbol_form_input 來指定不同的股票代碼。
+
+輸出:
+
+控制台會打印數據獲取日誌、最新指標值和文字版的快速評估。
+
+腳本末尾會生成並顯示包含四個儀表圖的 Plotly 圖表。
+
+後續開發建議:
+
+實現互動流程: 啟用 input() 提示，讓用戶在看到快速評估後決定是否繼續進行更詳細的第一層分析 (對應設計文檔的 Step 1)。
+
+定義並計算第一層指標: 利用已獲取的 stock_data (Pandas DataFrame) 計算更具體的風險指標，例如：
+
+歷史波動率: 計算不同窗口期 (如 20 天、60 天) 的年化歷史波動率。
+
+移動平均線 (SMA): 計算短期 (如 20/50 天) 和中期 (如 100/200 天) SMA，分析價格與均線的關係。
+
+最大回撤 (MDD): 計算指定期間內的最大回撤幅度。
+
+將這些指標整合到一個「第一層分析」的輸出中。
+
+細化快速評估/儀表圖:
+
+可以在 generate_quick_estimate 中加入更多規則 (例如考慮 VIX 或 DGS10 的變化率，而不僅是絕對值)。
+
+可以調整儀表圖的映射區間或顏色。
+
+擴充數據源: 逐步整合其他免費 API (如 FMP, Finnhub 的免費層) 以獲取更豐富的數據 (需注意請求限制)，並編寫相應的帶緩存函數。
+
+加入錯誤處理與日誌: 隨著功能增加，使用 Python 的 logging 模塊記錄更詳細的運行信息和錯誤，方便調試。
+
+代碼重構: 當代碼量增大時，可以考慮將不同功能的函數（如數據獲取、評估、繪圖）組織到不同的類或模塊文件中，提高可維護性。
+
+希望這份詳細的總結和最新的程式碼能幫助您在新的環境中順利地繼續推進這個有趣的專案！
+
+v4
+
+好的，這就為您整理一份截至目前 (v1.4.1 版本) 的詳細專案總結、最終程式碼以及後續建議，方便您在其他地方繼續進行開發。內容將使用中文呈現。
+
+地點： 台灣
+
+時間： 2025年4月18日 星期五 晚上 9:15 CST
+
+
+
+美股多時間維度風險計算系統 - 開發總結與階段成果 (v4.0 - 基於 v1.4.1)
+
+I. 專案願景與核心目標 (與 v2.1 相同)
+
+核心目標： 建立一個評估美國股市在極短 (1-7天)、短期 (約 60 天)、中期 (約 160 天) 及長期 (約 10 年) 四個時間維度下量化風險的系統原型。
+
+開發主軸： 以免費 API 和開源工具作為主要開發路徑。
+
+設計彈性與現實考量： 框架需具備接入付費 API 的彈性，因為研究已確認，獲取可靠的、高頻的日內數據必須使用付費數據源。
+
+II. 風險維度、指標與數據 (階段性實現)
+
+風險維度與概念指標 (同 v2.1): 極短、短、中、長期風險概念不變。
+
+數據來源與核心挑戰 (同 v2.1):
+
+主用免費來源: FRED, yfinance。
+
+嚴峻限制: 仍確認免費 API 限制，存在請求次數、延遲、覆蓋、質量風險。
+
+已實現數據整合:
+
+FRED: 成功整合 fredapi，實現了 DGS10 (10年期公債殖利率)、VIXCLS (VIX指數) 的獲取與 Parquet 緩存 (含增量更新)。
+
+yfinance: 成功整合 yfinance，實現了股票 (預設 SPY) 的日線 OHLCV 數據獲取與 Parquet 緩存 (含增量更新與基本數據清洗、時區處理)。
+
+已實現初步指標邏輯 (用於快速評估):
+
+基於 VIX 最新值和 5 日變化量 判斷極短期/短期風險狀態。
+
+基於 DGS10 最新值和 5 日變化量 判斷中期/長期風險狀態。
+
+將 VIX/DGS10 最新值線性映射到 0-100 範圍用於儀表圖數值顯示。
+
+技術應對: 數據緩存 (Caching) 已通過 Parquet 格式實現。
+
+III. 系統框架設計藍圖 (部分實現)
+
+設計原則 (同 v2.1): 模듈化、可配置、健壯、可擴展。
+
+核心模組實現進度:
+
+設定管理: API Key 安全讀取，風險評估閾值參數化。
+
+數據獲取與緩存: FRED/yfinance 數據獲取與緩存函數 (get_fred_series_with_cache, get_yfinance_data_with_cache)。
+
+風險預測 (初步):
+
+實現了含 5 日變化的快速評估邏輯 (generate_quick_estimate_v2)。
+
+實現了指標值到儀表數值的映射。
+
+主控流程: 順序執行數據獲取 -> 評估 -> 顯示。
+
+結果輸出:
+
+控制台文字輸出：日誌、最新值、含變化說明的文字版評估。
+
+雙圖表輸出:
+
+使用 Plotly Subplots 在 Colab/Jupyter 中直接顯示中文標題的互動式儀表圖 (極簡樣式)。
+
+詢問使用者後，可選擇生成並顯示英文標題的靜態 PNG 儀表圖 (極簡樣式)，方便右鍵下載且無亂碼。
+
+IV. 核心解決方案：互動式、分層、優化處理流程 (初步實現)
+
+已實現部分:
+
+步驟 0 (初步快速評估 v2 - 含變化):
+
+方法: 已實現基於最新緩存/獲取的 DGS10 和 VIX 數據及其 5 日變化，通過 generate_quick_estimate_v2 產生分類狀態和理由。
+
+輸出:
+
+控制台打印含變化說明的文字評估 (print_quick_estimate_v2)。
+
+直接顯示中文互動式 Plotly 儀表圖 (4個子圖，極簡樣式) (create_minimal_gauge_figure(lang='zh').show())。
+
+條件式輸出: 詢問使用者後，可選擇顯示英文靜態 PNG 圖 (create_minimal_gauge_figure(lang='en').to_image(), display(Image(data=...)))。
+
+未實現部分:
+
+步驟 1: 正式的互動環節 (詢問是否進入 Layer 1)。目前只有 PNG 生成詢問。
+
+步驟 2: 第一層分析 (Layer 1 Analysis) (計算波動率、均線、MDD 等)。
+
+步驟 3-5: 後續的互動、限制性 API 調用、整合分析等。
+
+V. 方案選擇與適用性 (同 v2.1)
+
+免費方案 (互動流程 - 部分實現): 目前開發成果。適用於研究、原型、學習、中低頻監控。已實現基礎數據獲取和含變化的初步評估及雙模式顯示。
+
+付費方案 (潛在自動流程): 未來擴展方向。
+
+VI. 階段結論
+
+專案已完成基礎數據層（FRED、yfinance 含緩存）、初步評估層（基於 VIX/DGS10 絕對值+5日變化）和結果展示層（控制台文字 + 中文互動圖 + 可選英文靜態圖）的開發。
+
+成功解決了 Plotly 圖表佈局中的文字重疊問題，並通過雙圖顯示策略兼顧了中文顯示習慣和英文 PNG 匯出的穩定性。
+
+程式碼健壯性有所提升，加入了對 None 值和空數據的處理。
+
+目前的 v1.4.1 版本是一個穩定、功能明確的階段性成果，已為下一步實現 Layer 1 的量化指標計算做好了準備。
+
+VII. 實作程式碼：最終階段成果 (v1.4.1)
+
+Python
+
+# -*- coding: utf-8 -*-
+
+# ==============================================================================
+
+# 系統名稱: 美股多時間維度風險計算系統 - 階段實作 v1.4.1
+
+# 功能: 獲取 FRED/yfinance 數據(含緩存)，執行含變化的初步風險評估，
+
+#       顯示中文互動儀表圖，並可選顯示英文靜態 PNG 圖 (均為極簡樣式)。
+
+# 主要函式庫: pandas, fredapi, yfinance, pyarrow, plotly, kaleido, IPython
+
+# ==============================================================================
+
+
+
+# --- 1. 設定與配置 ---
+
+# @markdown --- API 金鑰設定 ---
+
+fred_api_key_form_input = "" # @param {type:"string"}
+
+# @markdown --- 股票代碼設定 ---
+
+ticker_symbol_form_input = "SPY" # @param {type:"string"}
+
+# @markdown --- 風險評估參數 (v1.0) ---
+
+# @markdown VIX 5日變化 "快速上升" 閾值 (點)
+
+vix_change_threshold_up = 5.0 # @param {type:"number"}
+
+# @markdown VIX 5日變化 "明顯回落" 閾值 (點, 輸入正數)
+
+vix_change_threshold_down = 3.0 # @param {type:"number"}
+
+# @markdown DGS10 5日變化 "快速上升" 閾值 (百分點, e.g., 0.15 for 15bp)
+
+dgs10_change_threshold_up = 0.15 # @param {type:"number"}
+
+# @markdown DGS10 5日變化 "明顯回落" 閾值 (百分點, 輸入正數)
+
+dgs10_change_threshold_down = 0.10 # @param {type:"number"}
+
+# @markdown --- 圖片輸出參數 ---
+
+# @markdown 英文 PNG 圖寬度 (像素)
+
+png_width = 800 # @param {type:"integer"}
+
+# @markdown 英文 PNG 圖高度 (像素)
+
+png_height = 650 # @param {type:"integer"}
+
+
+
+# --- 2. 環境檢查與函式庫導入 ---
+
+import os
+
+import pandas as pd
+
+from datetime import datetime, timedelta
+
+import traceback
+
+import time
+
+
+
+IN_COLAB = False; fredapi_loaded = False; yfinance_loaded = False;
+
+pyarrow_installed = False; plotly_installed = False;
+
+kaleido_installed = False; ipython_display_loaded = False
+
+
+
+try:
+
+    import google.colab; IN_COLAB = True
+
+    print("偵測到 Google Colab 環境，嘗試安裝/更新所需函式庫...")
+
+    get_ipython().system('pip install fredapi yfinance pyarrow plotly kaleido -q')
+
+    print("函式庫安裝/更新完成。")
+
+    from google.colab import userdata
+
+except (ImportError, NameError):
+
+    IN_COLAB = False; # print("非 Colab 環境...")
+
+
+
+try: from fredapi import Fred; fredapi_loaded = True; print("fredapi 載入成功。")
+
+except ImportError: print("錯誤：無法載入 fredapi。")
+
+try: import yfinance as yf; yfinance_loaded = True; print("yfinance 載入成功。")
+
+except ImportError: print("錯誤：無法載入 yfinance。")
+
+try: import pyarrow; pyarrow_installed = True; print("pyarrow 載入成功。")
+
+except ImportError: print("警告：未找到 pyarrow。")
+
+try: import plotly.graph_objects as go; from plotly.subplots import make_subplots; plotly_installed = True; print("plotly 載入成功。")
+
+except ImportError: print("錯誤：無法載入 plotly。")
+
+try: from IPython.display import display, Image; ipython_display_loaded = True; print("IPython.display 載入成功。")
+
+except ImportError: ipython_display_loaded = False; print("警告：無法載入 IPython.display。")
+
+try:
+
+    if plotly_installed: go.Figure().to_image(format="png", engine="kaleido")
+
+    kaleido_installed = True; print("Kaleido 引擎看似可用。")
+
+except Exception as e: print(f"Kaleido 測試失敗: {e}")
+
+
+
+
+
+# --- 3. API 金鑰處理 ---
+
+FRED_API_KEY = None; api_key_source = "未設定"; fred_api_key_direct = fred_api_key_form_input.strip()
+
+if fred_api_key_direct: FRED_API_KEY = fred_api_key_direct; api_key_source = "表單直接輸入"
+
+else:
+
+    if IN_COLAB:
+
+        try: fred_secret_key = userdata.get('FRED_API_KEY')
+
+        except: fred_secret_key = None
+
+        if fred_secret_key: FRED_API_KEY = fred_secret_key; api_key_source = "Colab Secrets"
+
+        else: api_key_source = "未找到 (Colab Secrets)"
+
+    else:
+
+        fred_env_key = os.environ.get('FRED_API_KEY')
+
+        if fred_env_key: FRED_API_KEY = fred_env_key; api_key_source = "環境變數"
+
+        else: api_key_source = "未找到 (環境變數)"
+
+
+
+# --- 4. 數據獲取函數 ---
+
+CACHE_DIR = "data_cache"
+
+if not os.path.exists(CACHE_DIR):
+
+    try: os.makedirs(CACHE_DIR)
+
+    except OSError as e: print(f"錯誤：創建緩存目錄 '{CACHE_DIR}' 失敗: {e}")
+
+
+
+def get_fred_series_with_cache(series_id: str, api_key: str, observation_start: str | None = None, force_reload: bool = False) -> pd.Series | None:
+
+    """獲取 FRED 數據序列，帶緩存 (Parquet) 和增量更新。"""
+
+    if not api_key: print(f"  ! FRED 錯誤：未提供 API 金鑰 ({series_id})。"); return None
+
+    if not fredapi_loaded: print(f"  ! FRED 錯誤：fredapi 函式庫未載入 ({series_id})。"); return None
+
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+
+    if not can_use_cache and not force_reload: print(f"  ! FRED 警告：無法使用 Parquet 緩存 ({series_id})。將嘗試直接下載。"); force_reload = True
+
+    safe_series_id = ''.join(c if c.isalnum() else '_' for c in series_id); cache_file_path = os.path.join(CACHE_DIR, f"fred_{safe_series_id}.parquet")
+
+    cached_data = None; fetch_start_date = observation_start
+
+    if not force_reload and can_use_cache:
+
+        try:
+
+            df = pd.read_parquet(cache_file_path);
+
+            if not isinstance(df.index, pd.DatetimeIndex): df.index = pd.to_datetime(df.index)
+
+            cached_data = df.squeeze(axis=1) if df.shape[1] == 1 else df # Ensure it's a Series if single column
+
+            if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+        except FileNotFoundError: fetch_start_date = observation_start
+
+        except Exception as e: print(f"  ! FRED 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}"); cached_data = None # Removed traceback for final version
+
+    if isinstance(cached_data, pd.Series) and not cached_data.empty:
+
+        last_cached_date = cached_data.index.max(); fetch_start_date_obj = last_cached_date + timedelta(days=1); fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+
+    elif cached_data is None or (isinstance(cached_data, pd.Series) and cached_data.empty): fetch_start_date = observation_start
+
+    if force_reload: fetch_start_date = observation_start; cached_data = None
+
+    new_data = None; needs_fetch = True;
+
+    try:
+
+        if fetch_start_date and datetime.strptime(fetch_start_date, '%Y-%m-%d').date() > datetime.now().date(): needs_fetch = False # Check date part only
+
+    except ValueError: fetch_start_date = None; needs_fetch = True
+
+    if needs_fetch:
+
+        try: fred = Fred(api_key=api_key); series_data = fred.get_series(series_id, observation_start=fetch_start_date); new_data = series_data
+
+        except Exception as e: print(f"  ! FRED 錯誤：API 獲取 {series_id} 失敗: {e}"); new_data = None
+
+    combined_data = None
+
+    if new_data is not None and not new_data.empty:
+
+        if isinstance(new_data, pd.DataFrame): new_data = new_data.squeeze(axis=1)
+
+        if not isinstance(new_data.index, pd.DatetimeIndex): new_data.index = pd.to_datetime(new_data.index)
+
+        if cached_data is not None and not cached_data.empty:
+
+            if isinstance(cached_data, pd.DataFrame): cached_data = cached_data.squeeze(axis=1)
+
+            if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+            combined_data = cached_data.copy(); combined_data.update(new_data); new_index = new_data.index.difference(cached_data.index)
+
+            if not new_index.empty: combined_data = pd.concat([combined_data, new_data.loc[new_index]])
+
+            combined_data.sort_index(inplace=True);
+
+        else: combined_data = new_data.copy();
+
+    elif cached_data is not None and not cached_data.empty:
+
+         if isinstance(cached_data, pd.DataFrame): cached_data = cached_data.squeeze(axis=1)
+
+         if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+         combined_data = cached_data.copy();
+
+    else: print(f"  ! FRED 警告：序列 {series_id} 無法提供。"); return None
+
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+
+        try: combined_data.to_frame(name=series_id if isinstance(series_id, str) else 'value').to_parquet(cache_file_path);
+
+        except Exception as e: print(f"  ! FRED 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+    if isinstance(combined_data, pd.DataFrame): combined_data = combined_data.squeeze(axis=1)
+
+    return combined_data
+
+
+
+
+
+def get_yfinance_data_with_cache(ticker: str, start_date: str | None = None, end_date: str | None = None, interval: str = '1d', force_reload: bool = False) -> pd.DataFrame | None:
+
+    """獲取 yfinance 股票數據，帶緩存 (Parquet) 和增量更新。"""
+
+    # (v1.1 code)
+
+    if not ticker: print(f"  ! yfinance 錯誤：未提供股票代碼。"); return None
+
+    if not yfinance_loaded: print(f"  ! yfinance 錯誤：yfinance 函式庫未載入。"); return None
+
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+
+    if not can_use_cache and not force_reload: print(f"  ! yfinance 警告：無法使用 Parquet 緩存 ({ticker})。將嘗試直接下載。"); force_reload = True
+
+    safe_ticker = ''.join(c if c.isalnum() else '_' for c in ticker); cache_file_path = os.path.join(CACHE_DIR, f"yf_{safe_ticker}_{interval}.parquet")
+
+    cached_data = None; fetch_start_date = start_date
+
+    if not force_reload and can_use_cache:
+
+        try: cached_data = pd.read_parquet(cache_file_path);
+
+        except FileNotFoundError: fetch_start_date = start_date
+
+        except Exception as e: print(f"  ! yfinance 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}"); cached_data = None
+
+    if cached_data is not None and not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+    if cached_data is not None and not cached_data.empty: last_cached_date = cached_data.index.max(); fetch_start_date_obj = last_cached_date + timedelta(days=1 if interval == '1d' else 0); fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+
+    elif cached_data is None or cached_data.empty: fetch_start_date = start_date
+
+    if force_reload: fetch_start_date = start_date; cached_data = None
+
+    new_data = None; needs_fetch = True; today_dt = datetime.now(); effective_end_date = end_date or today_dt.strftime('%Y-%m-%d')
+
+    try:
+
+        start_dt = datetime.strptime(fetch_start_date, '%Y-%m-%d').date() if fetch_start_date else None; end_dt = datetime.strptime(effective_end_date, '%Y-%m-%d').date()
+
+        # Only fetch if start is on or before today
+
+        if start_dt and start_dt > today_dt.date(): needs_fetch = False
+
+    except ValueError: needs_fetch = True
+
+    if needs_fetch:
+
+        # Fetch up to tomorrow to ensure today's data is included if available
+
+        api_start = fetch_start_date; api_end = (datetime.strptime(effective_end_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')
+
+        try:
+
+            ticker_obj = yf.Ticker(ticker); new_data = ticker_obj.history(start=api_start, end=api_end, interval=interval, auto_adjust=False, repair=False) # repair=True is often slow
+
+            if new_data is None or new_data.empty: new_data = None
+
+            else:
+
+                # Basic cleaning
+
+                new_data.dropna(subset=['Open', 'High', 'Low', 'Close', 'Volume'], how='any', inplace=True)
+
+                new_data = new_data[new_data['Volume'] > 0]
+
+                if not isinstance(new_data.index, pd.DatetimeIndex): new_data.index = pd.to_datetime(new_data.index)
+
+                if new_data.index.tz is not None: new_data.index = new_data.index.tz_localize(None) # Make timezone naive
+
+                new_data = new_data[['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']]
+
+        except Exception as e: print(f"  ! yfinance 錯誤：API 獲取 {ticker} 失敗: {e}"); new_data = None
+
+    combined_data = None
+
+    if new_data is not None and not new_data.empty:
+
+        if cached_data is not None and not cached_data.empty:
+
+            if cached_data.index.tz is not None: cached_data.index = cached_data.index.tz_localize(None) # Ensure cache is naive
+
+            # Combine using concat and drop duplicates, keeping the latest
+
+            combined_data = pd.concat([cached_data, new_data])
+
+            combined_data = combined_data[~combined_data.index.duplicated(keep='last')]
+
+            combined_data.sort_index(inplace=True);
+
+        else: combined_data = new_data.copy();
+
+    elif cached_data is not None and not cached_data.empty:
+
+         if cached_data.index.tz is not None: cached_data.index = cached_data.index.tz_localize(None)
+
+         combined_data = cached_data.copy();
+
+    else: print(f"  ! yfinance 警告：標的 {ticker} 無法提供。"); return None
+
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+
+        try: combined_data.to_parquet(cache_file_path);
+
+        except Exception as e: print(f"  ! yfinance 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+    return combined_data
+
+
+
+# --- 5. 初步快速評估函數 ---
+
+def generate_quick_estimate_v2(dgs10_data: pd.Series | None, vix_data: pd.Series | None, spy_close_latest: float | None = None, vix_up_thresh: float = 5.0, vix_down_thresh: float = 3.0, dgs10_up_thresh: float = 0.15, dgs10_down_thresh: float = 0.10) -> dict:
+
+    """根據最新的 DGS10 和 VIX 值及其 5 日變化，生成初步的四維度風險狀態。"""
+
+    # (v1.0 code) - Using Chinese Keys
+
+    estimate = { "極短期 (1-7天)": {"狀態": "數據不足", "理由": ""}, "短期 (~60天)": {"狀態": "數據不足", "理由": ""}, "中期 (~160天)": {"狀態": "數據不足", "理由": ""}, "長期 (~10年)": {"狀態": "數據不足", "理由": ""} }
+
+    change_period = 5
+
+    vix_latest = None; vix_change_desc = ""
+
+    if vix_data is not None and not vix_data.empty:
+
+        try:
+
+            vix_latest = vix_data.iloc[-1]
+
+            if len(vix_data) >= change_period + 1:
+
+                vix_5d_ago = vix_data.iloc[-(change_period + 1)]; vix_change_5d = vix_latest - vix_5d_ago
+
+                if vix_change_5d > vix_up_thresh: vix_change_desc = f" (5日+{vix_change_5d:.2f} 快速上升)"
+
+                elif vix_change_5d < -abs(vix_down_thresh): vix_change_desc = f" (5日{vix_change_5d:.2f} 明顯回落)"
+
+        except Exception as e: print(f"! 計算 VIX 變化時出錯: {e}")
+
+    if vix_latest is not None:
+
+        status_base = "數據不足"; reason = f"VIX = {vix_latest:.2f}. "
+
+        if vix_latest < 20: status_base = "低"; reason += "VIX < 20。"
+
+        elif vix_latest < 30: status_base = "中"; reason += "20 <= VIX < 30。"
+
+        elif vix_latest < 40: status_base = "高"; reason += "30 <= VIX < 40。"
+
+        else: status_base = "極高"; reason += "VIX >= 40。"
+
+        status = status_base + vix_change_desc if vix_change_desc else status_base
+
+        estimate["極短期 (1-7天)"]["狀態"] = estimate["短期 (~60天)"]["狀態"] = status
+
+        estimate["極短期 (1-7天)"]["理由"] = estimate["短期 (~60天)"]["理由"] = reason + vix_change_desc.replace('(','').replace(')','')
+
+    else: estimate["極短期 (1-7天)"]["理由"] = estimate["短期 (~60天)"]["理由"] = "缺少 VIX 數據。"
+
+    dgs10_latest = None; dgs10_change_desc = ""
+
+    if dgs10_data is not None and not dgs10_data.empty:
+
+         try:
+
+             dgs10_latest = dgs10_data.iloc[-1]
+
+             if len(dgs10_data) >= change_period + 1:
+
+                 dgs10_5d_ago = dgs10_data.iloc[-(change_period + 1)]; dgs10_change_5d = dgs10_latest - dgs10_5d_ago
+
+                 if dgs10_change_5d > dgs10_up_thresh: dgs10_change_desc = f" (5日+{dgs10_change_5d:.2f}% 快速上升)"
+
+                 elif dgs10_change_5d < -abs(dgs10_down_thresh): dgs10_change_desc = f" (5日{dgs10_change_5d:.2f}% 明顯回落)"
+
+         except Exception as e: print(f"! 計算 DGS10 變化時出錯: {e}")
+
+    if dgs10_latest is not None:
+
+        status_base = "數據不足"; reason = f"DGS10 = {dgs10_latest:.2f}%. "
+
+        if dgs10_latest < 2.5: status_base = "低"; reason += "DGS10 < 2.5%。"
+
+        elif dgs10_latest < 4.0: status_base = "中"; reason += "2.5% <= DGS10 < 4.0%。"
+
+        elif dgs10_latest < 5.0: status_base = "偏高"; reason += "4.0% <= DGS10 < 5.0%。"
+
+        else: status_base = "高"; reason += "DGS10 >= 5.0%。"
+
+        status = status_base + dgs10_change_desc if dgs10_change_desc else status_base
+
+        estimate["中期 (~160天)"]["狀態"] = estimate["長期 (~10年)"]["狀態"] = status
+
+        estimate["中期 (~160天)"]["理由"] = estimate["長期 (~10年)"]["理由"] = reason + dgs10_change_desc.replace('(','').replace(')','')
+
+    else: estimate["中期 (~160天)"]["理由"] = estimate["長期 (~10年)"]["理由"] = "缺少 DGS10 數據。"
+
+    return estimate
+
+
+
+def print_quick_estimate_v2(estimate: dict):
+
+    """打印格式化的快速評估結果 (v2)"""
+
+    # (v1.0 code)
+
+    print("\n" + "="*20 + " 初步快速評估 (v2 - 含5日變化) " + "="*20)
+
+    print("注意：此評估基於最新值及其5日變化，仍屬初步。")
+
+    max_len_estimate_str = 40; print("-" * (max_len_estimate_str + len(" 初步快速評估 (v2 - 含5日變化) ")))
+
+    display_names = list(estimate.keys())
+
+    for internal_name in display_names:
+
+        result = estimate[internal_name]
+
+        print(f"{internal_name:<15}: {result['狀態']:<30} ({result['理由']})")
+
+    print("=" * (max_len_estimate_str + len(" 初步快速評估 (v2 - 含5日變化) ")) + "\n")
+
+
+
+# --- 6. 繪製極簡風險儀表圖函數 ---
+
+def create_minimal_gauge_figure(estimate_v2: dict,
+
+                                dgs10_latest: float | None,
+
+                                vix_latest: float | None,
+
+                                lang: str = 'zh',
+
+                                figure_width: int = 800,
+
+                                figure_height: int = 650
+
+                                ) -> go.Figure | None:
+
+    """創建包含四個子圖的儀表圖 Figure，採用極簡風格 (無內部標籤/刻度)。"""
+
+    # (v1.3 code)
+
+    if not plotly_installed: print("! Plotly 未安裝，無法繪製儀表圖。"); return None
+
+    labels = { 'zh': { "極短期 (1-7天)": "極短期 (1-7天)", "短期 (~60天)": "短期 (~60天)", "中期 (~160天)": "中期 (~160天)", "長期 (~10年)": "長期 (~10年)", "main_title": "多時間維度風險初步評估儀表 (v2-含變化)" },
+
+               'en': { "極短期 (1-7天)": "(1-7d)", "短期 (~60天)": "(~60d)", "中期 (~160天)": "(~160d)", "長期 (~10年)": "(~10y)", "main_title": "Risk Intelligent Dashboard" } }
+
+    target_labels = labels.get(lang, labels['zh'])
+
+    def map_vix_to_gauge(vix):
+
+        if vix is None: return 0; value = ((vix - 10) / (50 - 10)) * 100; return max(0, min(100, value))
+
+    def map_dgs10_to_gauge(dgs10):
+
+        if dgs10 is None: return 0; value = ((dgs10 - 1) / (6 - 1)) * 100; return max(0, min(100, value))
+
+    ordered_dims_zh = list(estimate_v2.keys())
+
+    if len(ordered_dims_zh) != 4: return None
+
+    subplot_titles_target = [target_labels.get(dim_zh, dim_zh) for dim_zh in ordered_dims_zh]
+
+    fig = make_subplots( rows=2, cols=2, specs=[[{'type': 'indicator'}]*2]*2, subplot_titles=subplot_titles_target, vertical_spacing = 0.2 ) # Reduced spacing slightly
+
+    minimal_gauge_style = { 'axis': {'range': [0, 100], 'showticklabels': False, 'ticks': ''}, 'bar': {'color': "rgba(0,0,0,0.6)"}, 'bgcolor': "white", 'borderwidth': 1, 'bordercolor': "gray",
+
+                            'steps': [ {'range': [0, 25], 'color': 'rgba(0, 255, 0, 0.3)'}, {'range': [25, 50], 'color': 'rgba(255, 255, 0, 0.4)'},
+
+                                       {'range': [50, 75], 'color': 'rgba(255, 165, 0, 0.5)'}, {'range': [75, 100], 'color': 'rgba(255, 0, 0, 0.6)'} ] }
+
+    positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
+
+    for i, dim_zh in enumerate(ordered_dims_zh):
+
+        gauge_value = map_vix_to_gauge(vix_latest) if i < 2 else map_dgs10_to_gauge(dgs10_latest)
+
+        row, col = positions[i]
+
+        fig.add_trace(go.Indicator( mode = "gauge+number", value = gauge_value, number = {'suffix': "", 'font':{'size':36}},
+
+            title = {'text': ""}, gauge = minimal_gauge_style ), row=row, col=col) # title is empty
+
+    fig.update_layout( title_text=target_labels['main_title'], title_font_size=18, height=figure_height, width=figure_width, margin=dict(l=30, r=30, t=80, b=30),
+
+                       annotations=[ go.layout.Annotation( text=fig.layout.annotations[i].text, align='center', showarrow=False, xref='paper', yref='paper',
+
+                           x=fig.layout.annotations[i].x, y=fig.layout.annotations[i].y + 0.03, font=dict(size=14) ) for i in range(len(fig.layout.annotations)) ] )
+
+    return fig
+
+
+
+
+
+# --- 7. 主執行區塊 (最終版) ---
+
+if __name__ == "__main__":
+
+    print("\n" + "="*50)
+
+    print(f"開始執行腳本 v1.4.1 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})") # Keep version consistent with final functional state
+
+    print(f"使用的 FRED API 金鑰來源: {api_key_source}")
+
+    target_ticker = ticker_symbol_form_input.strip() or "SPY"
+
+    print(f"目標 yfinance 股票代碼: {target_ticker}")
+
+    print("="*50)
+
+
+
+    # --- 初始化變量 ---
+
+    dgs10_data = None; vix_data = None; stock_data = None
+
+    latest_dgs10 = None; latest_vix = None; latest_spy_close = None
+
+    fig_chinese = None; fig_english = None
+
+
+
+    # --- 獲取 FRED 數據 ---
+
+    print("--- 開始獲取 FRED 數據 ---")
+
+    if FRED_API_KEY and fredapi_loaded:
+
+        start_fred_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+
+        dgs10_data = get_fred_series_with_cache('DGS10', FRED_API_KEY, observation_start=start_fred_date)
+
+        if dgs10_data is not None and not dgs10_data.empty: latest_dgs10 = dgs10_data.iloc[-1]
+
+        vix_data = get_fred_series_with_cache('VIXCLS', FRED_API_KEY, observation_start=start_fred_date)
+
+        if vix_data is not None and not vix_data.empty: latest_vix = vix_data.iloc[-1]
+
+        dgs10_val_str = f"{latest_dgs10:.2f}" if latest_dgs10 is not None else "N/A"
+
+        dgs10_date_str = dgs10_data.index.max().strftime('%Y-%m-%d') if dgs10_data is not None and not dgs10_data.empty else "N/A"
+
+        vix_val_str = f"{latest_vix:.2f}" if latest_vix is not None else "N/A"
+
+        vix_date_str = vix_data.index.max().strftime('%Y-%m-%d') if vix_data is not None and not vix_data.empty else "N/A"
+
+        print(f"--- FRED 數據獲取完畢: DGS10={dgs10_val_str}% ({dgs10_date_str}), VIX={vix_val_str} ({vix_date_str}) ---")
+
+    else: print("\n! 跳過 FRED 數據。")
+
+    print("-" * 50)
+
+
+
+    # --- 獲取 yfinance 數據 ---
+
+    print(f"--- 開始獲取 yfinance 數據 ({target_ticker}) ---")
+
+    if yfinance_loaded:
+
+        start_yf_date = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
+
+        stock_data = get_yfinance_data_with_cache(ticker=target_ticker, start_date=start_yf_date, interval='1d')
+
+        if stock_data is not None and not stock_data.empty:
+
+            try: latest_record = stock_data.iloc[-1]; latest_spy_close = latest_record['Close']
+
+            except IndexError: latest_spy_close = None
+
+            if latest_spy_close is not None: print(f"--- yfinance {target_ticker} 數據獲取完畢: 最新收盤價={latest_spy_close:.2f} ({stock_data.index.max().strftime('%Y-%m-%d')}) ---")
+
+        else: print(f"! 未能獲取 {target_ticker} 的 yfinance 數據。")
+
+    else: print("\n! 跳過股票數據獲取。")
+
+    print("-" * 50)
+
+
+
+    # --- 執行初步快速評估 (v2) ---
+
+    print("--- 開始執行初步快速評估 (v2 - 含變化) ---")
+
+    quick_risk_estimate_v2 = generate_quick_estimate_v2( dgs10_data, vix_data, latest_spy_close,
+
+        vix_up_thresh=vix_change_threshold_up, vix_down_thresh=vix_change_threshold_down,
+
+        dgs10_up_thresh=dgs10_change_threshold_up, dgs10_down_thresh=dgs10_change_threshold_down )
+
+    print_quick_estimate_v2(quick_risk_estimate_v2)
+
+    print("-" * 50)
+
+
+
+    # --- 生成中英文圖表 Figure 對象 (使用極簡樣式) ---
+
+    print("--- 開始生成中/英文儀表圖 Figure 對象 (極簡樣式) ---")
+
+    fig_chinese = create_minimal_gauge_figure(quick_risk_estimate_v2, latest_dgs10, latest_vix, lang='zh', figure_width=png_width, figure_height=png_height)
+
+    fig_english = create_minimal_gauge_figure(quick_risk_estimate_v2, latest_dgs10, latest_vix, lang='en', figure_width=png_width, figure_height=png_height)
+
+
+
+    # --- 顯示中文互動圖表 ---
+
+    if fig_chinese and plotly_installed:
+
+        print("--- 顯示中文互動儀表圖 (極簡樣式) ---")
+
+        fig_chinese.show()
+
+    else: print("! 未能生成中文圖表 Figure。")
+
+    print("-" * 50)
+
+
+
+    # --- 詢問是否生成英文 PNG (更新提示文字) ---
+
+    generate_png = input("是否需要生成可供下載的英文版 PNG 圖片？(輸入 Y 或 enter 跳過): ").strip().lower()
+
+
+
+    # --- 根據使用者輸入，條件式地生成並顯示英文靜態 PNG 圖表 ---
+
+    if generate_png == 'y':
+
+        print("\n--- 生成並顯示英文靜態 PNG (極簡樣式，可右鍵下載) ---")
+
+        if fig_english and plotly_installed and kaleido_installed and ipython_display_loaded:
+
+            try:
+
+                png_bytes = fig_english.to_image(format="png", engine="kaleido", width=png_width, height=png_height)
+
+                display(Image(data=png_bytes))
+
+            except Exception as e: print(f"! 生成或顯示英文 PNG 時發生錯誤: {e}")
+
+        elif not fig_english: print("! 未能生成英文圖表 Figure。")
+
+        elif not kaleido_installed: print("! Kaleido 未安裝或不可用，無法生成英文 PNG。")
+
+        elif not ipython_display_loaded: print("! IPython.display 未載入，無法內嵌顯示英文 PNG。")
+
+    else:
+
+        print("\n--- 已跳過生成英文版 PNG 圖片 ---")
+
+
+
+    print("\n" + "="*50)
+
+    print("腳本執行完畢。")
+
+    print("="*50)
+
+
+
+VIII. 如何使用與後續步驟
+
+依賴庫: pandas, fredapi, yfinance, pyarrow, plotly, kaleido, IPython (通常 Colab/Jupyter 自帶)。使用 pip install pandas fredapi yfinance pyarrow plotly kaleido。
+
+API 金鑰: 需要 FRED API Key，按程式碼中說明設定。
+
+執行: 運行 v1.4.1 腳本。
+
+輸出:
+
+控制台顯示文字評估。
+
+輸出單元格顯示中文互動式儀表圖 (極簡樣式)。
+
+程式會詢問是否生成英文 PNG。若回答 'y'，則接著顯示英文靜態 PNG 圖 (極簡樣式)，可右鍵下載。
+
+後續開發建議:
+
+實現 Layer 1 分析: 這是最有價值的下一步。
+
+計算指標: 編寫函數計算歷史波動率 (如 stock_data['Adj Close'].pct_change().rolling(window=20).std() * (252**0.5))、移動平均線 (stock_data['Adj Close'].rolling(window=50).mean())、最大回撤等。
+
+整合結果: 將計算結果整合到主流程中，可以在文字評估後輸出，或存儲起來供後續使用。
+
+實現正式互動流程: 在顯示完中文圖後，加入 input() 詢問是否執行 Layer 1 分析，然後根據用戶選擇調用 Layer 1 計算函數。
+
+擴充數據源: 根據 Layer 1 或未來 Layer 2 的需要，加入更多 FRED 指標或整合其他 API (如 FMP/Finnhub 免費層獲取基本面數據、NewsAPI 獲取新聞情緒等)。
+
+完善錯誤處理/日誌: 使用 logging 模塊記錄更詳細的資訊。
+
+代碼重構: 將功能函數（數據獲取、評估、繪圖、指標計算）組織成更清晰的模塊或類。
+
+
+
+這份總結和程式碼 (v1.4.1) 包含了我們討論的所有成果和最終的顯示邏輯。祝您後續開發順利！
+
+
+
+v5
+
+好的，這就為您將我們從 v1.4.1 版本以來的所有討論內容，特別是關於兩階段分析流程、進階的自適應均線乖離風險計算方案，以及下一步開發 Layer 1 日線指標的計畫，進行一次詳細的概念性總結與打包（不包含程式碼）。這份文件應能方便您在其他地方基於這些思路繼續開發。
+
+地點： 台灣
+
+時間： 2025年4月18日 星期五 晚上 11:43 CST
+
+
+
+美股多時間維度風險計算系統 - 開發方向與階段規劃總結 (v5.0 - 概念規劃)
+
+I. 專案願景與核心目標 (維持不變)
+
+核心目標： 建立評估美股在極短、短、中、長四個時間維度下量化風險的系統原型。
+
+開發主軸： 以免費 API (FRED, yfinance 等) 和開源工具為主。
+
+設計彈性： 考慮未來接入付費 API 的可能性。
+
+II. 風險維度、指標與數據 (現狀與規劃)
+
+風險維度: 極短期 (1-7天)、短期 (~60天)、中期 (~160天)、長期 (~10年)。
+
+數據源:
+
+已整合：FRED (日線 VIX, DGS10), yfinance (指數/個股日線 OHLCV, 指數小時線 OHLCV)。
+
+數據獲取方式：已實現帶 Parquet 本地緩存和增量更新的函數。
+
+數據限制：已認知免費日內數據 (小時線) 在歷史長度 (約 2 年) 和質量上可能存在的限制。
+
+已實現風險評估邏輯 (兩階段):
+
+第一階段 (基本快速評估 - 基於日線 VIX/DGS10):
+
+計算 VIX 和 DGS10 的最新值及其 N 日 (預設 5 日) 變化量。
+
+根據絕對值和變化趨勢，判斷四個時間維度的初步風險狀態 (低/中/高/極高 + 變化描述)。
+
+將 VIX (映射 10-50 到 0-100) 和 DGS10 (映射 1%-6% 到 0-100) 的最新值轉換為儀表圖數值。
+
+第二階段 (進階風險分析 - 基於小時線均線乖離 - 可選):
+
+核心指標: 自適應均線乖離率風險值 (0-100 分)。
+
+波動率衡量: 計算指數 1 小時 K 線的標準化 ATR(14)。
+
+提供兩種計算方案供使用者選擇 (Y/Enter 互動):
+
+方案一 (動態均線 + 近期範圍 - 預設 Enter):
+
+據最新 ATR 在長期歷史中的百分位，反向線性映射推薦短 (1-20h) / 長 (40-150h) MA 週期。
+
+允許使用者確認或自訂最終使用的短/長 MA 週期。
+
+計算該選定組合的當前小時線乖離率。
+
+找出該組合乖離率在過去 90 交易日 (約 630 小時) 內的最大/最小值。
+
+將當前乖離率在此近期範圍內進行線性縮放，得到 0-100 的風險分數。
+
+方案二 (推薦固定組合 + 長期歷史 - 輸入 Y):
+
+比較最新 ATR 與其長期歷史中位數，程式推薦使用 5h/50h 或 10h/100h 組合 (使用者不可更改)。
+
+計算該推薦組合的當前小時線乖離率。
+
+計算當前乖離率在該組合的長期歷史 (約 2 年) 分佈中的百分位排名，直接作為 0-100 的風險分數。
+
+下一步規劃 (Layer 1 日線指標):
+
+目標: 為短、中、長期維度開發基於日線數據的量化指標。
+
+數據: 指數/個股日線 OHLCV, 日線 VIX, 日線 DGS10。
+
+建議指標:
+
+短期 (~60d): 日線歷史波動率 (20d, 60d), 價格 vs 日線 SMA (20, 50), 近期回報率 (1mo, 3mo)。
+
+中期 (~160d): 價格 vs 日線 SMA (100, 200), 日線最大回撤 (6mo, 1yr), 日線 MACD。
+
+長期 (~10y): 價格 vs 日線 SMA (200), DGS10 趨勢。
+
+III. 系統框架設計藍圖 (現狀)
+
+設計原則維持不變。
+
+核心模組實現進度:
+
+設定管理： API Key 讀取，部分評估參數 (@param) 已加入。
+
+數據獲取與緩存： FRED (日線), yfinance (日線, 小時線) 實現良好。
+
+風險預測： 包含兩階段評估邏輯 (基本 VIX/DGS10 + 進階自適應 MA 乖離)。
+
+主控流程： 實現了兩階段的順序執行流程，包含使用者互動選擇。
+
+結果輸出： 控制台文字 + 雙圖表輸出模式。
+
+IV. 核心解決方案：兩階段互動流程 (現狀與規劃)
+
+已實現流程:
+
+執行程式。
+
+獲取日線 VIX, DGS10 數據。
+
+計算並打印「基本快速評估」文字結果。
+
+顯示中文互動式「基本四儀表圖」(基於 VIX/DGS10 映射值，極簡樣式)。
+
+互動 1: 詢問「是否要進行基於均線乖離的進階風險分析？ (按 Enter 繼續，輸入 N 跳過)」。
+
+(若繼續):
+
+獲取指數 1 小時數據 (長歷史)。
+
+計算 ATR 及歷史分佈。
+
+互動 2: 詢問選擇方案一 (Enter) 或方案二 (Y)。
+
+(若選方案一): 推薦動態 MA 週期。
+
+互動 2.1 (方案一): 詢問是否接受建議或自訂 MA 週期。
+
+執行選定方案的核心計算邏輯，得到最新風險分數和90 天歷史風險分數序列。
+
+打印進階分析結果摘要 (方案、參數、最新乖離率、最新風險值)。
+
+平滑處理： 對 90 天歷史風險分數序列應用移動平均 (預設 100 小時)。
+
+顯示中文互動式「單一進階風險儀表圖」(顯示最新風險分數)。
+
+顯示中文互動式「平滑後歷史趨勢圖」(90 天，顏色變化，閾值線)。
+
+互動 3: 詢問「是否需要生成可供下載的英文版 PNG 圖片 (儀表圖+趨勢圖)？(輸入 Y 或 enter 跳過)」。
+
+(若選 Y): 在輸出中顯示英文版的靜態 PNG 儀表圖和趨勢圖 (可右鍵下載)。
+
+(若跳過進階分析): 打印跳過訊息。
+
+結束。
+
+下一步規劃 (Layer 1 日線指標):
+
+將 Layer 1 日線指標的計算邏輯整合到階段二 (進階分析) 中。
+
+計算結果可以在打印進階分析結果摘要時一併輸出。
+
+初步可以只輸出文字結果，未來再考慮是否需要為 Layer 1 指標增加視覺化。
+
+V. 方案選擇與適用性 (維持不變)
+
+目前的免費方案提供了包含初步概覽和可選深入分析的兩階段流程。
+
+VI. 階段結論 (v1.7.1)
+
+系統已具備穩定的兩階段分析能力。
+
+第一階段提供基於 VIX/DGS10 的快速概覽和四儀表圖。
+
+第二階段提供可選的、基於小時線自適應均線乖離的進階風險評估，提供兩種計算方案，輸出單一風險分數和經過平滑的歷史趨勢圖。
+
+成功實現了「中文互動顯示 + 可選英文靜態 PNG 輸出」的雙模式。
+
+圖表樣式採用了極簡風格，解決了之前的文字重疊問題。
+
+系統已準備好進入下一個開發階段：實現基於日線數據的 Layer 1 指標，以覆蓋短、中、長期的量化風險評估。
+
+VII. 實作程式碼：(本總結不包含)
+
+最新穩定可執行的程式碼基於我們討論修正後的 v1.7.1 版本。
+
+VIII. 如何使用與後續步驟
+
+依賴庫: pandas, numpy, scipy, fredapi, yfinance, pyarrow, plotly, kaleido, IPython。
+
+執行流程: 運行完整的 v1.7.1 腳本。首先會看到基本評估和四儀表圖，然後根據提示選擇是否進行進階分析、選擇進階方案、確認/輸入均線參數、選擇是否顯示英文 PNG。
+
+後續開發主要方向:
+
+實現 Layer 1 日線指標計算:
+
+創建 calculate_layer1_daily_indicators 函數。
+
+實現日線歷史波動率、價格 vs SMA (20/50/100/200)、日線 MDD 等指標的計算。
+
+將此函數的調用和結果輸出整合到主流程的第二階段（進階分析部分）。
+
+決定如何呈現這些新的日線指標結果（初期建議先在控制台打印摘要）。
+
+（次要）擴充數據源: 根據 Layer 1 指標的需要，考慮是否需要引入更多 FRED 指標或其他 API 數據。
+
+（次要）完善錯誤處理與日誌: 加入更詳細的 logging。
+
+（未來）整合 MA 交叉策略分析: 將您提供的另一份報告中的回測分析作為更長期的功能加入。
+
+
+
+這份概念性總結希望能清晰地描繪出目前的專案狀態和下一步的開發藍圖。祝您後續開發順利！
+
+
+
+程式碼:
+
+
+
+
+
+
+
+v5程式碼
+
+# -*- coding: utf-8 -*-
+
+# ==============================================================================
+
+# 系統名稱: 美股多時間維度風險計算系統 - 階段實作 v1.7.1 (完整版)
+
+# 功能: 兩階段分析。第一階段顯示基於VIX/DGS10的基本評估(含4儀表圖)。
+
+#       第二階段可選進行基於小時線自適應均線乖離的進階分析，
+
+#       顯示單一風險儀表圖和顏色變化的平滑歷史趨勢圖。
+
+#       提供中文互動顯示和可選的英文靜態 PNG 輸出。
+
+# 主要函式庫: pandas, fredapi, yfinance, pyarrow, plotly, kaleido, IPython, numpy, scipy
+
+# ==============================================================================
+
+
+
+# --- 1. 設定與配置 ---
+
+# @markdown --- API 金鑰設定 ---
+
+# @markdown **說明:** 請提供 FRED API 金鑰 (若要執行第一階段評估)。
+
+fred_api_key_form_input = "" # @param {type:"string"}
+
+# @markdown --- 指數/股票代碼設定 ---
+
+# @markdown **說明:** 設定進階分析 (第二階段) 要使用的小時線數據代碼。
+
+index_ticker = "^IXIC" # @param {type:"string"} # 例如: ^IXIC, SPY, ^GSPC
+
+# @markdown --- 風險評估參數 ---
+
+# @markdown 基本評估: VIX/DGS10 變化計算天數
+
+basic_change_period = 5 # @param {type:"integer"}
+
+# @markdown 進階分析: ATR 計算週期 (小時)
+
+atr_period = 14 # @param {type:"integer"}
+
+# @markdown 進階分析 (方案一): 短均線推薦範圍 (下限)
+
+s1_short_ma_min = 1 # @param {type:"integer"}
+
+# @markdown 進階分析 (方案一): 短均線推薦範圍 (上限)
+
+s1_short_ma_max = 20 # @param {type:"integer"}
+
+# @markdown 進階分析 (方案一): 長均線推薦範圍 (下限)
+
+s1_long_ma_min = 40 # @param {type:"integer"}
+
+# @markdown 進階分析 (方案一): 長均線推薦範圍 (上限)
+
+s1_long_ma_max = 150 # @param {type:"integer"}
+
+# @markdown 進階分析 (方案一): 乖離範圍計算天數 (交易日)
+
+s1_deviation_lookback_days = 90 # @param {type:"integer"}
+
+# @markdown --- 圖表參數 ---
+
+# @markdown 歷史趨勢圖回看天數
+
+hist_chart_days = 90 # @param {type:"integer"}
+
+# @markdown 歷史趨勢圖平滑週期 (小時, 0 表示不平滑)
+
+hist_smoothing_period = 100 # @param {type:"integer"}
+
+# @markdown (進階分析用) PNG 圖寬度 (像素)
+
+png_width = 800 # @param {type:"integer"}
+
+# @markdown (進階分析用) PNG 圖高度 (像素)
+
+png_height = 450 # @param {type:"integer"}
+
+
+
+# --- 確認參數設定 ---
+
+print("--- 參數設定 ---")
+
+print(f"目標指數 (進階分析): {index_ticker}")
+
+print(f"FRED API Key 提供長度: {len(fred_api_key_form_input)}")
+
+print(f"ATR 週期: {atr_period}")
+
+print(f"趨勢圖回看天數: {hist_chart_days}")
+
+print(f"趨勢圖平滑週期: {hist_smoothing_period}")
+
+print("-" * 20)
+
+
+
+# --- 2. 環境檢查與函式庫導入 ---
+
+import os
+
+import pandas as pd
+
+import numpy as np
+
+from scipy.stats import percentileofscore
+
+from datetime import datetime, timedelta
+
+import traceback
+
+import time
+
+import warnings
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+
+IN_COLAB = False; fredapi_loaded = False; yfinance_loaded = False;
+
+pyarrow_installed = False; plotly_installed = False;
+
+kaleido_installed = False; ipython_display_loaded = False;
+
+numpy_loaded = False; scipy_loaded = False
+
+
+
+try:
+
+    import google.colab; IN_COLAB = True
+
+    print("偵測到 Google Colab 環境，嘗試安裝/更新所需函式庫...")
+
+    get_ipython().system('pip install fredapi yfinance pyarrow plotly kaleido numpy scipy -q')
+
+    print("函式庫安裝/更新完成。")
+
+    from google.colab import userdata
+
+except (ImportError, NameError): IN_COLAB = False;
+
+
+
+try: from fredapi import Fred; fredapi_loaded = True; print("fredapi 載入成功。")
+
+except ImportError: print("錯誤：無法載入 fredapi。")
+
+try: import yfinance as yf; yfinance_loaded = True; print("yfinance 載入成功。")
+
+except ImportError: print("錯誤：無法載入 yfinance。")
+
+try: import pyarrow; pyarrow_installed = True; print("pyarrow 載入成功。")
+
+except ImportError: print("警告：未找到 pyarrow。")
+
+try: import plotly.graph_objects as go; from plotly.subplots import make_subplots; plotly_installed = True; print("plotly 載入成功。")
+
+except ImportError: print("錯誤：無法載入 plotly。")
+
+try: from IPython.display import display, Image; ipython_display_loaded = True; print("IPython.display 載入成功。")
+
+except ImportError: ipython_display_loaded = False; print("警告：無法載入 IPython.display。")
+
+try: import numpy as np; numpy_loaded = True; print("Numpy 載入成功。")
+
+except ImportError: print("錯誤：無法載入 Numpy。")
+
+try: from scipy.stats import percentileofscore; scipy_loaded = True; print("Scipy.stats 載入成功。")
+
+except ImportError: print("錯誤：無法載入 Scipy。")
+
+try:
+
+    if plotly_installed: go.Figure().to_image(format="png", engine="kaleido")
+
+    kaleido_installed = True; print("Kaleido 引擎看似可用。")
+
+except Exception as e: print(f"Kaleido 測試失敗: {e}")
+
+
+
+
+
+# --- 3. API 金鑰處理 ---
+
+FRED_API_KEY = None; api_key_source = "未設定"; fred_api_key_direct = fred_api_key_form_input.strip()
+
+if fred_api_key_direct: FRED_API_KEY = fred_api_key_direct; api_key_source = "表單直接輸入"
+
+else:
+
+    if IN_COLAB:
+
+        try: fred_secret_key = userdata.get('FRED_API_KEY')
+
+        except: fred_secret_key = None
+
+        if fred_secret_key: FRED_API_KEY = fred_secret_key; api_key_source = "Colab Secrets"
+
+        else: api_key_source = "未找到 (Colab Secrets)"
+
+    else:
+
+        fred_env_key = os.environ.get('FRED_API_KEY')
+
+        if fred_env_key: FRED_API_KEY = fred_env_key; api_key_source = "環境變數"
+
+        else: api_key_source = "未找到 (環境變數)"
+
+
+
+# --- 4. 數據獲取函數 ---
+
+CACHE_DIR = "data_cache"
+
+if not os.path.exists(CACHE_DIR):
+
+    try: os.makedirs(CACHE_DIR)
+
+    except OSError as e: print(f"錯誤：創建緩存目錄 '{CACHE_DIR}' 失敗: {e}")
+
+
+
+def get_fred_series_with_cache(series_id: str, api_key: str, observation_start: str | None = None, force_reload: bool = False) -> pd.Series | None:
+
+    """獲取 FRED 數據序列，帶緩存 (Parquet) 和增量更新。"""
+
+    # (v1.5.1 code with robustness)
+
+    if not api_key: print(f"  ! FRED 錯誤：未提供 API 金鑰 ({series_id})。"); return None
+
+    if not fredapi_loaded: print(f"  ! FRED 錯誤：fredapi 函式庫未載入 ({series_id})。"); return None
+
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+
+    if not can_use_cache and not force_reload: print(f"  ! FRED 警告：無法使用 Parquet 緩存 ({series_id})。將嘗試直接下載。"); force_reload = True
+
+    safe_series_id = ''.join(c if c.isalnum() else '_' for c in series_id); cache_file_path = os.path.join(CACHE_DIR, f"fred_{safe_series_id}.parquet")
+
+    cached_data = None; fetch_start_date = observation_start
+
+    if not force_reload and can_use_cache:
+
+        try:
+
+            df = pd.read_parquet(cache_file_path)
+
+            if not isinstance(df.index, pd.DatetimeIndex): df.index = pd.to_datetime(df.index)
+
+            cached_data = df.squeeze(axis=1) if df.shape[1] == 1 else df # Try to make it Series
+
+            if not isinstance(cached_data, pd.Series): cached_data = None # Failed to make Series
+
+            elif not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+        except FileNotFoundError: fetch_start_date = observation_start
+
+        except Exception as e: print(f"  ! FRED 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}"); cached_data = None
+
+
+
+    if isinstance(cached_data, pd.Series) and not cached_data.empty:
+
+        last_cached_date = cached_data.index.max(); fetch_start_date_obj = last_cached_date + timedelta(days=1); fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+
+    elif cached_data is None or (isinstance(cached_data, pd.Series) and cached_data.empty): fetch_start_date = observation_start
+
+    if force_reload: fetch_start_date = observation_start; cached_data = None
+
+
+
+    new_data = None; needs_fetch = True;
+
+    try:
+
+        if fetch_start_date and datetime.strptime(fetch_start_date, '%Y-%m-%d').date() > datetime.now().date(): needs_fetch = False
+
+    except ValueError: fetch_start_date = None; needs_fetch = True
+
+
+
+    if needs_fetch:
+
+        try:
+
+            fred = Fred(api_key=api_key); series_data = fred.get_series(series_id, observation_start=fetch_start_date); new_data = series_data
+
+        except Exception as e: print(f"  ! FRED 錯誤：API 獲取 {series_id} 失敗: {e}"); new_data = None
+
+
+
+    combined_data = None
+
+    if new_data is not None and not new_data.empty:
+
+        if isinstance(new_data, pd.DataFrame): new_data = new_data.squeeze(axis=1)
+
+        if not isinstance(new_data.index, pd.DatetimeIndex): new_data.index = pd.to_datetime(new_data.index)
+
+        if cached_data is not None and not cached_data.empty:
+
+            if isinstance(cached_data, pd.DataFrame): cached_data = cached_data.squeeze(axis=1)
+
+            if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+            combined_data = cached_data.copy(); combined_data.update(new_data); new_index = new_data.index.difference(cached_data.index)
+
+            if not new_index.empty: combined_data = pd.concat([combined_data, new_data.loc[new_index]])
+
+            combined_data.sort_index(inplace=True);
+
+        else: combined_data = new_data.copy();
+
+    elif cached_data is not None and not cached_data.empty:
+
+         if isinstance(cached_data, pd.DataFrame): cached_data = cached_data.squeeze(axis=1)
+
+         if not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+         combined_data = cached_data.copy();
+
+    else:
+
+        # print(f"  ! FRED 警告：序列 {series_id} 無法提供。") # Suppress warning if just no data
+
+        return None
+
+
+
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+
+        try: combined_data.to_frame(name=series_id if isinstance(series_id, str) else 'value').to_parquet(cache_file_path);
+
+        except Exception as e: print(f"  ! FRED 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+    if isinstance(combined_data, pd.DataFrame): combined_data = combined_data.squeeze(axis=1) # Ensure return Series
+
+    return combined_data
+
+
+
+def get_yfinance_data_with_cache(ticker: str, start_date: str | None = None, end_date: str | None = None, interval: str = '1d', force_reload: bool = False) -> pd.DataFrame | None:
+
+    """獲取 yfinance 股票/指數數據，帶緩存 (Parquet) 和增量更新。"""
+
+    # (v1.5.1 code with fix)
+
+    if not ticker: print(f"  ! yfinance 錯誤：未提供股票代碼。"); return None
+
+    if not yfinance_loaded: print(f"  ! yfinance 錯誤：yfinance 函式庫未載入。"); return None
+
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+
+    if not can_use_cache and not force_reload: print(f"  ! yfinance 警告：無法使用 Parquet 緩存 ({ticker})。將嘗試直接下載。"); force_reload = True
+
+    safe_ticker = ''.join(c if c.isalnum() else '_' for c in ticker); cache_file_path = os.path.join(CACHE_DIR, f"yf_{safe_ticker}_{interval}.parquet")
+
+    cached_data = None; fetch_start_date = start_date
+
+    if not force_reload and can_use_cache:
+
+        try: cached_data = pd.read_parquet(cache_file_path);
+
+        except FileNotFoundError: fetch_start_date = start_date
+
+        except Exception as e: print(f"  ! yfinance 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}"); cached_data = None
+
+    if cached_data is not None and not isinstance(cached_data.index, pd.DatetimeIndex): cached_data.index = pd.to_datetime(cached_data.index)
+
+    if cached_data is not None and not cached_data.empty: last_cached_date = cached_data.index.max(); fetch_start_date_obj = last_cached_date + timedelta(days=0 if interval != '1d' else 1); fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d') # Adjust start date logic slightly
+
+    elif cached_data is None or cached_data.empty: fetch_start_date = start_date
+
+    if force_reload: fetch_start_date = start_date; cached_data = None
+
+    new_data = None; needs_fetch = True; today_dt = datetime.now(); effective_end_date = end_date or today_dt.strftime('%Y-%m-%d')
+
+    try:
+
+        start_dt = datetime.strptime(fetch_start_date, '%Y-%m-%d').date() if fetch_start_date else None
+
+        # Allow fetching up to today
+
+        if start_dt and start_dt > today_dt.date(): needs_fetch = False
+
+    except ValueError: needs_fetch = True # Handle invalid start_date format
+
+    if needs_fetch:
+
+        # Fetch up to tomorrow to ensure today's data is included if available for intraday
+
+        api_start = fetch_start_date
+
+        api_end = (datetime.strptime(effective_end_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d') if effective_end_date else None
+
+        try:
+
+            # print(f"  > Calling yfinance API for {ticker} ({interval}) from {api_start} to {api_end}")
+
+            ticker_obj = yf.Ticker(ticker); new_data = ticker_obj.history(start=api_start, end=api_end, interval=interval, auto_adjust=False, repair=False)
+
+            if new_data is None or new_data.empty: new_data = None
+
+            else:
+
+                new_data.dropna(subset=['Open', 'High', 'Low', 'Close', 'Volume'], how='any', inplace=True)
+
+                new_data = new_data[new_data['Volume'] > 0]
+
+                if not isinstance(new_data.index, pd.DatetimeIndex): new_data.index = pd.to_datetime(new_data.index)
+
+                if new_data.index.tz is not None: new_data.index = new_data.index.tz_localize(None) # Make timezone naive
+
+                new_data = new_data[['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']]
+
+        except Exception as e: print(f"  ! yfinance 錯誤：API 獲取 {ticker} ({interval}) 失敗: {e}"); new_data = None
+
+    combined_data = None
+
+    if new_data is not None and not new_data.empty:
+
+        if cached_data is not None and not cached_data.empty:
+
+            if cached_data.index.tz is not None: cached_data.index = cached_data.index.tz_localize(None)
+
+            combined_data = pd.concat([cached_data, new_data])
+
+            combined_data = combined_data[~combined_data.index.duplicated(keep='last')]
+
+            combined_data.sort_index(inplace=True);
+
+        else: combined_data = new_data.copy();
+
+    elif cached_data is not None and not cached_data.empty:
+
+         if cached_data.index.tz is not None: cached_data.index = cached_data.index.tz_localize(None)
+
+         combined_data = cached_data.copy();
+
+    else: print(f"  ! yfinance 警告：標的 {ticker} ({interval}) 無法提供。"); return None
+
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+
+        try: combined_data.to_parquet(cache_file_path);
+
+        except Exception as e: print(f"  ! yfinance 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+    return combined_data
+
+
+
+# --- 5. 輔助計算函數 ---
+
+def calculate_sma(series: pd.Series, period: int) -> pd.Series:
+
+    if not isinstance(series, pd.Series): return pd.Series(dtype=float)
+
+    if period <= 0 or not isinstance(period, int): return pd.Series(index=series.index, dtype=float)
+
+    return series.rolling(window=period, min_periods=max(1, period//2)).mean()
+
+
+
+def calculate_atr(df_ohlc: pd.DataFrame, period: int = 14) -> pd.Series:
+
+    if not isinstance(df_ohlc, pd.DataFrame) or not all(col in df_ohlc.columns for col in ['High', 'Low', 'Close']): print("! ATR 計算錯誤: 輸入非 DataFrame 或缺少 HLC 列。"); return pd.Series(dtype=float)
+
+    if period <= 0 or not isinstance(period, int): return pd.Series(index=df_ohlc.index, dtype=float)
+
+    df = df_ohlc.copy()
+
+    df['h-l'] = df['High'] - df['Low']; df['h-pc'] = np.abs(df['High'] - df['Close'].shift(1)); df['l-pc'] = np.abs(df['Low'] - df['Close'].shift(1))
+
+    df['tr'] = df[['h-l', 'h-pc', 'l-pc']].max(axis=1); atr = df['tr'].rolling(window=period, min_periods=1).mean()
+
+    return atr
+
+
+
+def calculate_deviation_pct(series1: pd.Series, series2: pd.Series) -> pd.Series:
+
+    if not isinstance(series1, pd.Series) or not isinstance(series2, pd.Series): return pd.Series(dtype=float)
+
+    s1_aligned, s2_aligned = series1.align(series2, join='inner');
+
+    if s1_aligned.empty: return pd.Series(dtype=float)
+
+    denominator = s2_aligned.replace(0, np.nan); deviation = (s1_aligned - s2_aligned) / denominator * 100
+
+    return deviation
+
+
+
+def get_percentile_rank(series: pd.Series, value: float) -> float | None:
+
+    if not isinstance(series, pd.Series) or series.dropna().empty or value is None or not np.isfinite(value): return None
+
+    if not scipy_loaded: print("! Scipy 未載入，無法計算百分位。"); return None
+
+    try: return percentileofscore(series.dropna(), value, kind='weak') # Use 'weak' for <=
+
+    except Exception as e: print(f"! 計算百分位時出錯: {e}"); return None
+
+
+
+# --- 6. 基本快速評估函數 (基於 VIX/DGS10) ---
+
+# --- 6. 修改後：基本快速評估函數 (接收閾值參數) ---
+
+def generate_basic_quick_estimate(dgs10_data: pd.Series | None,
+
+                                  vix_data: pd.Series | None,
+
+                                  change_period: int = 5,
+
+                                  # *** 新增參數 ***
+
+                                  vix_thresh_up: float = 5.0,
+
+                                  vix_thresh_down: float = 3.0,
+
+                                  dgs10_thresh_up: float = 0.15,
+
+                                  dgs10_thresh_down: float = 0.10
+
+                                 ) -> dict:
+
+    """
+
+    計算基於 VIX 和 DGS10 最新值及其 N 日變化的基本快速評估。
+
+    返回包含狀態、理由和儀表映射值的字典。
+
+    """
+
+    estimate = {
+
+        "極短期 (1-7天)": {"狀態": "數據不足", "理由": "", "gauge_value": 0.0},
+
+        "短期 (~60天)":  {"狀態": "數據不足", "理由": "", "gauge_value": 0.0},
+
+        "中期 (~160天)": {"狀態": "數據不足", "理由": "", "gauge_value": 0.0},
+
+        "長期 (~10年)":  {"狀態": "數據不足", "理由": "", "gauge_value": 0.0}
+
+    }
+
+    if not numpy_loaded: return estimate
+
+
+
+    def map_vix_to_gauge(vix):
+
+        if vix is None or not np.isfinite(vix): return 0.0
+
+        value = ((vix - 10) / (50 - 10)) * 100
+
+        return np.clip(value, 0, 100)
+
+
+
+    def map_dgs10_to_gauge(dgs10):
+
+        if dgs10 is None or not np.isfinite(dgs10): return 0.0
+
+        value = ((dgs10 - 1) / (6 - 1)) * 100
+
+        return np.clip(value, 0, 100)
+
+
+
+    # --- VIX 評估 ---
+
+    vix_latest = None; vix_change_desc = ""
+
+    if vix_data is not None and not vix_data.empty:
+
+        try:
+
+            vix_latest = vix_data.iloc[-1] if not vix_data.empty else None
+
+            if len(vix_data) >= change_period + 1:
+
+                vix_change_nd = vix_latest - vix_data.iloc[-(change_period + 1)]
+
+                # *** 使用傳入的參數 ***
+
+                if vix_change_nd > vix_thresh_up: vix_change_desc = f" ({change_period}日+{vix_change_nd:.2f} 快速上升)"
+
+                elif vix_change_nd < -abs(vix_thresh_down): vix_change_desc = f" ({change_period}日{vix_change_nd:.2f} 明顯回落)"
+
+        except Exception as e: print(f"! 計算 VIX 變化時出錯: {e}") # 錯誤已被捕獲
+
+
+
+    gauge_val_vix = 0.0 # 初始化
+
+    if vix_latest is not None and np.isfinite(vix_latest):
+
+        status_base = "數據不足"; reason = f"VIX = {vix_latest:.2f}. "
+
+        if vix_latest < 20: status_base = "低"; reason += "VIX < 20。"
+
+        elif vix_latest < 30: status_base = "中"; reason += "20 <= VIX < 30。"
+
+        elif vix_latest < 40: status_base = "高"; reason += "30 <= VIX < 40。"
+
+        else: status_base = "極高"; reason += "VIX >= 40。"
+
+        status = status_base + vix_change_desc if vix_change_desc else status_base
+
+        gauge_val_vix = map_vix_to_gauge(vix_latest) # 計算 gauge value
+
+        reason_combined = reason.strip() + vix_change_desc.replace('(','').replace(')','')
+
+        estimate["極短期 (1-7天)"] = {"狀態": status, "理由": reason_combined, "gauge_value": gauge_val_vix}
+
+        estimate["短期 (~60天)"] = {"狀態": status, "理由": reason_combined, "gauge_value": gauge_val_vix}
+
+    else:
+
+        estimate["極短期 (1-7天)"]["理由"] = "缺少 VIX 數據。"
+
+        estimate["短期 (~60天)"]["理由"] = "缺少 VIX 數據。"
+
+
+
+    # --- DGS10 評估 ---
+
+    dgs10_latest = None; dgs10_change_desc = ""
+
+    if dgs10_data is not None and not dgs10_data.empty:
+
+         try:
+
+             dgs10_latest = dgs10_data.iloc[-1] if not dgs10_data.empty else None
+
+             if len(dgs10_data) >= change_period + 1:
+
+                 dgs10_change_nd = dgs10_latest - dgs10_data.iloc[-(change_period + 1)]
+
+                 # *** 使用傳入的參數 ***
+
+                 if dgs10_change_nd > dgs10_thresh_up: dgs10_change_desc = f" ({change_period}日+{dgs10_change_nd:.2f}% 快速上升)"
+
+                 elif dgs10_change_nd < -abs(dgs10_thresh_down): dgs10_change_desc = f" ({change_period}日{dgs10_change_nd:.2f}% 明顯回落)"
+
+         except Exception as e: print(f"! 計算 DGS10 變化時出錯: {e}") # 錯誤已被捕獲
+
+
+
+    gauge_val_dgs10 = 0.0 # 初始化
+
+    if dgs10_latest is not None and np.isfinite(dgs10_latest):
+
+        status_base = "數據不足"; reason = f"DGS10 = {dgs10_latest:.2f}%. "
+
+        if dgs10_latest < 2.5: status_base = "低"; reason += "DGS10 < 2.5%。"
+
+        elif dgs10_latest < 4.0: status_base = "中"; reason += "2.5% <= DGS10 < 4.0%。"
+
+        elif dgs10_latest < 5.0: status_base = "偏高"; reason += "4.0% <= DGS10 < 5.0%。"
+
+        else: status_base = "高"; reason += "DGS10 >= 5.0%。"
+
+        status = status_base + dgs10_change_desc if dgs10_change_desc else status_base
+
+        gauge_val_dgs10 = map_dgs10_to_gauge(dgs10_latest) # 計算 gauge value
+
+        reason_combined = reason.strip() + dgs10_change_desc.replace('(','').replace(')','')
+
+        estimate["中期 (~160天)"] = {"狀態": status, "理由": reason_combined, "gauge_value": gauge_val_dgs10}
+
+        estimate["長期 (~10年)"] = {"狀態": status, "理由": reason_combined, "gauge_value": gauge_val_dgs10}
+
+    else:
+
+        estimate["中期 (~160天)"]["理由"] = "缺少 DGS10 數據。"
+
+        estimate["長期 (~10年)"]["理由"] = "缺少 DGS10 數據。"
+
+
+
+    # 確保即使出錯也有預設 gauge value
+
+    if estimate["極短期 (1-7天)"]["gauge_value"] is None: estimate["極短期 (1-7天)"]["gauge_value"] = 0.0
+
+    if estimate["短期 (~60天)"]["gauge_value"] is None: estimate["短期 (~60天)"]["gauge_value"] = 0.0
+
+    if estimate["中期 (~160天)"]["gauge_value"] is None: estimate["中期 (~160天)"]["gauge_value"] = 0.0
+
+    if estimate["長期 (~10年)"]["gauge_value"] is None: estimate["長期 (~10年)"]["gauge_value"] = 0.0
+
+
+
+
+
+    return estimate
+
+# --- 7. 繪製基本四儀表圖函數 ---
+
+def plot_basic_4_gauges(basic_estimate: dict, lang: str = 'zh', figure_width: int = 800, figure_height: int = 650) -> go.Figure | None:
+
+    """根據基本快速評估結果繪製四個儀表圖 (極簡樣式 + 內部狀態文字)"""
+
+    # (v1.7 code with fix)
+
+    if not plotly_installed: print("! Plotly 未安裝。"); return None
+
+    if not basic_estimate or len(basic_estimate) != 4: print("! 基本評估數據格式不符。"); return None
+
+    labels = { 'zh': { "極短期 (1-7天)": "極短期 (1-7天)", "短期 (~60天)": "短期 (~60天)", "中期 (~160天)": "中期 (~160天)", "長期 (~10年)": "長期 (~10年)", "main_title": "基本風險評估儀表 (基於VIX/DGS10)" },
+
+               'en': { "極短期 (1-7天)": "Very Short (1-7d)", "短期 (~60天)": "Short (~60d)", "中期 (~160天)": "Mid (~160d)", "長期 (~10年)": "Long (~10y)", "main_title": "Basic Risk Gauges (VIX/DGS10 based)" } }
+
+    target_labels = labels.get(lang, labels['zh'])
+
+    ordered_dims_zh = ["極短期 (1-7天)", "短期 (~60天)", "中期 (~160天)", "長期 (~10年)"]
+
+    subplot_titles_target = [target_labels.get(dim_zh, dim_zh) for dim_zh in ordered_dims_zh]
+
+    fig = make_subplots( rows=2, cols=2, specs=[[{'type': 'indicator'}]*2]*2, subplot_titles=subplot_titles_target, vertical_spacing = 0.2 ) # Correct specs
+
+    minimal_gauge_style = { 'axis': {'range': [0, 100], 'showticklabels': False, 'ticks': ''}, 'bar': {'color': "rgba(0,0,0,0.6)"}, 'bgcolor': "white", 'borderwidth': 1, 'bordercolor': "gray",
+
+                            'steps': [ {'range': [0, 25], 'color': 'rgba(0, 255, 0, 0.3)'}, {'range': [25, 50], 'color': 'rgba(255, 255, 0, 0.4)'},
+
+                                       {'range': [50, 75], 'color': 'rgba(255, 165, 0, 0.5)'}, {'range': [75, 100], 'color': 'rgba(255, 0, 0, 0.6)'} ] }
+
+    positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
+
+    for i, dim_zh in enumerate(ordered_dims_zh):
+
+        result = basic_estimate.get(dim_zh, {}); gauge_value = result.get("gauge_value", 0.0); status_text = result.get("狀態", "數據不足")
+
+        if len(status_text) > 15: status_text = status_text[:15] + "..." # Truncate status
+
+        row, col = positions[i]
+
+        fig.add_trace(go.Indicator( mode = "gauge+number", value = gauge_value, number = {'suffix': "", 'font':{'size':30}, 'valueformat':".1f"}, # Slightly smaller font
+
+            title = {'text': f"<span style='font-size:0.8em;color:gray'>{status_text}</span>", 'font': {'size': 12}}, gauge = minimal_gauge_style ), row=row, col=col)
+
+    fig.update_layout( title_text=target_labels['main_title'], title_font_size=18, height=figure_height, width=figure_width, margin=dict(l=30, r=30, t=80, b=30),
+
+                       annotations=[ go.layout.Annotation( text=fig.layout.annotations[i].text, align='center', showarrow=False, xref='paper', yref='paper',
+
+                           x=fig.layout.annotations[i].x, y=fig.layout.annotations[i].y + 0.03, font=dict(size=14) ) for i in range(len(fig.layout.annotations)) ] )
+
+    return fig
+
+
+
+
+
+# --- 8. 核心風險計算邏輯 (進階分析) ---
+
+def calculate_adaptive_deviation_risk_hist( ixic_hourly_data: pd.DataFrame | None, atr_period: int = 14, s1_short_ma_min: int = 1, s1_short_ma_max: int = 20, s1_long_ma_min: int = 40, s1_long_ma_max: int = 150, s1_deviation_lookback_hours: int = 90 * 7, hist_calculation_scheme: int = 1, hist_chart_hours: int = 90 * 7 ) -> tuple[dict | None, pd.Series | None]:
+
+    # (v1.6 code with robustness)
+
+    min_required_len = max(s1_long_ma_max, 100, atr_period, s1_deviation_lookback_hours) + 5
+
+    if ixic_hourly_data is None or ixic_hourly_data.empty or len(ixic_hourly_data) < min_required_len: print(f"! 風險計算錯誤：指數小時數據不足 {min_required_len} 條或缺失。"); return None, None
+
+    if not all(col in ixic_hourly_data.columns for col in ['High', 'Low', 'Close', 'Adj Close']): print("! 風險計算錯誤：指數數據缺少 HLC 或 Adj Close 列。"); return None, None
+
+    if not numpy_loaded or not scipy_loaded: print("! 風險計算錯誤：缺少 Numpy 或 Scipy。"); return None, None
+
+    print("\n--- 開始計算波動率和歷史分佈 (需要時間) ---")
+
+    price_series = ixic_hourly_data['Adj Close']
+
+    atr = calculate_atr(ixic_hourly_data, period=atr_period); normalized_atr = (atr / price_series) * 100; normalized_atr.dropna(inplace=True)
+
+    if normalized_atr.empty: print("! 無法計算標準化 ATR。"); return None, None
+
+    long_term_median_atr = None; atr_p01 = None; atr_p99 = None
+
+    try: long_term_median_atr = normalized_atr.median()
+
+    except Exception as e: print(f"! 計算 ATR 中位數失敗: {e}")
+
+    try: atr_p01 = normalized_atr.quantile(0.01); atr_p99 = normalized_atr.quantile(0.99)
+
+    except Exception as e: print(f"! 計算 ATR 百分位失敗: {e}")
+
+    if long_term_median_atr is None or atr_p01 is None or atr_p99 is None: print("! 無法完成 ATR 歷史分佈計算。"); return None, None
+
+    print(f"  長期標準化 ATR({atr_period}h) 中位數: {long_term_median_atr:.4f}%"); print(f"  用於映射的 ATR 範圍 (1%-99%): {atr_p01:.4f}% - {atr_p99:.4f}%")
+
+    latest_norm_atr = normalized_atr.iloc[-1]; print(f"  最新標準化 ATR({atr_period}h): {latest_norm_atr:.4f}%")
+
+    risk_score_series = pd.Series(index=ixic_hourly_data.index, dtype=float)
+
+    latest_results = {"scheme": hist_calculation_scheme, "short_ma": 0, "long_ma": 0, "deviation": np.nan, "risk_score": np.nan}
+
+    if hist_calculation_scheme == 2:
+
+        # --- 方案二歷史計算 ---
+
+        print("\n--- 計算方案二歷史風險值 (推薦組合 + 長期歷史百分位) ---")
+
+        print("  預計算 5/50 和 10/100 乖離率序列..."); sma5 = calculate_sma(price_series, 5); sma50 = calculate_sma(price_series, 50); sma10 = calculate_sma(price_series, 10); sma100 = calculate_sma(price_series, 100)
+
+        dev_5_50 = calculate_deviation_pct(sma5, sma50).dropna(); dev_10_100 = calculate_deviation_pct(sma10, sma100).dropna(); print("  預計算完成。")
+
+        # Calculate over the period needed for the chart + buffer? Or full history? Let's use full history for percentile.
+
+        target_index = normalized_atr.index # Use full index where ATR is available
+
+        print(f"  開始計算 {len(target_index)} 個時間點的風險值...")
+
+        for idx in target_index: # This loop can be slow
+
+            current_atr = normalized_atr.loc[idx];
+
+            if pd.isna(current_atr): continue
+
+            if current_atr > long_term_median_atr: short_ma_hist, long_ma_hist = 5, 50; hist_dev_series = dev_5_50
+
+            else: short_ma_hist, long_ma_hist = 10, 100; hist_dev_series = dev_10_100
+
+            current_dev = hist_dev_series.get(idx, np.nan) # Use get for safety
+
+            if pd.isna(current_dev): continue
+
+            rank = get_percentile_rank(hist_dev_series, current_dev)
+
+            if rank is not None: risk_score_series.loc[idx] = rank
+
+            if idx == target_index[-1]: latest_results['short_ma'] = short_ma_hist; latest_results['long_ma'] = long_ma_hist; latest_results['deviation'] = current_dev; latest_results['risk_score'] = rank if rank is not None else np.nan
+
+        print(f"  方案二歷史風險值計算完成。")
+
+    else:
+
+        # --- 方案一歷史計算 ---
+
+        print("\n--- 計算方案一歷史風險值 (動態均線[用戶確認] + 近期範圍) ---")
+
+        atr_percentile = np.clip((latest_norm_atr - atr_p01) / (atr_p99 - atr_p01 + 1e-9), 0, 1)
+
+        suggested_short_ma = int(np.round(s1_short_ma_max - atr_percentile * (s1_short_ma_max - s1_short_ma_min))); suggested_long_ma = int(np.round(s1_long_ma_max - atr_percentile * (s1_long_ma_max - s1_long_ma_min)))
+
+        suggested_short_ma = max(s1_short_ma_min, min(s1_short_ma_max, suggested_short_ma)); suggested_long_ma = max(s1_long_ma_min, min(s1_long_ma_max, suggested_long_ma))
+
+        if suggested_short_ma >= suggested_long_ma: suggested_long_ma = max(suggested_long_ma, suggested_short_ma + s1_long_ma_min // 2); suggested_long_ma = min(s1_long_ma_max, suggested_long_ma)
+
+        print(f"  根據最新 ATR 百分位 ({atr_percentile*100:.1f}%), 建議均線組合: {suggested_short_ma}h / {suggested_long_ma}h")
+
+        adjust_ma = input(f"  是否需要調整建議的均線週期? (輸入 Y 或 y 進行調整，按 Enter 使用建議值): ").strip().lower()
+
+        final_short_ma = suggested_short_ma; final_long_ma = suggested_long_ma
+
+        if adjust_ma == 'y':
+
+             while True:
+
+                try:
+
+                    user_short = int(input(f"  請輸入您想用的短週期 (小時, {s1_short_ma_min}-{s1_short_ma_max}): ")); user_long = int(input(f"  請輸入您想用的長週期 (小時, {s1_long_ma_min}-{s1_long_ma_max}): "))
+
+                    if s1_short_ma_min <= user_short <= s1_short_ma_max and s1_long_ma_min <= user_long <= s1_long_ma_max and user_short < user_long: final_short_ma = user_short; final_long_ma = user_long; print(f"  已確認使用自訂均線組合: {final_short_ma}h / {final_long_ma}h"); break
+
+                    else: print("  輸入無效，請確保數值在範圍內且短週期小於長週期。")
+
+                except ValueError: print("  輸入無效，請輸入整數。")
+
+        else: print(f"  已確認使用建議均線組合: {final_short_ma}h / {final_long_ma}h")
+
+        latest_results['short_ma'] = final_short_ma; latest_results['long_ma'] = final_long_ma
+
+        print(f"  計算 {final_short_ma}h / {final_long_ma}h 的歷史乖離率序列..."); sma_short = calculate_sma(price_series, final_short_ma); sma_long = calculate_sma(price_series, final_long_ma)
+
+        deviation_series = calculate_deviation_pct(sma_short, sma_long).dropna(); print("  計算完成。")
+
+        if deviation_series.empty: print("! 無法計算乖離率序列。"); return None, None
+
+        deviation_latest = deviation_series.iloc[-1]; latest_results['deviation'] = deviation_latest
+
+        # Calculate risk score based on 90-day range
+
+        calc_hours = s1_deviation_lookback_hours
+
+        if len(deviation_series) < calc_hours: print(f"! 乖離數據不足 {calc_hours} 小時，將使用所有可用數據 ({len(deviation_series)} 小時) 計算範圍。"); lookback_deviation_for_range = deviation_series
+
+        else: lookback_deviation_for_range = deviation_series.iloc[-calc_hours:]
+
+        if lookback_deviation_for_range.empty: print("! 無法獲取近期乖離數據。"); return None, None
+
+        min_dev_range = lookback_deviation_for_range.min(); max_dev_range = lookback_deviation_for_range.max(); print(f"  用於評分的乖離範圍 ({len(lookback_deviation_for_range)} 小時): [{min_dev_range:.4f}%, {max_dev_range:.4f}%]")
+
+        if max_dev_range > min_dev_range: risk_score_series = ((deviation_series - min_dev_range) / (max_dev_range - min_dev_range)) * 100
+
+        elif max_dev_range == min_dev_range: risk_score_series = pd.Series(50.0, index=deviation_series.index)
+
+        else: risk_score_series = pd.Series(np.nan, index=deviation_series.index)
+
+        risk_score_series = risk_score_series.clip(0, 100); latest_results['risk_score'] = risk_score_series.iloc[-1] if not risk_score_series.empty else np.nan
+
+        print(f"  方案一歷史風險值計算完成。")
+
+
+
+    # Return only the required history for plotting + latest results
+
+    final_risk_score_series = risk_score_series.iloc[-hist_chart_hours:].dropna()
+
+    # Update latest results if needed
+
+    if not final_risk_score_series.empty and (pd.isna(latest_results['risk_score'])): latest_results['risk_score'] = final_risk_score_series.iloc[-1]
+
+    elif pd.isna(latest_results.get('risk_score')): latest_results['risk_score'] = 50.0 # Default if calculation failed
+
+    return latest_results, final_risk_score_series
+
+
+
+
+
+# --- 9. 繪製單一最終風險儀表圖函數 ---
+
+# (create_final_risk_gauge)
+
+# (與 v1.6 相同，省略)
+
+def create_final_risk_gauge(risk_results: dict | None, lang: str = 'zh', figure_width: int = 500, figure_height: int = 400) -> go.Figure | None:
+
+    # (v1.6 code)
+
+    if not plotly_installed: print("! Plotly 未安裝。"); return None
+
+    if risk_results is None or 'risk_score' not in risk_results or pd.isna(risk_results.get('risk_score')):
+
+        fig = go.Figure(); fig.add_trace(go.Indicator(mode = "number", value = None, title = {"text": "風險值數據不足" if lang == 'zh' else "Risk Score Unavailable"}))
+
+        fig.update_layout(width=figure_width, height=figure_height, title_text="風險評估儀表")
+
+        return fig
+
+    risk_score = risk_results['risk_score']; scheme = risk_results.get('scheme', 0); short_ma = risk_results.get('short_ma', 'N/A'); long_ma = risk_results.get('long_ma', 'N/A')
+
+    labels = { 'zh': {"main_title": f"乖離風險值 (方案{scheme}, {short_ma}h/{long_ma}h)", "gauge_title": "風險評分 (0-100)"},
+
+               'en': {"main_title": f"Deviation Risk Score (Scheme {scheme}, {short_ma}h/{long_ma}h)", "gauge_title": "Risk Score (0-100)"} }
+
+    target_labels = labels.get(lang, labels['zh'])
+
+    gauge_style = { 'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkblue", 'tickfont': {'size': 10}}, 'bar': {'color': "rgba(0,0,0,0.7)", 'thickness': 0.3},
+
+                    'bgcolor': "white", 'borderwidth': 1, 'bordercolor': "gray",
+
+                    'steps': [ {'range': [0, 25], 'color': 'rgba(0, 255, 0, 0.3)'}, {'range': [25, 50], 'color': 'rgba(255, 255, 0, 0.4)'},
+
+                               {'range': [50, 75], 'color': 'rgba(255, 165, 0, 0.5)'}, {'range': [75, 100], 'color': 'rgba(255, 0, 0, 0.6)'} ],
+
+                     'threshold': { 'line': {'color': "red", 'width': 3}, 'thickness': 0.75, 'value': 75 } }
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Indicator( mode = "gauge+number", value = risk_score, number = {'suffix': "", 'font':{'size':50}, 'valueformat':".1f"},
+
+        title = {'text': target_labels['gauge_title'], 'font': {'size': 16}}, gauge = gauge_style, domain = {'x': [0.1, 0.9], 'y': [0.1, 0.9]} ))
+
+    fig.update_layout( title={'text': target_labels['main_title'], 'y':0.95, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top', 'font':{'size':18}},
+
+                       height=figure_height, width=figure_width, margin=dict(l=20, r=20, t=70, b=20) )
+
+    return fig
+
+
+
+# --- 10. 繪製歷史風險趨勢圖函數 (帶平滑) ---
+
+def plot_historical_risk_trend(risk_score_series: pd.Series | None, title: str, smoothing_period: int = 10, thresholds: list[float] = [25, 50, 75], figure_width: int = 800, figure_height: int = 450) -> go.Figure | None:
+
+    """繪製顏色變化的歷史風險分數趨勢圖 (帶移動平均平滑)"""
+
+    # (v1.7 code with smoothing)
+
+    if not plotly_installed: print("! Plotly 未安裝。"); return None
+
+    if risk_score_series is None or risk_score_series.dropna().empty:
+
+        print("! 無歷史風險分數數據可供繪圖。")
+
+        fig = go.Figure(); fig.add_annotation(text="歷史風險數據不足", xref="paper", yref="paper", showarrow=False, font={"size": 16}); fig.update_layout(width=figure_width, height=figure_height, title_text=title); return fig
+
+    if smoothing_period > 0 and isinstance(smoothing_period, int) and len(risk_score_series.dropna()) >= smoothing_period :
+
+        plot_series = risk_score_series.rolling(window=smoothing_period, min_periods=smoothing_period // 2).mean().dropna()
+
+        print(f"  已對歷史風險值應用 {smoothing_period} 小時移動平均。")
+
+    else:
+
+        plot_series = risk_score_series.dropna()
+
+        if smoothing_period > 0: print(f"  數據點不足 {smoothing_period}，未應用移動平均平滑。")
+
+        else: print("  未應用移動平均平滑。")
+
+    if plot_series.empty: print("! 平滑後無數據可供繪圖。"); return None
+
+    fig = go.Figure()
+
+    colors = ['rgba(0, 255, 0, 0.7)', 'rgba(255, 255, 0, 0.7)', 'rgba(255, 165, 0, 0.7)', 'rgba(255, 0, 0, 0.7)']
+
+    bounds = [-np.inf, thresholds[0], thresholds[1], thresholds[2], np.inf]
+
+    names = ['低風險 (0-25)', '中低風險 (25-50)', '中高風險 (50-75)', '高風險 (75-100)']
+
+    # More robust way to plot segments
+
+    x_all = plot_series.index
+
+    y_all = plot_series.values
+
+    for i in range(len(bounds) - 1):
+
+        lower = bounds[i]; upper = bounds[i+1]
+
+        indices = np.where((y_all >= lower) & (y_all < upper))[0]
+
+        if len(indices) == 0: continue
+
+        # Find contiguous segments
+
+        splits = np.where(np.diff(indices) != 1)[0] + 1
+
+        segments = np.split(indices, splits)
+
+        first_segment = True # Flag to add legend only once per color
+
+        for segment_indices in segments:
+
+            if len(segment_indices) > 0:
+
+                 # Add boundary points for better connection visualization (optional)
+
+                 start_idx = segment_indices[0]
+
+                 end_idx = segment_indices[-1]
+
+                 plot_indices = segment_indices
+
+                 if start_idx > 0:
+
+                     plot_indices = np.insert(plot_indices, 0, start_idx - 1)
+
+                 if end_idx < len(x_all) - 1:
+
+                     plot_indices = np.append(plot_indices, end_idx + 1)
+
+                 # Ensure indices are unique and sorted
+
+                 plot_indices = np.unique(plot_indices)
+
+
+
+                 # Get data for plotting this segment
+
+                 x_segment = x_all[plot_indices]
+
+                 y_segment = np.where(((y_all[plot_indices] >= lower) & (y_all[plot_indices] < upper)), y_all[plot_indices], np.nan) # Use NaN for points outside range
+
+
+
+                 fig.add_trace(go.Scatter( x=x_segment, y=y_segment, mode='lines', line=dict(color=colors[i], width=2),
+
+                                           name=names[i] if first_segment else None, # Show legend only once
+
+                                           showlegend=first_segment, connectgaps=False ))
+
+                 first_segment = False # Only show legend for the first segment of this color
+
+
+
+    for threshold in thresholds: fig.add_hline(y=threshold, line_dash="dash", line_color="grey", annotation_text=f"{threshold}", annotation_position="bottom right")
+
+    fig.update_layout( title=title, xaxis_title="日期 / 時間", yaxis_title=f"平滑風險值 (0-100, {smoothing_period}h MA)", yaxis_range=[-5, 105],
+
+                       legend_title_text='風險區間', width=figure_width, height=figure_height, margin=dict(l=50, r=20, t=70, b=50) )
+
+    return fig
+
+
+
+
+
+# --- 11. 主執行區塊 (v1.7.1 - 修正 NameError 後) ---
+
+# --- 11. 主執行區塊 (v1.7.2 - 加入閾值預設值 fallback) ---
+
+if __name__ == "__main__":
+
+    print("\n" + "="*50)
+
+    # 使用修正後的版本號
+
+    print(f"開始執行腳本 v1.7.2 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
+
+    print(f"使用的 FRED API 金鑰來源: {api_key_source}") # 來自第 3 區段，假設已運行
+
+    try:
+
+        # 嘗試訪問 index_ticker，如果 Section 1 未運行會觸發 NameError
+
+        print(f"目標指數: {index_ticker}") # 來自第 1 區段
+
+    except NameError:
+
+        print("! 錯誤：找不到變數 'index_ticker'。請確保已運行包含 @param 設定的儲存格！")
+
+        index_ticker = "^IXIC" # 提供預設值以繼續
+
+        print(f"  將使用預設目標指數: {index_ticker}")
+
+    print("="*50)
+
+
+
+    # --- 初始化變量 ---
+
+    dgs10_data = None; vix_data = None; ixic_hourly_data = None
+
+    latest_dgs10 = None; latest_vix = None; latest_index_close = None
+
+    basic_estimate_results = None
+
+    advanced_risk_results = None
+
+    risk_score_series_hist = None
+
+    fig_basic_zh = None; fig_adv_gauge_zh = None; fig_adv_trend_zh = None
+
+    fig_basic_en = None; fig_adv_gauge_en = None; fig_adv_trend_en = None
+
+
+
+    # --- *** 新增：檢查並設定閾值預設值 *** ---
+
+    # 定義預設閾值
+
+    default_vix_thresh_up = 5.0
+
+    default_vix_thresh_down = 3.0
+
+    default_dgs10_thresh_up = 0.15
+
+    default_dgs10_thresh_down = 0.10
+
+    default_basic_change_period = 5
+
+
+
+    # 嘗試從全局變數獲取閾值，若不存在則使用預設值
+
+    # 使用 globals().get(var_name, default) 避免 NameError
+
+    vix_thresh_up = globals().get('vix_change_threshold_up', default_vix_thresh_up)
+
+    vix_thresh_down = globals().get('vix_change_threshold_down', default_vix_thresh_down)
+
+    dgs10_thresh_up = globals().get('dgs10_change_threshold_up', default_dgs10_thresh_up)
+
+    dgs10_thresh_down = globals().get('dgs10_change_threshold_down', default_dgs10_thresh_down)
+
+    _basic_change_period = globals().get('basic_change_period', default_basic_change_period) # 使用臨時變數
+
+
+
+    # 如果使用了預設值，打印警告
+
+    threshold_warning = False
+
+    if 'vix_change_threshold_up' not in globals(): threshold_warning = True
+
+    if 'vix_change_threshold_down' not in globals(): threshold_warning = True
+
+    if 'dgs10_change_threshold_up' not in globals(): threshold_warning = True
+
+    if 'dgs10_change_threshold_down' not in globals(): threshold_warning = True
+
+    if 'basic_change_period' not in globals(): threshold_warning = True
+
+
+
+    if threshold_warning:
+
+         print("\n! 警告：一個或多個閾值參數未從 @param 設定中找到。\n"
+
+               "         將使用程式內建的預設值進行計算。\n"
+
+               "         請確保在執行此區段前，已成功運行包含 @param 設定的儲存格以使用自訂值。\n")
+
+    # --- *** 預設值設定結束 *** ---
+
+
+
+    # === STAGE 1: 基本快速評估 (VIX/DGS10) ===
+
+    print("--- [階段一] 開始獲取基本評估數據 (VIX/DGS10) ---")
+
+    basic_data_ok = False
+
+    if FRED_API_KEY and fredapi_loaded:
+
+        start_fred_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
+
+        dgs10_data = get_fred_series_with_cache('DGS10', FRED_API_KEY, observation_start=start_fred_date)
+
+        vix_data = get_fred_series_with_cache('VIXCLS', FRED_API_KEY, observation_start=start_fred_date)
+
+        if dgs10_data is not None and not dgs10_data.empty and vix_data is not None and not vix_data.empty:
+
+            basic_data_ok = True
+
+            latest_dgs10 = dgs10_data.iloc[-1] if not dgs10_data.empty else None
+
+            latest_vix = vix_data.iloc[-1] if not vix_data.empty else None
+
+            dgs10_val_str = f"{latest_dgs10:.2f}" if latest_dgs10 is not None else "N/A"
+
+            dgs10_date_str = dgs10_data.index.max().strftime('%Y-%m-%d') if not dgs10_data.empty else "N/A"
+
+            vix_val_str = f"{latest_vix:.2f}" if latest_vix is not None else "N/A"
+
+            vix_date_str = vix_data.index.max().strftime('%Y-%m-%d') if not vix_data.empty else "N/A"
+
+            print(f"--- 基本數據獲取完畢: DGS10={dgs10_val_str}% ({dgs10_date_str}), VIX={vix_val_str} ({vix_date_str}) ---")
+
+        else: print("! 無法獲取完整的 VIX/DGS10 數據。")
+
+    else: print("\n! 跳過 FRED 數據 (缺少 API Key 或函式庫未載入)。")
+
+    print("-" * 50)
+
+
+
+    if basic_data_ok and plotly_installed:
+
+        print("--- [階段一] 執行基本快速評估並顯示四儀表圖 ---")
+
+        # *** 使用檢查或預設後的閾值變數 ***
+
+        basic_estimate_results = generate_basic_quick_estimate(
+
+            dgs10_data,
+
+            vix_data,
+
+            change_period=_basic_change_period, # 使用帶下劃線的臨時變數
+
+            vix_thresh_up=vix_thresh_up,
+
+            vix_thresh_down=vix_thresh_down,
+
+            dgs10_thresh_up=dgs10_thresh_up,
+
+            dgs10_thresh_down=dgs10_thresh_down
+
+        )
+
+        if 'print_basic_quick_estimate' in globals(): # 檢查函數是否存在
+
+            print_basic_quick_estimate(basic_estimate_results)
+
+        else:
+
+             print("! 錯誤: 函數 'print_basic_quick_estimate' 未定義。") # 提醒函數缺失
+
+
+
+        fig_basic_zh = plot_basic_4_gauges(basic_estimate_results, lang='zh')
+
+        if fig_basic_zh:
+
+            fig_basic_zh.show()
+
+        else: print("! 未能生成中文基本儀表圖。")
+
+    else:
+
+        print("! 缺少基本數據或 Plotly，無法執行基本評估和繪圖。")
+
+    print("-" * 50)
+
+
+
+    # === STAGE 2: 進階風險分析 (均線乖離 - 可選) ===
+
+    proceed_advanced = input("是否要進行基於均線乖離的進階風險分析？ (按 Enter 繼續，輸入 N 跳過): ").strip().lower()
+
+
+
+    if proceed_advanced != 'n':
+
+        print("\n" + "="*50)
+
+        print("--- [階段二] 開始進階風險分析 ---")
+
+        # --- 獲取指數 1 小時數據 ---
+
+        print(f"--- 開始獲取 {index_ticker} 1 小時數據 (需要約 2 年歷史) ---")
+
+        if yfinance_loaded:
+
+            start_yf_date = (datetime.now() - timedelta(days=720)).strftime('%Y-%m-%d')
+
+            print(f"  嘗試獲取從 {start_yf_date} 開始的 1h 數據...")
+
+            ixic_hourly_data = get_yfinance_data_with_cache(ticker=index_ticker, start_date=start_yf_date, interval='1h')
+
+            if ixic_hourly_data is not None and not ixic_hourly_data.empty:
+
+                try: latest_record = ixic_hourly_data.iloc[-1]; latest_index_close = latest_record['Close']
+
+                except IndexError: latest_index_close = None
+
+                if latest_index_close is not None: print(f"--- {index_ticker} 1h 數據獲取完畢: 最新收盤價={latest_index_close:.2f} ({ixic_hourly_data.index.max().strftime('%Y-%m-%d %H:%M')}) ---")
+
+            else: print(f"! 未能獲取 {index_ticker} 的 1h yfinance 數據。")
+
+        else: print("\n! 跳過指數數據獲取。")
+
+        print("-" * 50)
+
+
+
+        # --- 執行核心風險計算 (含歷史回溯) ---
+
+        if ixic_hourly_data is not None and not ixic_hourly_data.empty:
+
+            print("--- 開始執行自適應均線乖離風險計算 (含歷史) ---")
+
+            # ... (方案選擇 input) ...
+
+            print("\n" + "="*25); print("請選擇風險值計算方案："); print("[Enter] 方案一：依據當前波動率動態計算均線週期，並比較近期(90天)乖離範圍。(預設)"); print("[Y]     方案二：依據當前波動率推薦固定組合(5/50或10/100)，並比較長期歷史乖離分佈。"); user_choice_scheme = input("您的選擇 (輸入 Y 或按 Enter): ").strip().lower(); print("="*25)
+
+            chosen_scheme = 2 if user_choice_scheme == 'y' else 1
+
+
+
+            # 從全局 @param 獲取進階分析參數，若不存在則使用預設值 (增加健壯性)
+
+            _atr_period = globals().get('atr_period', 14)
+
+            _s1_short_ma_min = globals().get('s1_short_ma_min', 1)
+
+            _s1_short_ma_max = globals().get('s1_short_ma_max', 20)
+
+            _s1_long_ma_min = globals().get('s1_long_ma_min', 40)
+
+            _s1_long_ma_max = globals().get('s1_long_ma_max', 150)
+
+            _s1_deviation_lookback_days = globals().get('s1_deviation_lookback_days', 90)
+
+            _hist_chart_days = globals().get('hist_chart_days', 90)
+
+            _hist_smoothing_period = globals().get('hist_smoothing_period', 10)
+
+            _png_width = globals().get('png_width', 800)
+
+            _png_height = globals().get('png_height', 450)
+
+
+
+
+
+            advanced_risk_results, risk_score_series_hist = calculate_adaptive_deviation_risk_hist(
+
+                ixic_hourly_data=ixic_hourly_data, atr_period=_atr_period,
+
+                s1_short_ma_min=_s1_short_ma_min, s1_short_ma_max=_s1_short_ma_max,
+
+                s1_long_ma_min=_s1_long_ma_min, s1_long_ma_max=_s1_long_ma_max,
+
+                s1_deviation_lookback_hours=_s1_deviation_lookback_days * 7, # 使用轉換後的小時數
+
+                hist_calculation_scheme=chosen_scheme,
+
+                hist_chart_hours=_hist_chart_days * 7 # 使用轉換後的小時數
+
+            )
+
+
+
+            if advanced_risk_results and risk_score_series_hist is not None:
+
+                 print("\n--- 進階風險計算結果 (最新) ---"); print(f"  計算方案: {advanced_risk_results.get('scheme', 'N/A')}"); print(f"  使用均線: {advanced_risk_results.get('short_ma', 'N/A')}h / {advanced_risk_results.get('long_ma', 'N/A')}h"); print(f"  當前乖離率: {advanced_risk_results.get('deviation', float('nan')):.4f}%"); print(f"  最終風險值: {advanced_risk_results.get('risk_score', float('nan')):.1f} / 100"); print(f"  (計算了 {len(risk_score_series_hist)} 小時的歷史風險值)")
+
+            else: print("! 未能完成進階風險計算。")
+
+        else: print("! 缺少指數小時數據，無法執行進階風險計算。")
+
+        print("-" * 50)
+
+
+
+        # --- 生成並顯示/保存進階圖表 ---
+
+        if advanced_risk_results and risk_score_series_hist is not None and not pd.isna(advanced_risk_results.get('risk_score')) and plotly_installed:
+
+            print("--- 開始生成進階分析圖表 Figure 對象 ---")
+
+            adv_gauge_width = _png_width // 2 - 30 if _png_width > 600 else _png_width
+
+            adv_gauge_height = _png_height
+
+            fig_adv_gauge_zh = create_final_risk_gauge(advanced_risk_results, lang='zh', figure_width=adv_gauge_width, figure_height=adv_gauge_height)
+
+            fig_adv_gauge_en = create_final_risk_gauge(advanced_risk_results, lang='en', figure_width=adv_gauge_width, figure_height=adv_gauge_height)
+
+
+
+            trend_title_zh = f"{index_ticker} 風險值歷史趨勢 ({_hist_chart_days}天, 方案{advanced_risk_results.get('scheme', '')}, {_hist_smoothing_period}h 平滑)"
+
+            trend_title_en = f"{index_ticker} Risk Score Trend ({_hist_chart_days}d, Scheme {advanced_risk_results.get('scheme', '')}, {_hist_smoothing_period}h MA)"
+
+            # 使用 _hist_smoothing_period
+
+            fig_adv_trend_zh = plot_historical_risk_trend(risk_score_series_hist, title=trend_title_zh, smoothing_period=_hist_smoothing_period, figure_width=_png_width, figure_height=_png_height)
+
+            fig_adv_trend_en = plot_historical_risk_trend(risk_score_series_hist, title=trend_title_en, smoothing_period=_hist_smoothing_period, figure_width=_png_width, figure_height=_png_height)
+
+
+
+            # --- 顯示中文互動圖表 ---
+
+            if fig_adv_gauge_zh: print("\n--- 顯示進階風險儀表圖 (中文) ---"); fig_adv_gauge_zh.show()
+
+            else: print("! 未能生成中文進階儀表圖。")
+
+            if fig_adv_trend_zh: print("\n--- 顯示平滑後風險歷史趨勢圖 (中文) ---"); fig_adv_trend_zh.show()
+
+            else: print("! 未能生成中文趨勢圖。")
+
+            print("-" * 50)
+
+
+
+            # --- 詢問是否生成英文 PNG ---
+
+            generate_png = input("是否需要生成可供下載的英文版 PNG 圖片 (儀表圖+趨勢圖)？(輸入 Y 或 enter 跳過): ").strip().lower()
+
+
+
+            # --- 條件式顯示英文 PNG ---
+
+            if generate_png == 'y':
+
+                print("\n--- 生成並顯示英文靜態 PNG (可右鍵下載) ---")
+
+                png_generated_count = 0
+
+                if fig_adv_gauge_en and kaleido_installed and ipython_display_loaded:
+
+                    try: print("  生成儀表圖 PNG..."); png_bytes_gauge = fig_adv_gauge_en.to_image(format="png", engine="kaleido"); display(Image(data=png_bytes_gauge)); png_generated_count += 1
+
+                    except Exception as e: print(f"! 生成或顯示英文儀表圖 PNG 時發生錯誤: {e}")
+
+                if fig_adv_trend_en and kaleido_installed and ipython_display_loaded:
+
+                     try: print("  生成趨勢圖 PNG..."); png_bytes_trend = fig_adv_trend_en.to_image(format="png", engine="kaleido"); display(Image(data=png_bytes_trend)); png_generated_count += 1
+
+                     except Exception as e: print(f"! 生成或顯示英文趨勢圖 PNG 時發生錯誤: {e}")
+
+                if png_generated_count == 0: print("! 無法生成任何英文 PNG 圖片。")
+
+            else: print("\n--- 已跳過生成英文版 PNG 圖片 ---")
+
+
+
+        elif not advanced_risk_results or risk_score_series_hist is None or pd.isna(advanced_risk_results.get('risk_score')): print("! 無有效進階風險計算結果，跳過圖表生成。")
+
+        elif not plotly_installed: print("! Plotly 未安裝，跳過進階圖表生成。")
+
+
+
+    else: # proceed_advanced == 'n'
+
+        print("\n--- 已跳過進階風險分析 ---")
+
+
+
+    print("\n" + "="*50)
+
+    print("腳本執行完畢。")
+
+    print("="*50)

@@ -1,0 +1,863 @@
+整合查理·孟格檢查表與量化倉位管理：在 Colab 中實現及深度研究需求評估報告
+
+1. 引言：橋接質性智慧與量化紀律
+
+1.1 報告宗旨
+
+本報告旨在詳述如何將查理·孟格（Charlie Munger）的質性投資檢查表與量化倉位管理方法論進行協同整合，提供一個使用 Google Colab 的實踐性實施指南，並評估在此框架中引入先進「深度研究」（Deep Research）技術的角色與必要性。
+
+1.2 投資方法的二元性
+
+傳統投資領域常將質性分析（如價值投資、商業分析）與量化分析（如算法交易、風險建模）區分開來。然而，這兩種方法各自存在局限性：質性分析可能過於主觀，而量化分析則可能缺乏對商業環境的深刻理解。
+
+1.3 孟格檢查表與倉位管理的協同效應
+
+本報告的核心論點在於：結合孟格嚴謹的質性篩選 1 與紀律性的量化倉位管理 3，能夠創建一個強健的投資決策框架。這個框架融合了兩種方法的優勢：首先，通過質性分析篩選出高品質、易於理解的投資機會；其次，利用量化工具系統性地管理風險。這種結合形成了一種「雙重過濾機制」（使用者查詢），旨在從源頭上降低「投錯標的」的風險，並控制「單筆交易虧損過大」的風險。
+
+1.4 現代工具的賦能
+
+Python 和 Google Colab 等現代計算工具的普及，使得個人投資者和分析師能夠更便捷、更實際地應用這種整合性框架，將複雜的投資理念轉化為可操作的決策支持系統。
+
+1.5 評估先進分析技術
+
+本報告將批判性地評估「深度研究」——涵蓋人工智能（AI）、機器學習（ML）以及另類數據（Alternative Data）5——在此整合框架中的角色。評估重點在於釐清這些先進技術對於實現核心功能是否必要，抑或僅代表了未來可能的增強方向。
+
+1.6 報告結構
+
+本報告將依循以下結構展開：首先深入探討孟格檢查表的原則與應用，接著分析主要的倉位管理模型，然後闡述兩者的整合流程與方法，隨後提供在 Google Colab 中的具體實現藍圖，並對深度研究功能的需求進行評估，最後總結研究發現並提出策略性建議。
+
+2. 孟格檢查表：投資選擇的質性基石
+
+2.1 孟格核心原則與檢查表方法概述
+
+查理·孟格的投資哲學強調理性、避免重大錯誤、跨學科思維以及長遠眼光 1。他推崇使用「檢查表」作為系統性評估工具，旨在減少決策中的遺漏與錯誤，確保分析的客觀性與理性基礎 1。這種方法論的有效性可類比於航空、外科手術等高風險領域，通過標準化流程來提升安全性與可靠性 2。
+
+孟格思想體系中的關鍵主題包括：
+
+風險評估： 強調首先衡量風險，特別是聲譽風險，並避免與品格可疑的人合作 1。
+
+獨立思考： 理性與客觀要求獨立思考，不受群體意見左右 1。
+
+充分準備： 提倡通過廣泛閱讀進行終身學習，掌握不同學科的思維模型，不斷追問「為什麼」以深入理解 1。
+
+保持謙遜： 認識到自身知識的局限性，堅守「能力圈」，承認自己不懂之處是智慧的開端 1。
+
+嚴謹分析： 運用科學方法和有效清單，專注於商業分析而非市場預測，考慮風險的整體性與二階效應，並運用逆向思維 1。
+
+耐心等待： 抵制頻繁交易的衝動，讓複利發揮作用 1。
+
+果斷行動： 在機會極佳時，果斷、有信心地採取行動 1。
+
+2.2 深入關鍵檢查領域（綜合孟格原則）
+
+孟格的原則雖然是高層次的指導，但可以具體化為針對投資標的關鍵方面的評估檢查點。
+
+理解業務（能力圈）：
+
+核心概念： 只投資於自己能夠透徹理解的業務 1。重要的不是能力圈的大小，而是清楚其邊界 10。持續追問「為什麼」是深入理解的關鍵 1。
+
+可操作問題範例（源自 1）： 我能否用簡單的話解釋這家公司的商業模式？它的產品或服務是什麼？它如何賺錢？所處行業的關鍵動態是什麼？主要競爭對手是誰？
+
+與基本面分析的聯繫： 回答這些問題需要對公司的運營模式、收入來源、產品服務以及行業背景進行深入分析 12。這體現了孟格強調的「做一個商業分析師，而不是市場、宏觀經濟或證券分析師」的觀點 1。
+
+可持續競爭優勢（護城河）：
+
+核心概念： 識別公司擁有的、能夠抵禦競爭並產生高資本回報的獨特優勢 2。護城河並非永恆不變，需要持續評估其在變化環境中的持久性 1。
+
+護城河的類型（參考 2）： 成本優勢（規模經濟、流程效率）、無形資產（品牌、專利、特許經營權）、網絡效應、轉換成本、有效規模。
+
+可操作問題範例（源自 2）： 公司的獨特優勢是什麼？這種優勢能持續多久（例如，10年以上）？它是基於品牌、成本、網絡、轉換成本還是專利？它如何抵禦競爭？
+
+與基本面分析的聯繫： 評估護城河需要分析市場份額、定價能力、盈利能力指標（如利潤率、投入資本回報率 ROIC）、客戶保留率、研發投入、專利情況等 16。可以使用波特五力模型等框架進行行業競爭結構分析 12。
+
+管理層品質與誠信：
+
+核心概念： 評估管理層的能力、誠信、是否以股東利益為導向以及長遠眼光 2。避免與品格有問題的人打交道是基本原則 1。聲譽至關重要 1。
+
+可操作問題範例（源自 1）： 管理層是否誠實且有能力？他們的利益是否與股東一致（持股比例、薪酬結構）？他們在資本配置（回購、併購、分紅、債務管理）方面的過往記錄如何？他們在溝通中是否透明（無論好壞消息）？是否存在過度自信或自大的跡象？
+
+與基本面分析的聯繫： 需要研究管理層的背景、薪酬報告、歷史資本配置決策（如併購效果、回購時機）、股東信/業績說明會記錄、公司債務水平以及在不同經濟週期下的歷史業績 12。
+
+財務實力與盈利能力：
+
+核心概念： 確保公司擁有穩健的財務基礎、持續的盈利能力和抵禦風險的能力 2。注重質量而非僅僅是便宜的價格 10。
+
+可操作問題範例（源自 2）： 公司是否負債水平低？是否能夠持續盈利（例如，考察過去十年的記錄 21）？是否能產生強勁的自由現金流？關鍵的利潤率（毛利率、營業利潤率、淨利率 16）和投入資本回報率（ROIC 2）表現如何？公司抵禦經濟衰退的能力如何？
+
+與基本面分析的聯繫： 需要深入分析財務報表（利潤表、資產負債表、現金流量表 13），計算並解讀關鍵財務比率（如市盈率 P/E、市淨率 P/B、市現率 P/CF、股本回報率 ROE、投入資本回報率 ROIC、負債權益比 D/E、流動比率 13）。
+
+估值與安全邊際：
+
+核心概念： 估算企業的內在價值，並在遠低於該價值的價格買入，為分析錯誤或未預見的負面事件提供緩衝 1。價值判斷應獨立於價格 1。
+
+可操作問題範例（源自 2）： 估算的內在價值是多少？使用了哪種估值方法（如 DCF、DDM、基於資產的估值、市盈率等倍數法 23）？當前市場價格是否顯著低於內在價值？考慮到風險，安全邊際是否足夠？
+
+與基本面分析的聯繫： 這是將質性評估與量化價格目標明確聯繫起來的一步。需要應用各種估值方法，如現金流折現模型（DCF）、股利折現模型（DDM）、基於資產的估值法，或使用市盈率、市淨率等進行相對估值 23。
+
+2.3 基本面分析不可或缺的作用
+
+回答孟格檢查表中的問題，本質上離不開深入、細緻的基本面分析 13。檢查表提供了思考的框架和結構，而基本面分析則提供了填充這個框架所需的數據和證據。基本面分析的過程涉及審查財務報表、計算財務比率、理解商業模式、分析行業動態、評估競爭地位以及考察管理層行為等 13。
+
+值得注意的是，基本面分析本身也融合了量化（如比率分析、財務建模 26）和質性（如評估管理層、品牌實力、競爭動態 13）的元素。因此，孟格的檢查表並非獨立於基本面分析之外，而是對其進行結構化應用的一種方式。它引導分析師關注孟格認為對長期成功和風險規避最為關鍵的質性與量化因素，確保了超越單純數字計算的整體視角。這種結構化的方法迫使分析師將量化數據（如 ROIC 16）與質性判斷（如管理層誠信 21）相結合，形成更全面的評估。孟格的高層次原則（如「風險」、「嚴謹分析」1）需要通過基本面分析提供的具體數據（財務比率、現金流分析、競爭評估 13）才能有效落地。檢查表就像一個工作流程圖，指導基本面分析師覆蓋所有關鍵領域，確保評估的全面性和深度。
+
+表 1：孟格檢查表原則與基本面分析對應
+
+檢查表原則/領域
+
+關鍵問題範例
+
+相關基本面分析任務/指標
+
+理解業務（能力圈）
+
+能否簡述商業模式？產品/服務是什麼？如何盈利？行業動態？競爭格局？
+
+分析商業模式、產品組合、收入來源、行業報告、競爭對手分析。
+
+可持續競爭優勢（護城河）
+
+獨特優勢是什麼？能持續多久？基於何種因素（品牌、成本、網絡、轉換成本、專利）？如何抵禦競爭？
+
+分析市場份額、定價能力、利潤率（毛利率、營業利潤率）、投入資本回報率（ROIC）、客戶保留率、研發投入、專利組合、波特五力分析。
+
+管理層品質與誠信
+
+管理層是否誠信、有能力？利益是否與股東一致？資本配置記錄如何？溝通是否透明？
+
+研究管理層背景、薪酬結構、歷史資本配置（併購、回購、分紅記錄）、股東信/業績說明會記錄、債務管理、過往業績（尤其在逆境中）。
+
+財務實力與盈利能力
+
+負債水平如何？盈利是否持續穩定（如過去10年）？自由現金流是否強勁？關鍵利潤率和 ROIC 水平如何？抵禦經濟衰退的能力？
+
+分析資產負債表（負債權益比、流動比率）、利潤表（收入/利潤增長趨勢、利潤率）、現金流量表（經營現金流、自由現金流）、計算 ROE、ROIC 等關鍵比率，進行跨週期分析。
+
+估值與安全邊際
+
+估算的內在價值是多少？使用何種估值方法？當前價格是否顯著低於內在價值？安全邊際是否足夠？
+
+應用估值模型（DCF、DDM、資產基礎法）、相對估值法（P/E、P/B、EV/EBITDA 等），與同行業或歷史水平比較，評估價格與價值的差距。
+
+表格說明：此表旨在提供一個孟格檢查表原則與所需基本面分析任務之間的對應關係，作為應用該框架的實用參考。
+
+3. 量化風險控制：掌握倉位管理
+
+3.1 倉位管理在投資策略中的關鍵作用
+
+倉位管理，即決定在單一投資中投入多少資金 3，是風險管理的核心組成部分 3。恰當的倉位管理能夠保護投資組合免受單筆交易的災難性損失，控制整體波動性，並對長期回報產生顯著影響 3。值得注意的是，孟格本人也提倡在勝算極高時下重注，這間接表明了倉位大小的重要性 1。缺乏合理的倉位管理，交易就如同沒有策略指導 4。
+
+3.2 主要倉位管理模型分析
+
+存在多種倉位管理模型，各有其優缺點和適用場景。
+
+固定百分比風險模型（如 1%-2% 法則）：
+
+核心概念： 在每筆交易中，承擔的風險不超過總賬戶權益的某個固定百分比（例如 1% 或 2%）3。
+
+計算公式： 倉位大小（股數）= (賬戶權益 × 風險百分比) / (入場價格 - 止損價格) （推導自 3）。這裡的「入場價格 - 止損價格」代表每股的風險金額。
+
+優點： 方法簡單直觀，倉位大小會隨著賬戶權益的增減自動調整，有效防止單筆交易風險過大 3。
+
+缺點： 除非止損點的設置考慮了波動性，否則該模型本身不直接考慮資產的特定波動性。
+
+適用場景： 廣泛適用於各類交易者，特別是尋求簡單明瞭風險控制規則的散戶投資者 3。
+
+固定金額風險模型：
+
+核心概念： 每筆交易承擔固定的絕對金額風險 4。
+
+計算公式： 倉位大小（股數）= 固定風險金額 / (入場價格 - 止損價格)。
+
+優點： 非常容易理解和實施 4。
+
+缺點： 倉位大小不會隨賬戶規模變化而調整，導致風險敞口佔總資本的百分比不一致。
+
+適用場景： 可能適用於賬戶規模非常小，或特定策略需要等額風險暴露的情況 4。
+
+基於波動率的倉位管理模型（使用 ATR）：
+
+核心概念： 根據資產近期的價格波動性（通常用平均真實波幅 ATR 衡量）來調整倉位大小 4。通常將風險定義為 ATR 的某個倍數。
+
+ATR 計算公式： ATR 通常是真實波幅（True Range）的 14 天移動平均值。真實波幅 = Max[(當日最高價 - 當日最低價), |當日最高價 - 昨日收盤價|, |當日最低價 - 昨日收盤價|]34。
+
+倉位管理公式範例： 倉位大小（股數） ≈ (賬戶權益 × 風險百分比) / (ATR × ATR 倍數) （概念性公式，假設止損基於 ATR 倍數設定）。
+
+優點： 使倉位大小適應市場狀況；波動性大的資產倉位較小，波動性小的資產倉位較大 4。使得每筆交易在波動性方面的風險暴露更為一致。
+
+缺點： 需要計算或獲取 ATR 數據 34。比固定模型更複雜。
+
+適用場景： 希望在不同資產和市場條件下實現風險暴露標準化的交易者。在移動止損策略中也有應用 35。
+
+凱利公式（Kelly Criterion）：
+
+核心概念： 一個數學公式，用於確定每次交易應投入資本的最佳比例，以最大化長期幾何增長率 4。
+
+計算公式（簡化版）： 凱利比例 % = W−，其中 W = 勝率，R = 盈虧比（平均盈利 / 平均虧损） （推導自 4）。存在更複雜的形式用於處理同時下注或連續結果。
+
+優點： 理論上能實現最優的長期資本增長 4。
+
+缺點： 對輸入參數（勝率 W 和盈虧比 R）的準確性極為敏感。精確估計這些參數非常困難。可能建議非常大、風險極高的倉位（「全凱利」）。實際應用中常使用分數凱利（如「半凱利」）以降低風險。需要穩健的歷史數據或可靠的預測。
+
+適用場景： 擁有可靠概率估計、追求積極增長最大化的成熟交易者或系統 4。孟格關於在勝算極高時下重注的理念與凱利公式在概念上有所呼應 1。
+
+3.3 考量因素與權衡
+
+選擇和應用倉位管理模型時，需要考慮以下因素：
+
+數據需求： 不同模型需要不同的輸入數據（賬戶規模、止損位、波動性指標、勝率等）。
+
+複雜性與簡潔性： 固定模型最簡單，凱利公式最複雜，基於波動率的模型居中。
+
+風險承受能力： 凱利公式可能非常激進，而固定百分比法則提供了明確的風險上限。
+
+跳空風險（Gap Risk）： 即使設置了止損，隔夜或突發事件導致的價格跳空仍可能造成比預期更大的損失。在預期波動加劇（如財報發布前）時減小倉位可能有助於降低此風險 3。
+
+相關性： 理想情況下，倉位管理應考慮投資組合中資產間的相關性，儘管基礎模型常側重於單筆交易 4。投資組合方差的計算在此相關 33。
+
+選擇倉位管理模型不僅僅是一個技術決策，它也反映了投資者的風險哲學、對複雜性的容忍度以及增長目標。例如，一位遵循孟格思想的投資者，可能會更傾向於選擇簡單、穩健的規則（如固定百分比風險），而不是理論上最優但可能很脆弱的模型（如全凱利）。孟格強調避免大錯 1 和保持理智上的謙遜 1。凱利公式對輸入錯誤極為敏感 4，如果高估了勝率或回報，可能導致重大損失，這與孟格的安全原則相悖。固定百分比風險法則 3 更簡單，直接限制了單筆交易的下行風險，更符合「避免大錯」的原則。然而，孟格也主張在高信念度的機會上加大投入 1。這暗示了一種可能的融合方式：使用一個基礎的風險規則（如固定百分比），但允許根據信念度在規則範圍內進行調整，而不是採用像凱利這樣複雜且可能脆弱的模型。
+
+表 2：倉位管理模型比較
+
+
+
+模型名稱
+
+核心公式/概念
+
+主要輸入需求
+
+優點
+
+缺點
+
+典型適用場景
+
+固定百分比風險
+
+每次交易風險不超過賬戶權益的固定百分比 (如 1-2%)
+
+賬戶權益、風險百分比、入場價、止損價
+
+簡單、自動調整規模、控制單筆風險 3
+
+未直接考慮波動性
+
+廣泛適用，特別是零售交易者 3
+
+固定金額風險
+
+每次交易承擔固定金額的風險
+
+固定風險金額、入場價、止損價
+
+極其簡單 4
+
+無法適應賬戶變化，風險佔比不一致
+
+小賬戶或特定策略 4
+
+基於波動率 (ATR)
+
+根據資產波動率 (ATR) 調整倉位大小
+
+賬戶權益、風險百分比、ATR 值、(ATR 倍數)
+
+適應市場波動，風險暴露更一致 4
+
+需計算/獲取 ATR，相對複雜 34
+
+希望跨資產/市場標準化風險的交易者
+
+凱利公式
+
+數學公式，最大化長期增長率
+
+勝率 (W)、盈虧比 (R)
+
+理論上最優增長 4
+
+對輸入極敏感，估算困難，可能過於激進，常需打折使用 4
+
+擁有可靠概率估計、追求積極增長的成熟交易者/系統 4
+
+表格說明：此表比較了幾種常見的倉位管理模型，旨在幫助使用者根據自身策略、風險偏好和數據可用性選擇最合適的模型。
+
+4. 協同整合：結合檢查表信念與倉位規則
+
+4.1 結構化的投資工作流程
+
+整合孟格檢查表與倉位管理可以形成一個更為嚴謹和全面的投資決策流程：
+
+第一步：機會產生與初步篩選： 識別潛在的投資機會。
+
+第二步：孟格檢查表應用（質性過濾）： 使用第二節中詳述的檢查表，結合基本面分析，對潛在投資進行嚴格的質性評估（理解業務、護城河、管理層、財務狀況、估值與安全邊際）。只有通過這個質性門檻的投資機會才能進入下一階段（使用者查詢）。這與孟格強調的「準備」和「嚴謹分析」原則一致 1。
+
+第三步：確定信念度： 將質性評估的結果量化為一個信念度分數（詳見 4.2）。
+
+第四步：定義交易參數： 設定計劃的入場價格、初始止損價格，以及可能的目標價格。
+
+第五步：計算基礎倉位大小： 根據選定的量化倉位管理模型（例如，固定百分比風險模型，見第三節）、賬戶規模、風險承受能力和交易參數，計算出一個基礎的倉位大小 3。
+
+第六步：根據信念度調整倉位（可選但關鍵）： 根據第三步得到的信念度分數，對基礎倉位大小進行調整（詳見 4.3）。關鍵在於確保最終的風險仍在可接受的投資組合限制之內。
+
+第七步：執行與監控： 下達交易指令，並持續監控投資表現。根據市場情況的變化或對檢查表評估的更新，可能需要調整止損位或倉位大小（例如，金字塔加倉法 4）。
+
+4.2 量化檢查表信念度的方法
+
+將檢查表中得出的主觀、質性判斷轉化為可用的量化分數，是實現整合的關鍵一步。以下是一些可行的方法：
+
+評分系統法（參考 39）：
+
+為關鍵檢查表問題或領域（如護城河、管理層、可預測性等）的答案設定數值分數（例如，0-3分 或 1-5分）。為每個分數級別定義清晰的標準。
+
+範例： 護城河評分：3=寬闊且持久，2=狹窄/中等，1=薄弱/不確定，0=無/正在惡化。
+
+將各關鍵領域的分數進行平均，得到一個總體的信念度分數 39。
+
+設定最低通過門檻（例如，平均分 ≥ 2，且關鍵項不得為 0分）作為初步篩選標準 39。
+
+加權評分法： 根據不同檢查表領域的重要性賦予不同的權重（例如，管理層品質可能佔更高權重）。
+
+決策樹/規則基礎邏輯： 定義明確的規則，例如「如果 護城河 < 1 或者 管理層誠信 = 低，則 信念度 = 低/拒絕」。
+
+主觀分級法： 更簡單的方法是，根據整體檢查表評估結果，將信念度定性地劃分為幾個等級（例如，高、中、低）。
+
+4.3 基於質性評估調整倉位大小的框架
+
+整合的核心在於讓通過質性篩選後的信念度影響最終的倉位決策。
+
+核心原則： 更高的信念度（源自檢查表評分）應當證明投入更大比例的允許風險預算是合理的（使用者查詢1）。
+
+方法一：信念度作為乘數：
+
+使用標準模型（如 1.5% 風險）計算基礎倉位大小。
+
+根據信念度分數應用一個乘數（例如，高信念度 = 1.2倍基礎倉位，中等 = 1.0倍，低 = 0.8倍）。
+
+關鍵點： 必須確保最終的風險金額（調整後倉位大小 × 每股風險金額）不超過預設的單筆交易最大風險限額（例如，絕對不超過賬戶權益的 2%）。信念度調整是在風險限額內進行的。
+
+方法二：分級風險百分比：
+
+根據信念度等級定義不同的風險百分比（例如，高信念度 = 2% 風險，中等 = 1.5%，低 = 1%）。
+
+直接使用經過信念度調整的風險百分比，代入標準倉位計算公式 3。
+
+考量因素：
+
+需要預先定義清晰的規則，以避免決策時受到情緒影響。
+
+必須通過回測來驗證信念度評分是否確實能改善投資績效。
+
+即使是高信念度的押注，也需要設定風險上限，避免過度集中 37。孟格的「下重注」1 是相對而言的，並且前提是基於深入理解和極有利的賠率。
+
+這種整合方式找到了質性洞察與量化紀律之間的平衡點。檢查表不僅用於篩選機會，還用於生成信念度分數。這個分數隨後作為一個調整因子，作用於通過標準量化風險模型（如固定百分比風險）計算出的基礎倉位大小上，同時始終遵守預設的最大風險限制。這種方法既利用了質性分析的深度（篩選 + 信念度），又保持了量化管理的系統性（基礎倉位規則 + 風險上限），直接回應了使用者結合定性與定量的需求。
+
+5. Google Colab 實踐：構建互動式工具包
+
+5.1 架構藍圖：輸入、核心邏輯、輸出（使用者查詢）
+
+基於前述整合框架，可以在 Google Colab 中構建一個互動式的投資決策輔助工具。其基本架構如下：
+
+輸入參數：
+
+使用者配置： 賬戶總規模、單筆交易最大風險百分比（例如 2%）。
+
+交易參數： 標的資產代碼（Ticker）、計劃入場價格、止損價格。
+
+檢查表輸入（質性）： 利用 ipywidgets 創建一系列互動元素（如下拉菜單、複選框、滑塊、文本框），對應孟格檢查表的各個問題或評估領域 2。允許使用者輸入評分（如 0-3 分）或選擇類別答案。
+
+模型選擇： 提供下拉菜單，讓使用者選擇倉位管理模型（如固定百分比風險、基於波動率等）。
+
+（可選）數據輸入： 波動率數據（如 ATR 34），可以手動輸入或嘗試自動獲取。
+
+核心決策邏輯：
+
+模塊一：數據獲取： 編寫函數，使用 yfinance 或其他金融 API 獲取必要的市場數據（如當前價格、計算 ATR 所需的歷史數據 40）。應包含對 API 可能出現錯誤的處理機制 41。
+
+模塊二：檢查表評估： 處理來自互動式檢查表組件的輸入。根據預設邏輯（如分數平均法 39）計算出一個綜合的信念度分數。判斷該投資機會是否滿足最低的質性標準。
+
+模塊三：倉位計算： 僅在檢查表評估通過後執行：
+
+計算每股交易風險（入場價 - 止損價）。
+
+計算單筆交易最大可承受風險金額（賬戶規模 × 風險百分比）。
+
+根據使用者選擇的倉位管理模型，計算基礎倉位大小（例如，固定百分比風險模型：最大風險金額 / 每股交易風險）。
+
+使用模塊二計算出的信念度分數，對基礎倉位大小進行調整（例如，乘以調整因子或使用分級風險百分比）。
+
+最終檢查，確保調整後的倉位所對應的風險金額不超過最大風險限制。
+
+輸出結果：
+
+檢查表評估摘要： 清晰展示使用者輸入的檢查表答案、計算出的信念度分數以及是否通過質性篩選的結論。
+
+倉位建議： 如果通過篩選，則明確顯示建議購買的股數（或合約數）、該倉位所需的預計資金、以及該倉位對應的風險金額。
+
+警告信息： 如計算出的風險超出限制、數據獲取失敗等情況，應給出明確提示。
+
+5.2 Python 函式庫的運用
+
+實現上述工具需要依賴幾個核心的 Python 函式庫：
+
+Pandas & NumPy： 這兩個庫是數據處理和數值計算的基石（使用者查詢）。Pandas 用於處理從 API 獲取的金融時間序列數據（如 OHLCV），而 NumPy 則用於執行各種數學運算（如倉位大小計算、ATR 計算）。
+
+ipywidgets： 這是創建 Colab 內交互式用戶界面的關鍵庫（使用者查詢44）。
+
+常用組件範例：
+
+Checkbox：用於回答是/否問題 46。
+
+Dropdown：用於選擇評估等級、倉位模型等 46。
+
+IntSlider / FloatSlider：用於輸入 0-3 或 1-5 的評分 44。
+
+Text / Textarea：用於輸入文字性說明或理由 46。
+
+實現交互性： 可以使用 interact、interactive 或組件的 .observe() 方法將組件值的變化與後端函數（如檢查表評估、倉位重新計算）聯繫起來 44。對於計算量較大的更新，或希望由使用者觸發計算時，可以考慮使用 interact_manual 44。
+
+Colab 兼容性： 目前 ipywidgets 在 Colab 中普遍運行良好，但仍需注意可能存在的個別組件限制或兼容性問題 49。例如，Image 組件過去曾報告存在問題 49。在 Colab 中需要使用 display() 函數來渲染創建的組件 44。
+
+金融數據 API 庫（如 yfinance）： 用於獲取股價、交易量、ATR 等數據。
+
+5.3 金融數據的獲取
+
+工具的有效性依賴於準確、及時的金融數據。
+
+yfinance：
+
+優點： 免費，安裝簡單 (pip install yfinance)，提供獲取歷史 OHLCV 數據、股息、基本公司信息的便捷接口 40。返回的數據格式是易於處理的 Pandas DataFrame 40。
+
+缺點/限制： 非官方庫，部分功能依賴網頁抓取，當雅虎財經網站結構變更時可能失效 51。容易受到雅虎的訪問頻率限制（throttling）或 IP 封鎖，導致數據獲取緩慢或數據缺失，尤其是在頻繁或並發請求時 41。數據質量可能存在問題，特別是對於不活躍的股票或特定數據字段 51。缺乏持續維護的保證 51。基本面數據深度有限。
+
+Colab 使用範例：
+Python
+import yfinance as yf
+# 獲取蘋果公司近一年的日線數據
+data_daily = yf.download('AAPL', period='1y')
+# 獲取計算 ATR 所需的過去 60 天日線數據 (ATR 通常基於日線計算 [34])
+atr_data = yf.download('AAPL', period='60d', interval='1d')
+print(data_daily.head())
+（參考 40）
+
+替代方案：
+
+yahoo_fin： 另一個免費、開源的庫，功能與 yfinance 類似，據稱在某些功能（如獲取財務報表）上可能更穩定，並包含獲取市場指數成分股列表的功能 51。但同樣依賴雅虎數據源。
+
+Google Finance（通過 Sheets 或抓取）： Google Sheets 內建的 GOOGLEFINANCE 函數簡單但功能有限；直接抓取 Google Finance 網頁數據技術複雜且易失效 52。
+
+免費增值/付費 API（通常更可靠）：
+
+Polygon.io： 常被推薦為 yfinance 的進階替代方案。數據更可靠，企業級服務，文檔和 API 較好。免費版額度有限（僅美股、2年歷史數據、有請求限制）41。付費版提供更全面的服務。
+
+Financial Modeling Prep (FMP)： 提供包括報價、歷史數據、基本面在內的良好數據集，被認為是可靠的替代選擇 41。有免費版，付費版功能更強。
+
+Alpha Vantage： 提供有額度限制的免費 API，涵蓋多種數據類型 40。
+
+Finnhub： 提供免費接口獲取基本信息和新聞 41。付費版數據更豐富。
+
+券商 API（IBKR, Schwab, Alpaca, Etrade）： 如果擁有券商賬戶，可以通過其 API 獲取數據（免費版通常有延遲）。設置相對複雜 41。
+
+專業數據供應商（Quandl, Refinitiv, Bloomberg）： 提供專業級、高可靠性、覆蓋廣泛的數據，但通常費用高昂（40 提到了 Quandl）。
+
+選擇考量： 需要在成本、數據覆蓋範圍、可靠性、易用性和 API 限制之間進行權衡 40。對於一個旨在輔助重要決策的工具，僅僅依賴 yfinance 可能帶來較大的運行風險。
+
+考慮到 yfinance 已知的可靠性問題 41，構建一個嚴肅的決策支持工具時，必須加入強健的錯誤處理機制。更理想的做法是，探索並整合更可靠的數據源（可能是付費或免費增值服務，如 Polygon.io 或 FMP），特別是當 ATR 等及時數據對所選的倉位管理模型至關重要時。如果工具的輸出（倉位大小）直接影響財務風險，那麼輸入數據（如用於計算止損的價格、用於波動率模型的 ATR）的準確性和可用性就至關重要。若因 API 故障（yfinance 的已知問題 41）導致數據錯誤或缺失，計算出的倉位大小將是錯誤的，可能引發過度的風險暴露或錯失機會，這違背了紀律性風險管理的核心原則。因此，單純依賴 yfinance 而沒有充分的檢查或替代方案，會給投資流程本身帶來顯著的操作風險。
+
+5.4 代碼結構化以提高可維護性與擴展性
+
+為了方便後續的維護和功能擴展，建議採用模塊化的代碼設計（使用者查詢）：
+
+模塊化： 將不同的功能邏輯拆分到獨立的函數或類中，例如：數據獲取模塊、檢查表界面與邏輯處理模塊、各個倉位管理模型計算模塊、主應用流程控制模塊。
+
+配置管理： 將 API 密鑰、風險參數、檢查表評分規則等參數存儲在獨立的配置文件或代碼的配置部分中，便於修改。
+
+註釋與文檔： 使用清晰的註釋和文檔字符串（docstrings）來解釋代碼的功能和邏輯（53 強調了這一點）。
+
+錯誤處理： 在代碼中廣泛使用 try-except 語句塊，特別是在調用外部 API 和處理數據的部分，以捕獲和處理潛在的錯誤。
+
+表 3：金融數據 API 簡要比較
+
+
+
+API 名稱
+
+主要數據提供 (與工具相關)
+
+可靠性/穩定性 問題
+
+成本/限制 (免費版)
+
+Python 庫/訪問方式
+
+yfinance
+
+OHLCV, 基本信息, 股息
+
+非官方, 依賴抓取, 易受 Throttling/IP 封鎖影響 41
+
+免費, 但有隱性限制
+
+yfinance 庫
+
+Polygon.io
+
+OHLCV, 報價, (部分基本面)
+
+較可靠, 企業級
+
+有限免費版 (美股, 2年歷史, 5次/分鐘) 41
+
+官方 Python 客戶端
+
+FMP
+
+OHLCV, 基本面, 報價
+
+較可靠
+
+有限免費版 (日限額) 41
+
+官方 Python 客戶端
+
+Alpha Vantage
+
+OHLCV, 基本面, 技術指標
+
+尚可, 但免費版限制較嚴
+
+有限免費版 (日/分鐘限額)
+
+官方/第三方 Python 庫
+
+Finnhub
+
+基本信息, 新聞, (報價)
+
+尚可
+
+有限免費版 (API 調用次數限制) 41
+
+官方 Python 客戶端
+
+券商 API
+
+OHLCV, 報價, 賬戶數據
+
+通常可靠 (取決於券商)
+
+可能需要真實賬戶, 免費數據可能延遲 41
+
+各券商提供的 Python API 庫
+
+表格說明：此表旨在幫助使用者根據工具對數據可靠性、類型和預算的需求，選擇合適的金融數據源，並特別指出了 yfinance 的局限性。
+
+6. 評估「深度研究」：必要性 vs. 增強性
+
+6.1 界定投資領域的「深度研究」
+
+在投資分析的語境下，「深度研究」通常指超越傳統基本面和技術分析，利用大規模、非結構化數據集和先進計算方法（如人工智能/機器學習）來獲取洞察或預測能力的技術。
+
+其關鍵組成部分包括：
+
+人工智能（AI）/ 機器學習（ML）： 指利用算法在數據中發現模式、進行預測或自動化決策，而無需為每一步進行顯式編程 6。這包括回歸、分類、聚類、自然語言處理（NLP）、深度學習等技術 54。在金融領域，常用於量化策略開發、風險管理、欺詐檢測、情緒分析等 6。
+
+另類數據（Alternative Data）： 指用於投資分析的非傳統數據源 5。例子包括：衛星圖像（如監測工廠活動、停車場車流量 60）、信用卡交易數據（分析消費趨勢 60）、網絡流量/抓取數據（分析產品熱度、招聘趨勢 61）、社交媒體情緒（分析公眾看法 5）、地理位置/人流量數據（分析零售店表現 60）、招聘信息、移動應用使用數據 62、物聯網傳感器數據、ESG（環境、社會、治理）數據 60 等。
+
+6.2 在孟格-倉位管理框架內的潛在應用
+
+深度研究技術可以在多個方面潛在地增強孟格檢查表與倉位管理的整合框架：
+
+自動化基本面數據收集： 利用 ML（特別是 NLP）技術解析財務報告、新聞稿或業績說明會文字記錄 56，自動提取關鍵信息，輔助填充基本面分析所需的部分數據。網頁抓取技術（屬於另類數據範疇 61）可用於收集特定的公開數據點。
+
+增強檢查表輸入（情緒分析）： 利用 NLP 分析新聞、社交媒體等文本數據（另類數據 5），生成量化的市場情緒或針對特定公司的公眾情緒評分，作為評估「管理層聲譽」或「市場認知」等檢查項的額外輸入。
+
+改進護城河評估： 分析如網站流量、應用程序使用數據、線下門店人流量等另類數據 60，以評估客戶參與度或市場份額的變化趨勢，為判斷護城河的強度和持久性提供非傳統的證據。
+
+高級風險評估： ML 模型可以分析歷史數據甚至另類數據，以預測未來波動性或識別傳統指標未能捕捉的隱藏風險因素 6。
+
+優化倉位管理輸入： ML 或許能夠預測凱利公式所需的勝率（W）或盈虧比（R），但這極具挑戰性，且容易產生過擬合問題 55。
+
+6.3 評估收益 vs. 成本與複雜性
+
+引入深度研究技術需要仔細權衡其潛在收益與相關的成本和挑戰：
+
+潛在收益：
+
+提高效率：自動化數據收集和初步分析。
+
+更深層次或更及時的洞察：另類數據可能提供領先於傳統數據的信號 61。
+
+可能更準確的風險/回報預測：ML 模型可能發現非線性關係 55。
+
+獲取競爭優勢：利用他人尚未使用的數據或方法 60。
+
+成本與複雜性：
+
+數據獲取與處理： 另類數據可能價格不菲，且需要專業的數據清洗、整合和驗證流程 5。
+
+技術專長： 實施和驗證 AI/ML 模型需要超越基礎 Python 編程的專業知識（數據科學、機器學習工程）54。
+
+計算資源： 處理大規模數據集和運行複雜模型可能需要超出 Colab 免費額度的計算能力。
+
+驗證挑戰： 在金融領域回測 ML 模型極為困難，因為市場具有非平穩性（市場機制會隨時間改變），存在過擬合風險和數據窺探偏差 55。確保另類數據提供的優勢是真實且可持續的（而非偶然或暫時的信號衰減 56）也很有挑戰。
+
+可解釋性： 複雜的「黑箱」模型可能難以理解其決策邏輯，這與孟格強調的「理解」原則相悖 56。
+
+倫理與法律問題： 涉及數據隱私（特別是另類數據）、算法偏見、AI 驅動決策的責任歸屬等問題 56。
+
+6.4 深度研究對初始功能是否必要？（使用者查詢評估）
+
+結論： 否，深度研究能力對於實現整合孟格式檢查表與標準量化倉位管理的核心功能而言，並非必需。
+
+理由： 該框架的主要價值來自於其所促成的紀律性流程：首先通過基於基本面理解的質性篩選（這需要使用者自身的研究，使用者查詢），然後通過系統性的倉位管理來控制風險。這一核心價值完全可以通過使用標準的金融數據和 Colab 中的互動式輸入來實現。
+
+定位： 深度研究代表了一個增強層或潛在的未來發展方向。如果實施得當並經過嚴格驗證，它可以提高效率或增加新的信息輸入維度。
+
+核心的孟格檢查表/倉位管理框架，通過使用現成的工具和數據，已經能夠通過加強紀律性和風險管理帶來顯著價值。與此相比，增加複雜的深度研究功能所帶來的邊際收益，必須與成本、複雜性、驗證難度以及引入新型錯誤（如模型過擬合、數據偏見）的風險進行仔細權衡。使用者的核心需求是將孟格的質性篩選與量化倉位管理在 Colab 中結合。這需要：1) 輸入檢查表答案的方式 (ipywidgets)；2) 計算倉位大小的方式（基礎數學運算，標準庫）；3) 基礎金融數據（價格，可能需要 ATR）。yfinance（儘管有缺陷）或簡單的替代方案可以提供 (3)。ipywidgets 處理 (1)。Pandas/NumPy 處理 (2)。這個核心循環無需 AI/ML 或奇特的數據即可實現。深度研究 5 增加了諸如自動數據提取、情緒評分或預測建模等層次。雖然這些可能有益 6，但它們也帶來了巨大的障礙（成本、專業知識、驗證 55）。使用者提議工具的主要好處——在應用量化風險規則之前強制執行紀律性的質性篩選——在添加深度研究之前就已實現。因此，深度研究對於有價值的初始實施來說並非必需。
+
+表 4：深度研究應用於孟格-倉位管理框架的評估
+
+潛在應用
+
+技術手段
+
+潛在收益
+
+預計複雜度/成本
+
+對核心工具的必要性
+
+自動化基本面數據錄入
+
+NLP, 網頁抓取
+
+提高效率
+
+中-高
+
+低
+
+情緒評分 (輔助檢查表)
+
+NLP (新聞/社交媒體分析)
+
+提供額外質性輸入維度
+
+中-高
+
+低
+
+護城河趨勢分析 (非傳統)
+
+另類數據分析 (如網站流量, 人流量, App 使用)
+
+提供領先或補充性證據
+
+高
+
+低
+
+波動性/風險預測
+
+ML 時間序列模型
+
+可能更準確的風險評估
+
+高
+
+低-中
+
+優化凱利公式輸入 (W, R)
+
+ML 預測模型
+
+理論上可優化倉位大小 (若預測準確)
+
+極高
+
+低
+
+識別管理層風險信號
+
+NLP (分析管理層言論), 另類數據 (如高管變動)
+
+更早發現潛在問題
+
+高
+
+低-中
+
+表格說明：此表結構化地評估了幾種深度研究技術在孟格-倉位管理工具中的具體應用，分析了其潛在價值、實施難度以及對實現核心目標的必要性。
+
+7. 結論與策略建議
+
+7.1 整合框架的回顧
+
+本報告詳細闡述了整合查理·孟格的質性投資智慧與量化倉位管理紀律的強大潛力。通過結合孟格檢查表（篩選高質量、易理解的投資機會）和系統性的倉位管理（控制風險暴露），可以構建一個「雙重過濾」的投資決策框架，旨在提高長期投資績效並有效規避重大損失。
+
+7.2 Colab 實現的可行性
+
+分析表明，利用 Google Colab 環境，結合 Python 及其生態系統中的標準庫（如 Pandas, NumPy, ipywidgets）和金融數據 API（如 yfinance 或其替代品），完全可以構建出一個實用、互動的輔助決策工具，以支持上述整合框架的實施。
+
+7.3 關鍵實施建議
+
+為成功構建並應用此工具，提出以下建議：
+
+優先採用模塊化代碼結構： 將數據獲取、界面邏輯、倉位計算等功能分離，便於維護與擴展。
+
+從簡單穩健的模型開始： 倉位管理建議從易於理解和實施的固定百分比風險模型入手。
+
+設計清晰的互動界面： 利用 ipywidgets 創建結構化、用戶友好的檢查表輸入界面。
+
+重視錯誤處理： 特別是針對外部數據源的 API 調用，必須實現強健的錯誤捕獲與處理機制。
+
+審慎選擇數據源： 認識到 yfinance 等免費數據源的局限性（可靠性、限制），評估並考慮整合更可靠的替代方案，尤其是在數據準確性對倉位計算至關重要的情況下。
+
+明確工具定位： 強調該工具是輔助決策、強化紀律的手段，而非替代使用者自身的深入基本面研究和最終判斷（使用者查詢）。
+
+7.4 關於深度研究的結論
+
+評估結果明確指出，人工智能、機器學習和另類數據等「深度研究」技術，對於實現孟格檢查表與倉位管理整合框架的核心價值而言，並非必要。核心價值在於流程本身的紀律性。深度研究應被視為潛在的未來增強功能，其引入需要投入顯著的專業知識、數據資源和嚴格的驗證工作。建議首先聚焦於掌握和完善核心框架的應用。
+
+7.5 未來發展方向
+
+若核心工具證明有效，未來可考慮的增強方向包括：整合更複雜的倉位管理模型、接入更可靠的付費數據源、增加投資組合層面的分析功能，或在經過充分驗證的前提下，選擇性地引入某些深度研究組件（例如，基礎的情緒指標分析）。
+
+7.6 最終思考
+
+最終的投資成功不僅取決於工具本身，更在於投資者是否能內化並踐行該框架所蘊含的核心原則：深入理解、保持理智上的誠實，以及最重要的——遵守紀律性的風險管理。這既是孟格智慧的精髓，也是穩健量化實踐的基石。
+
+引用的著作
+
+10 Uncanny Investment Principles by Charlie Munger | Old School ..., 檢索日期：4月 27, 2025， https://www.oldschoolvalue.com/investing-strategy/charlie-munger-investing-principles-checklist/
+
+The Investment Checklist: Charlie Munger's Method, 檢索日期：4月 27, 2025， https://pictureperfectportfolios.com/the-investment-checklist-charlie-mungers-method/
+
+Position Sizing in Investment: Control Risk, Maximize Returns, 檢索日期：4月 27, 2025， https://www.investopedia.com/terms/p/positionsizing.asp
+
+How To Reduce Risk With Optimal Position Size - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/articles/trading/09/determine-position-size.asp
+
+Alternative Data in Private Equity: Transforming Investment Strategies, 檢索日期：4月 27, 2025， https://blog.getaura.ai/alternative-data-is-transforming-investment-strategies
+
+Artificial Intelligence and Machine Learning in Financial Services | Congress.gov, 檢索日期：4月 27, 2025， https://crsreports.congress.gov/product/pdf/R/R47997
+
+Charlie Munger's Principle: Improve Your Life by Multidisciplinary Approach, 檢索日期：4月 27, 2025， https://www.playforthoughts.com/blog/charlie-munger-improve-live-by-multidisciplinary-approach
+
+Charlie Munger's "Investment Checklist" — Eagle Point Capital, 檢索日期：4月 27, 2025， https://www.eaglepointcap.com/blog/charlie-mungers-investment-checklist
+
+This could be the world's best investing checklist - AES International, 檢索日期：4月 27, 2025， https://www.aesinternational.com/blog/this-could-be-the-worlds-best-investing-checklist
+
+How to Invest like Charlie Munger: A Comprehensive Guide, 檢索日期：4月 27, 2025， https://pictureperfectportfolios.com/how-to-invest-like-charlie-munger-a-comprehensive-guide/
+
+An Investment Checklist Example - Disciplined Investing (Why You Should Have A Checklist) - QuantifiedStrategies.com, 檢索日期：4月 27, 2025， https://www.quantifiedstrategies.com/investment-checklist/
+
+Investment Evaluation Checklist - Jonathan Whitmore, 檢索日期：4月 27, 2025， https://jonathanwhitmore.com/checklists/investing.html
+
+Complete Guide to Fundamental Analysis | GoCardless, 檢索日期：4月 27, 2025， https://gocardless.com/en-us/guides/posts/guide-to-fundamental-analysis/
+
+Charlies Munger – The Ultimate Investing Principles Checklist | The Acquirer's Multiple®, 檢索日期：4月 27, 2025， https://acquirersmultiple.com/2017/10/charlies-munger-the-ultimate-investing-principles-checklist/
+
+Understanding Economic Moats: How to Identify Companies with Long-Term Competitive Advantages - AInvest, 檢索日期：4月 27, 2025， https://www.ainvest.com/news/understanding-economic-moats-how-to-identify-companies-with-long-term-competitive-advantages-241210100188825b40c9ce03/
+
+How to Analyze a Company's Competitive Advantage | TIKR.com, 檢索日期：4月 27, 2025， https://www.tikr.com/blog/how-to-analyze-a-companys-competitive-advantage
+
+10 lessons from from Charlie Munger's Investing Principles Checklist, 檢索日期：4月 27, 2025， https://www.scribd.com/document/813993901/10-lessons-from-from-Charlie-Munger-s-Investing-Principles-Checklist-CIO
+
+How to Measure a Company's Competitive Advantage | Morningstar, 檢索日期：4月 27, 2025， https://www.morningstar.com/stocks/how-measure-companys-competitive-advantage
+
+How an Economic Moat Provides a Competitive Advantage - Financial Modeling Prep, 檢索日期：4月 27, 2025， https://site.financialmodelingprep.com/education/other/how-an-economic-moat-provides-a-competitive-advantage
+
+A 15 step checklist from Buffett's forgotten inspiration - Morningstar Australia, 檢索日期：4月 27, 2025， https://www.morningstar.com.au/insights/stocks/250301/a-15-step-checklist-from-buffetts-forgotten-inspiration
+
+Assessing Management Quality | Value Investing Course - Safal Niveshak, 檢索日期：4月 27, 2025， https://www.safalniveshak.com/value-investing-course-assessing-management-quality/
+
+Essential Investment Due Diligence Checklist for Financial Advisors - Manifestly Checklists, 檢索日期：4月 27, 2025， https://www.manifest.ly/use-cases/financial-services/investment-due-diligence-checklist
+
+How to Choose the Best Stock Valuation Method - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/articles/fundamental-analysis/11/choosing-valuation-methods.asp
+
+How to Master Intrinsic Valuation for Smarter Investing - Business Appraisal FL, 檢索日期：4月 27, 2025， https://businessappraisalflorida.com/blog/how-to-master-intrinsic-valuation-for-smarter-investing/
+
+Bottom-Up Investing: Definition, Example, Vs. Top-Down - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/terms/b/bottomupinvesting.asp
+
+Quantitative Value Investing Strategy in Python – Part I - Interactive Brokers, 檢索日期：4月 27, 2025， https://www.interactivebrokers.com/campus/ibkr-quant-news/quantitative-value-investing-strategy-in-python-part-i/
+
+How to Build a Career in Value Investing: A Step-by-Step Guide [2025] - DigitalDefynd, 檢索日期：4月 27, 2025， https://digitaldefynd.com/IQ/career-in-value-investing-step-by-step-guide/
+
+Charlie Munger's Secret 4-Step Investing Checklist - YouTube, 檢索日期：4月 27, 2025， https://m.youtube.com/watch?v=e5OAxlI4J14&pp=ygUUI2ludmVzdG1lbnRjaGVja2xpc3Q%3D
+
+Charlie Munger's Simple 4 Step Investing Checklist To Get Rich - YouTube, 檢索日期：4月 27, 2025， https://www.youtube.com/watch?v=5Pa-XtYk_Cc
+
+www.wallstreetprep.com, 檢索日期：4月 27, 2025， https://www.wallstreetprep.com/knowledge/intrinsic-value/#:~:text=The%20formula%20for%20calculating%20the,represents%20the%20asset's%20intrinsic%20value.
+
+How to Calculate the Intrinsic Value of a Stock | The Motley Fool, 檢索日期：4月 27, 2025， https://www.fool.com/terms/i/intrinsic-value/
+
+What's Known About Charlie Munger and Warren Buffett's Strategies at Berkshire Hathaway | TrendSpider Learning Center, 檢索日期：4月 27, 2025， https://trendspider.com/learning-center/whats-known-about-charlie-munger-and-warren-buffetts-strategies-at-berkshire-hathaway/
+
+Portfolio Variance: Definition, Formula, Calculation, and Example - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/terms/p/portfolio-variance.asp
+
+Average True Range (ATR) Formula, What It Means, and How to Use It, 檢索日期：4月 27, 2025， https://www.investopedia.com/terms/a/atr.asp
+
+Backtesting.py – An Introductory Guide to Backtesting with Python - Interactive Brokers LLC, 檢索日期：4月 27, 2025， https://www.interactivebrokers.com/campus/ibkr-quant-news/backtesting-py-an-introductory-guide-to-backtesting-with-python
+
+pine script - Calculating position size and stop based on account value? - Stack Overflow, 檢索日期：4月 27, 2025， https://stackoverflow.com/questions/73333642/calculating-position-size-and-stop-based-on-account-value
+
+How do you think about position sizing? : r/algotrading - Reddit, 檢索日期：4月 27, 2025， https://www.reddit.com/r/algotrading/comments/im9o20/how_do_you_think_about_position_sizing/
+
+Position sizing in algorithmic trading - Quantitative Finance Stack Exchange, 檢索日期：4月 27, 2025， https://quant.stackexchange.com/questions/46879/position-sizing-in-algorithmic-trading
+
+Position Sizing: How We Assess Conviction - Intrinsic Investing, 檢索日期：4月 27, 2025， https://intrinsicinvesting.com/2019/12/12/position-sizing-how-we-assess-conviction/
+
+Exploring Finance APIs with Python (Colab) - PythonInvest, 檢索日期：4月 27, 2025， https://pythoninvest.com/long-read/exploring-finance-apis
+
+Alternatives to yfinance? : r/algotrading - Reddit, 檢索日期：4月 27, 2025， https://www.reddit.com/r/algotrading/comments/1hdyr0w/alternatives_to_yfinance/
+
+prophet_yfinance.ipynb - Colab - Google, 檢索日期：4月 27, 2025， https://colab.research.google.com/github/gumdropsteve/intro_to_prophet/blob/master/prophet_yfinance.ipynb
+
+Need a Better Alternative to yfinance Any Good Free Stock APIs? : r/algotrading - Reddit, 檢索日期：4月 27, 2025， https://www.reddit.com/r/algotrading/comments/1jjj6cb/need_a_better_alternative_to_yfinance_any_good/
+
+Using Interact — Jupyter Widgets 8.1.5 documentation, 檢索日期：4月 27, 2025， https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
+
+Using Interact — Jupyter Widgets 8.0.7 documentation, 檢索日期：4月 27, 2025， https://ipywidgets.readthedocs.io/en/8.0.7/examples/Using%20Interact.html
+
+Widget List — Jupyter Widgets 8.1.5 documentation - IPyWidgets, 檢索日期：4月 27, 2025， https://ipywidgets.readthedocs.io/en/8.1.5/examples/Widget%20List.html
+
+Just give me a simple HELLO WORLD example for ipywidgets - Widgets, 檢索日期：4月 27, 2025， https://discourse.jupyter.org/t/just-give-me-a-simple-hello-world-example-for-ipywidgets/25587
+
+Python Add Interactivity to Jupyter Notebooks with ipywidgets - YouTube, 檢索日期：4月 27, 2025， https://www.youtube.com/watch?v=HY7cf-CYs1o
+
+jupyter notebook - Ipywidgets with Google Colaboratory - Stack ..., 檢索日期：4月 27, 2025， https://stackoverflow.com/questions/47269168/ipywidgets-with-google-colaboratory
+
+Add Ipywidgets support · Issue #60 · googlecolab/colabtools - GitHub, 檢索日期：4月 27, 2025， https://github.com/googlecolab/colabtools/issues/60
+
+yfinance Library - A Complete Guide - AlgoTrading101 Blog, 檢索日期：4月 27, 2025， https://algotrading101.com/learn/yfinance-guide/
+
+Guide to Google Finance API and Alternatives - Scrapfly, 檢索日期：4月 27, 2025， https://scrapfly.io/blog/guide-to-google-finance-api/
+
+ArturSepp/QuantInvestStrats: Quantitative Investment Strategies (QIS) package implements Python analytics for visualisation of financial data, performance reporting, analysis of quantitative strategies. - GitHub, 檢索日期：4月 27, 2025， https://github.com/ArturSepp/QuantInvestStrats
+
+Opportunities and Challenges of Generative-AI in Finance - arXiv, 檢索日期：4月 27, 2025， https://arxiv.org/html/2410.15653v1
+
+I. MACHINE LEARNING AND DATA SCIENCE APPLICATIONS IN INVESTMENTS - Robeco.com, 檢索日期：4月 27, 2025， https://www.robeco.com/files/docm/docu-ai-and-big-data-in-investments-part-I.pdf
+
+A Survey of Large Language Models for Financial Applications: Progress, Prospects and Challenges - arXiv, 檢索日期：4月 27, 2025， https://arxiv.org/html/2406.11903v1
+
+Using Quantitative Investment Strategies - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/articles/trading/09/quant-strategies.asp
+
+Guide to Quant Investing 5: How Quantitative Investment Strategies Work - Wright Research, 檢索日期：4月 27, 2025， https://www.wrightresearch.in/blog/guide-to-quant-investing-5-how-quantitative-investment-strategies-work/
+
+(PDF) The AI Revolution: Opportunities and Challenges for the Finance Sector, 檢索日期：4月 27, 2025， https://www.researchgate.net/publication/373552066_The_AI_Revolution_Opportunities_and_Challenges_for_the_Finance_Sector
+
+The Rise of Alternative Data & Machine Learning in Finance - MLQ.ai, 檢索日期：4月 27, 2025， https://blog.mlq.ai/rise-of-alternative-data-machine-learning-in-finance/
+
+How Alternative Data Affects Investment And Financial Markets, 檢索日期：4月 27, 2025， https://brightdata.com/blog/leadership/how-alternative-data-transforming-financial-markets
+
+The Ultimate Guide to Alternative Data for Financial Analysis | SafeGraph, 檢索日期：4月 27, 2025， https://www.safegraph.com/guides/alternative-data
+
+Alternative Data Sources for Investment & Market Research - AlphaSense, 檢索日期：4月 27, 2025， https://www.alpha-sense.com/solutions/alternative-data/
+
+Alternative Data Guide: Types, Examples & Challenges - pass_by, 檢索日期：4月 27, 2025， https://passby.com/blog/alternative-data-guide/
+
+Applied Data Science (MS) Student Capstone Projects | Bay Path University, 檢索日期：4月 27, 2025， https://www.baypath.edu/academics/graduate-programs/applied-data-science-ms/student-capstone-projects/
+
+Top 8 Alternative Data Use Cases for Making Smarter Financial Decisions - SafeGraph, 檢索日期：4月 27, 2025， https://www.safegraph.com/blog/alternative-data-use-cases

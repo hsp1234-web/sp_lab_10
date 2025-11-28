@@ -37,60 +37,75 @@ graph TD
     E --> E2[倉位上限]
 ```
 
-### 資料庫設計
+### 資料庫設計 (Database Schema)
 
-#### 1. `market_data` - 市場數據表
-```sql
-CREATE TABLE market_data (
-    date DATE PRIMARY KEY,
-    symbol VARCHAR(10),
-    open FLOAT,
-    high FLOAT,
-    low FLOAT,
-    close FLOAT,
-    volume BIGINT,
-    
-    -- 市場整體指標
-    spy_return FLOAT,  -- SPY 當日報酬率
-    vix_level FLOAT,   -- 波動率指數
-    market_regime VARCHAR(20)  -- Bull/Bear/Sideways
-);
-```
+為了提升小模型 (如 Gemma-4b) 的輸出穩定性，我們採用 **「群組化提問 (Grouped Questions)」** 策略，將多個相關問題合併為單次 AI 交互，並以結構化方式存儲。
 
-#### 2. `news_sentiment` - 新聞情緒表
+#### 1. `market_data_daily` - 基礎行情表
 ```sql
-CREATE TABLE news_sentiment (
+CREATE TABLE market_data_daily (
     date DATE,
-    symbol VARCHAR(10),
-    news_count INTEGER,
-    positive_score FLOAT,  -- 0-1
-    negative_score FLOAT,  -- 0-1
-    sentiment_summary TEXT,  -- AI 生成的摘要
+    symbol TEXT,
+    open REAL,
+    high REAL,
+    low REAL,
+    close REAL,
+    volume INTEGER,
+    
+    -- 技術指標 (預先計算)
+    sma_20 REAL,
+    sma_60 REAL,
+    rsi_14 REAL,
     
     PRIMARY KEY (date, symbol)
 );
 ```
 
-#### 3. `ai_decisions` - AI 決策記錄表
+#### 2. `chip_data_daily` - 籌碼數據表 (FinMind)
 ```sql
-CREATE TABLE ai_decisions (
+CREATE TABLE chip_data_daily (
     date DATE,
-    symbol VARCHAR(10),
+    symbol TEXT,
     
-    -- AI 分析結果
-    market_analysis TEXT,      -- 市場分析摘要
-    stock_score FLOAT,         -- 個股評分 0-100
-    risk_level VARCHAR(10),    -- Low/Medium/High
+    -- 三大法人買賣超
+    foreign_net_buy INTEGER,  -- 外資
+    trust_net_buy INTEGER,    -- 投信
+    dealer_net_buy INTEGER,   -- 自營商
     
-    -- 決策
-    action VARCHAR(10),        -- BUY/SELL/HOLD
-    position_pct FLOAT,        -- 建議倉位百分比
-    reasoning TEXT,            -- AI 推理過程
-    confidence FLOAT,          -- 信心度 0-1
+    -- 融資融券
+    margin_balance INTEGER,   -- 融資餘額
+    short_balance INTEGER,    -- 融券餘額
     
-    -- 執行結果
-    executed BOOLEAN,
-    actual_position FLOAT,
+    PRIMARY KEY (date, symbol)
+);
+```
+
+#### 3. `ai_analysis_log` - AI 分析日誌 (寬表設計)
+此表存儲 AI 對各面向的解讀結果。我們不要求 AI 輸出複雜 JSON，而是輸出 `Signal|Reasoning` 格式的字串，再由程式解析存入。
+
+```sql
+CREATE TABLE ai_analysis_log (
+    date DATE,
+    symbol TEXT,
+    
+    -- [群組 1] 籌碼面解讀
+    -- Prompt: "分析外資與投信動向..." -> Output: "Bullish|外資投信同步買超"
+    chip_signal TEXT,      
+    chip_reasoning TEXT,   
+    
+    -- [群組 2] 技術面解讀
+    -- Prompt: "分析均線與RSI..." -> Output: "Neutral|均線糾結但RSI背離"
+    tech_signal TEXT,      
+    tech_reasoning TEXT,   
+    
+    -- [群組 3] 最終決策
+    -- Prompt: "綜合以上分析..." -> Output: "BUY|0.8|0.2" (Action|Confidence|Position)
+    final_action TEXT,     -- BUY / SELL / HOLD
+    confidence REAL,       -- 0.0 - 1.0
+    position_pct REAL,     -- 建議倉位 (0.0 - 1.0)
+    
+    model_used TEXT,       -- 使用的模型 (e.g., gemma:4b)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     PRIMARY KEY (date, symbol)
 );
@@ -100,15 +115,13 @@ CREATE TABLE ai_decisions (
 ```sql
 CREATE TABLE portfolio_history (
     date DATE PRIMARY KEY,
-    total_value FLOAT,
-    cash FLOAT,
-    daily_return FLOAT,
-    cumulative_return FLOAT,
-    max_drawdown FLOAT,
-    sharpe_ratio FLOAT,
+    total_value REAL,
+    cash REAL,
+    daily_return REAL,
+    max_drawdown REAL,
     
-    -- 持倉明細 (JSON)
-    positions JSON  -- {symbol: {shares, value, pct}}
+    -- 持倉明細 (JSON 格式存儲，方便擴展)
+    positions JSON  -- e.g., {"2330.TW": {"shares": 1000, "cost": 500}}
 );
 ```
 
@@ -116,26 +129,42 @@ CREATE TABLE portfolio_history (
 
 ## 實施階段
 
-### 📍 階段一：基礎建設 (1-2 週)
+### 📍 階段一：數據基礎建設 (Data Infrastructure)
 
-#### 任務清單
-- [ ] 建立 SQLite 資料庫架構
-- [ ] 開發數據收集模組
-  - [ ] ETF 價格數據 (yfinance)
-  - [ ] 市場指標 (SPY, VIX)
-  - [ ] 新聞 API 整合 (NewsAPI)
-- [ ] 建立 Colab Notebook 環境
-- [ ] 測試數據收集流程
+基於免費資源限制，我們採取 **「混合數據源策略 (Hybrid Data Strategy)」**：
 
-#### 技術棧
-- **資料庫**: SQLite (易於 Colab 使用)
-- **數據源**: yfinance, Alpha Vantage, NewsAPI
-- **開發環境**: Google Colab
+#### 1. 數據源與更新頻率表
 
-#### 產出
-- `data_collector.py` - 數據收集腳本
-- `database_schema.sql` - 資料庫結構
-- `etf_database.db` - 初始化資料庫
+| 數據類型 | 來源 | 頻率 | 免費版限制/對策 | 用途 |
+| :--- | :--- | :--- | :--- | :--- |
+| **籌碼面** (三大法人/融資券) | **FinMind** | 每日 (盤後) | 300次/小時。我們只抓關注名單 (Watchlist)，每日一次，完全足夠。 | 判斷主力動向、散戶情緒 |
+| **基本面** (營收/財報) | **FinMind** | 每月/每季 | 頻率低，無限制問題。 | 過濾績優股、長線保護短線 |
+| **微觀結構** (5秒委託統計) | **FinMind** | 每日 (盤後) | 若在免費名單內，這是**關鍵數據**。可用於分析掛單虛實與短線壓力。 | 替代逐筆交易，分析盤中籌碼 |
+| **價格數據** (1分K/日K) | **Yahoo Finance** | 每日/即時 | 無硬性限制。 | 計算技術指標、回測價格 |
+| **選擇權/期貨** (逐筆/日報) | **TAIFEX (期交所)** | 每日 (爬蟲) | 需撰寫 Python 腳本自動下載期交所每日結算 CSV/ZIP。 | 選擇權策略回測、大額交易人分析 |
+
+#### 2. 數據收集流程 (Pipeline) - 整合現有模組
+
+我們將直接調用專案中已存在的成熟腳本，避免重複造輪子：
+
+1.  **每日收盤後 (15:30+)**:
+    *   啟動 `data_collector.py` (作為主控腳本)。
+    *   **Step 1 (FinMind)**: 呼叫 `scripts/build_finmind_db.py` (需微調以支援 Watchlist 每日更新)。
+    *   **Step 2 (Yfinance)**: 呼叫 `scripts/build_yfinance_db.py` 更新價格數據。
+    *   **Step 3 (TAIFEX)**: 
+        *   **期貨/選擇權**: 直接執行 `scripts/taifex_official_update.py` (下載最近 30 天官方資料)。
+        *   **PCR/Delta**: 執行 `scripts/taifex_official_downloader.py`。
+        *   **資料庫整合**: 執行 `scripts/build_taifex_recent_db.py` 將新下載的 CSV 匯入 `data/taifex_recent_data.db`。
+
+2.  **資料庫存儲優化**:
+    *   **FinMind/YF**: 存入 `trading_system.db` (SQLite)。
+    *   **TAIFEX**: 繼續沿用現有的 DuckDB 架構 (`data/taifex_recent_data.db`)，因為 DuckDB 對於處理大量逐筆/選擇權數據效能更佳。我們只需在 Python 中透過 `duckdb` 套件讀取所需特徵即可。
+
+#### 3. 產出物 (修正後)
+*   `data_collector.py`: **(新增)** 整合型主控腳本，負責依序呼叫上述現有腳本。
+*   `scripts/build_finmind_db.py`: **(修改)** 增加每日增量更新功能。
+*   `scripts/build_yfinance_db.py`: **(修改)** 增加每日增量更新功能。
+*   `etf_database.db`: **(移除)** 改用現有的 `trading_system.db` (SQLite) 與 `data/*.db` (DuckDB) 混合架構。
 
 ---
 

@@ -1,0 +1,1894 @@
+運用 Python 於 Google Colab 進行台股與美股技術分析及評估之自動化流程
+
+I. 引言：利用 Python 自動化股票分析
+
+A. 系統性分析的需求
+
+在瞬息萬變的金融市場中，對股票進行深入且及時的分析是制定明智投資決策的關鍵。傳統的手動分析方法不僅耗時費力，且難以整合多元數據來源，容易受到主觀偏見的影響。隨著資訊科技的發展，利用程式語言（尤其是 Python）進行自動化、系統化的股票分析已成為趨勢。Python 憑藉其豐富的函式庫生態系、強大的數據處理能力以及易於上手的特性，為投資者提供了高效整合價格數據、選擇權資訊乃至宏觀經濟指標的可能性，從而實現更為客觀和一致的分析流程。
+
+B. 工作流程概述
+
+本報告旨在構建一個可在 Google Colab 環境中執行的 Python 自動化分析流程，專注於對使用者指定的台灣（TW）及美國（US）股票進行技術分析與評估。此流程主要包含以下核心組件：
+
+數據獲取： 自動從網路來源抓取必要的原始數據，涵蓋股票的歷史價格（OHLCV）、選擇權鏈數據（用於計算最大痛點價格）以及相關的宏觀經濟指標。
+
+技術分析： 基於獲取的價格數據，計算並視覺化關鍵的技術指標，包括支撐與壓力（Support & Resistance, S/R）水平線以及推薦價格帶（例如布林通道）。
+
+最大痛點 (Max Pain) 評估： 利用選擇權數據計算最近到期日的 Max Pain 價格，並提供一個框架來評估該指標在特定股票結算日附近的參考價值。
+
+C. 目標與範疇
+
+本報告的核心目標是提供一個實用、可執行的 Google Colab Python 工作流程，旨在利用公開可得或半公開的數據來源（如 Yahoo Finance、FRED API，以及可能的台灣期貨交易所網站數據），對指定的台股與美股進行自動化的技術層面與選擇權市場情緒分析。此流程特別關注關鍵技術水平（支撐、壓力、價格通道）的計算與視覺化，以及 Max Pain 理論的應用與初步評估。
+
+然而，必須強調，本流程的範疇限定於數據獲取、指標計算、視覺化呈現、初步評估框架以及風險提示。它不包含：選擇權希臘字母（Greeks）的計算、即時數據處理、自動化交易執行、或超越基本比較之外的複雜回測驗證。本報告旨在提供分析工具與框架，而非直接的投資建議。同時，報告將明確指出所使用數據來源的內在限制與潛在風險。
+
+D. 目標受眾與先決條件
+
+本報告主要面向具備一定技術背景的交易者或投資者，他們尋求一個自動化、數據驅動的分析工具來輔助決策。使用者應對 Python 程式語言及 Pandas 數據處理函式庫有基本認識，並能夠操作 Google Colab 環境。此外，若需使用 FRED 宏觀經濟數據，使用者必須事先自行申請免費的 FRED API 金鑰 (3)。使用者亦需充分理解，基於免費或半免費數據源的分析結果存在固有的不確定性與限制。
+
+II. 數據獲取框架：收集原始素材
+
+數據是任何量化分析的基石。此框架旨在系統性地從不同來源獲取股價、選擇權及宏觀經濟數據，為後續分析提供必要的輸入。
+
+A. 使用 yfinance 獲取歷史 OHLCV 數據
+
+歷史股價數據（開盤價 Open、最高價 High、最低價 Low、收盤價 Close、成交量 Volume，簡稱 OHLCV）是技術分析的基礎。yfinance 是一個廣受歡迎的 Python 函式庫，它提供了一個便捷的介面來存取 Yahoo Finance 提供的金融數據 (6)。
+
+開發者可以使用 yfinance 中的 yf.Ticker() 物件配合 .history() 方法，或者直接使用 yf.download() 函數，來獲取指定股票代號（美股如 'AAPL'，台股如 '2330.TW'）在特定時間範圍（例如，最近 2 年）內的每日歷史數據 (6)。常用的參數包括：
+
+tickers: 一個或多個股票代號的列表或字串。
+
+period: 指定時間段（如 '1d', '5d', '1mo', '1y', 'max'） (6)。
+
+interval: 數據頻率（如 '1d', '1wk', '1mo', '1m', '1h'） (6)。
+
+start, end: 指定開始和結束日期（格式 'YYYY-MM-DD'） (7)。
+
+auto_adjust: 設為 True 可自動調整股價以反映股息和股票分割 (7)。
+
+
+
+Python
+
+
+
+
+
+import yfinance as yf
+import pandas as pd
+
+def get_ohlcv_data(ticker, period="2y", interval="1d"):
+    """
+    使用 yfinance 獲取指定股票的歷史 OHLCV 數據。
+
+    Args:
+        ticker (str): 股票代號 (例如 'AAPL' 或 '2330.TW')。
+        period (str): 數據時間範圍 (例如 '1y', '2y', 'max')。
+        interval (str): 數據頻率 (例如 '1d', '1wk')。
+
+    Returns:
+        pandas.DataFrame: 包含 OHLCV 數據的 DataFrame，索引為日期。
+                          若獲取失敗則返回 None。
+    """
+    try:
+        stock = yf.Ticker(ticker)
+        # 使用 history 方法獲取數據
+        data = stock.history(period=period, interval=interval, auto_adjust=True)
+        # 或者使用 download 方法
+        # data = yf.download(ticker, period=period, interval=interval, auto_adjust=True)
+
+        if data.empty:
+            print(f"警告：無法獲取 {ticker} 的 OHLCV 數據。")
+            return None
+        # 確保索引是日期格式 (如果需要)
+        data.index = pd.to_datetime(data.index).date
+        print(f"成功獲取 {ticker} 的 {period} OHLCV 數據。")
+        return data
+    except Exception as e:
+        print(f"錯誤：獲取 {ticker} 的 OHLCV 數據時發生錯誤：{e}")
+        return None
+
+# --- 範例使用 ---
+# aapl_data = get_ohlcv_data('AAPL', period='2y')
+# tsm_data = get_ohlcv_data('2330.TW', period='2y')
+
+# if aapl_data is not None:
+#     print("AAPL 數據前 5 行:")
+#     print(aapl_data.head())
+
+# if tsm_data is not None:
+#     print("\n2330.TW 數據前 5 行:")
+#     print(tsm_data.head())
+
+
+雖然 yfinance 可以獲取不同時間粒度的數據，例如分鐘級或小時級 (8)，但免費數據源對於高頻數據的歷史深度通常有限制（例如，分鐘數據可能只提供最近 30 天） (8)。考量到使用者要求分析最近 2 年的數據，並且需要計算如 MA20、MA60 等指標，每日（'1d'）數據在可用性與分析需求之間提供了較好的平衡 (6)。這也突顯了在使用免費數據源時，數據的顆粒度與可獲取歷史長度之間存在的權衡。
+
+風險提示： 必須注意 yfinance 提供的數據可能存在延遲、不準確或缺失的情況 (9)。其數據質量和穩定性依賴於 Yahoo Finance 網站本身，並非機構級別的保證數據源 (6)。
+
+B. 獲取選擇權鏈數據 (用於 Max Pain)：美國 vs. 台灣的挑戰
+
+計算最大痛點價格（Max Pain Price）需要特定到期日的選擇權鏈數據，主要包含履約價（Strike Price）、買權（Call）未平倉量（Open Interest, OI）以及賣權（Put）未平倉量 (12)。本流程將專注於獲取最近到期日的數據。
+
+美國股票：
+對於美國股票（如 AAPL），yfinance 提供了相對便捷的方式來獲取選擇權數據。可以使用 ticker.options 屬性列出所有可用的到期日，然後使用 ticker.option_chain(expiry_date) 方法獲取指定到期日的選擇權鏈 (15)。返回的數據通常包含兩個 Pandas DataFrame：一個是買權（calls），另一個是賣權（puts），其中包含了 strike、openInterest、contractSymbol、lastTradeDate 等關鍵欄位 (16)。
+Python
+def get_us_options_chain(ticker_symbol, expiry_date=None):
+    """
+    使用 yfinance 獲取指定美國股票的選擇權鏈數據。
+
+    Args:
+        ticker_symbol (str): 美股代號 (例如 'AAPL')。
+        expiry_date (str, optional): 指定到期日 (格式 'YYYY-MM-DD')。
+                                     若為 None，則嘗試獲取最近的到期日。
+
+    Returns:
+        tuple: (calls_df, puts_df) 包含買權和賣權數據的 DataFrame。
+               若無法獲取則返回 (None, None)。
+    """
+    try:
+        tk = yf.Ticker(ticker_symbol)
+        expiries = tk.options
+        if not expiries:
+            print(f"警告：無法找到 {ticker_symbol} 的任何選擇權到期日。")
+            return None, None
+
+        if expiry_date is None:
+            target_expiry = expiries # 預設選取最近的到期日
+            print(f"未指定到期日，自動選取最近到期日：{target_expiry}")
+        elif expiry_date in expiries:
+            target_expiry = expiry_date
+        else:
+            print(f"警告：指定的到期日 {expiry_date} 不在可用列表 {expiries} 中。將嘗試使用最近到期日 {expiries}。")
+            target_expiry = expiries
+
+        opt_chain = tk.option_chain(target_expiry)
+        calls = opt_chain.calls
+        puts = opt_chain.puts
+
+        if calls.empty and puts.empty:
+             print(f"警告：無法獲取 {ticker_symbol} 在 {target_expiry} 的選擇權鏈數據。")
+             return None, None
+
+        print(f"成功獲取 {ticker_symbol} 在 {target_expiry} 的選擇權鏈數據。")
+        return calls, puts
+
+    except Exception as e:
+        print(f"錯誤：獲取 {ticker_symbol} 選擇權鏈時發生錯誤：{e}")
+        return None, None
+
+# --- 範例使用 ---
+# aapl_calls, aapl_puts = get_us_options_chain('AAPL')
+# if aapl_calls is not None:
+#     print("\nAAPL Calls (最近到期日) 前 5 行:")
+#     print(aapl_calls.head())
+# if aapl_puts is not None:
+#     print("\nAAPL Puts (最近到期日) 前 5 行:")
+#     print(aapl_puts.head())
+
+需要注意的是，yfinance 提供的選擇權數據通常不包含希臘字母（如 Delta, Gamma, Theta, Vega） (10)，並且可能存在數據延遲 (10)。對於本流程主要目標（計算 Max Pain）而言，缺少希臘字母並非關鍵障礙，但這限制了進行更深入選擇權策略分析的可能性。
+
+台灣股票（難點）：
+獲取台灣個股（如 2330.TW）的選擇權鏈數據則面臨顯著挑戰。
+
+yfinance 的限制： 經驗證，yfinance 通常無法穩定提供台灣個股選擇權的詳細鏈數據。雖然可能查詢到指數選擇權（如台指選 ^TWII）(18)，但對於個別股票（如台積電 2330.TW，其美股 ADR 為 TSM 19），透過 yfinance API 獲取其在台掛牌的選擇權數據往往不可行或數據不完整。直接在 Yahoo Finance 網站上查詢也常發現許多台股缺乏選擇權數據或數據非常有限。
+
+官方來源：台灣期貨交易所 (TAIFEX)： 台灣個股選擇權的官方權威數據來源是台灣期貨交易所（TAIFEX） (20)。TAIFEX 網站提供了包括個股選擇權在內的各種衍生性商品資訊。
+
+TAIFEX 數據存取問題： TAIFEX 並未提供公開、免費、且易於使用的 API 供開發者直接、即時地抓取選擇權鏈數據 (21)。其網站提供的歷史數據查詢通常僅限最近 30 個交易日，更早的數據則需要透過特定表格申請或付費購買 (21)。
+
+建議方案：網頁抓取 (Web Scraping)： 鑑於缺乏官方 API，若要自動化獲取台股選擇權數據（履約價、買權 OI、賣權 OI），最可行（儘管充滿挑戰）的方法是網頁抓取 TAIFEX 網站上的公開資訊。這可能涉及：
+
+目標頁面： 分析 TAIFEX 網站結構，鎖定可能包含所需數據的頁面，例如「交易資訊」下的「選擇權每日交易行情」或相關的個股選擇權查詢頁面 (22)。數據可能以 HTML 表格或可下載的 CSV/Excel 文件形式存在。
+
+抓取技術： 使用 Python 的 requests 函式庫下載網頁 HTML，再用 BeautifulSoup 解析 HTML 結構以提取表格數據 (25)。如果目標頁面內容是透過 JavaScript 動態載入的，則可能需要更複雜的工具如 selenium 來模擬瀏覽器行為 (26)。
+
+抓取風險（極重要）： 必須高度重視網頁抓取的風險與不穩定性：
+
+脆弱性： TAIFEX 網站的任何結構或佈局變更都可能導致抓取腳本失效 (21 暗示網站主要供瀏覽，非程式介接)。
+
+法律與服務條款： TAIFEX 的服務條款可能禁止自動化抓取或數據再利用 (27)。雖然個人非商業目的的少量抓取可能處於灰色地帶 (29)，但大規模或頻繁的自動抓取存在違反條款的風險。TAIFEX 保留隨時修改條款的權利 (28)。
+
+IP 封鎖： 過於頻繁的請求可能觸發網站的防護機制，導致 IP 位址被暫時或永久封鎖。
+
+數據格式變更： 即使網站結構不變，數據呈現的格式（如表格欄位順序、數字格式）也可能改變，需要調整解析邏輯。
+
+道德考量： 應避免過度抓取，以免對 TAIFEX 網站伺服器造成不必要的負擔 (29)。
+
+自動化與可靠性之間的權衡在此顯得尤為突出。使用者期望的 Colab 自動化流程，在處理台股選擇權數據時，直接遭遇了官方穩定數據饋送的缺失。yfinance 可以輕鬆處理股價 (6) 和美股選擇權 (15)，實現自動化。但台股選擇權的官方來源 TAIFEX (20-1) 缺乏 API (21)，迫使自動化走向網頁抓取 (25)。然而，抓取本身極不穩定 (29) 且可能違反服務條款 (28)。因此，若要實現台股選擇權數據的完全自動化，就必須接受高度的脆弱性、潛在的法律風險以及持續的維護成本，這是使用者必須理解的核心妥協。
+
+替代建議： 如果網頁抓取被證明過於不穩定或不符合使用者風險偏好，則獲取可靠台股選擇權數據的唯一途徑是尋求付費的數據供應商 (30)。
+
+(注意：由於網頁抓取的複雜性、不穩定性及潛在的法律問題，本報告將提供抓取的概念性框架和風險提示，但不會提供保證可長期運行的 TAIFEX 抓取程式碼。使用者需自行開發、測試並承擔相關風險。)
+
+C. 使用 FRED API 整合宏觀經濟背景
+
+宏觀經濟指標，如利率、通貨膨脹率（CPI）、市場波動率指數（VIX）等，可以為個股分析提供重要的市場背景和情境 (33)。美國聯邦儲備經濟數據庫（FRED）是一個極佳的免費來源，提供了大量的美國及國際經濟時間序列數據 (33)。
+
+要使用 FRED API，使用者必須先前往 FRED 官方網站申請一個免費的 API 金鑰 (API Key) (3)。獲取金鑰後，可以透過 Python 函式庫（如 fredapi 37 或 pyfredapi 33）來存取數據。
+
+設定 API 金鑰通常有兩種方式：將其設置為環境變數 FRED_API_KEY，或在呼叫函式庫函數時作為參數直接傳遞 (37)。
+
+以下是使用 pyfredapi 獲取指定 FRED 指標序列的範例程式碼：
+
+
+
+Python
+
+
+
+
+
+import pyfredapi as pf
+import os
+
+# 建議將 API Key 設置為環境變數
+# 或者直接在程式碼中設定 (較不推薦，注意安全)
+# fred_api_key = "YOUR_FRED_API_KEY"
+# os.environ = fred_api_key
+
+def get_fred_data(series_ids, api_key=None):
+    """
+    使用 pyfredapi 從 FRED 獲取指定的宏觀經濟指標數據。
+
+    Args:
+        series_ids (list): FRED 指標代號的列表 (例如)。
+        api_key (str, optional): FRED API 金鑰。如果為 None，則嘗試從環境變數讀取。
+
+    Returns:
+        pandas.DataFrame: 包含所請求指標數據的 DataFrame，索引為日期。
+                          若獲取失敗則返回 None。
+    """
+    fred_data = pd.DataFrame()
+    key_to_use = api_key if api_key else os.getenv('FRED_API_KEY')
+
+    if not key_to_use:
+        print("錯誤：未提供 FRED API Key，也未在環境變數 FRED_API_KEY 中找到。")
+        print("請至 https://fred.stlouisfed.org/docs/api/api_key.html 申請。")
+        return None
+
+    try:
+        for series_id in series_ids:
+            print(f"正在獲取 FRED 指標：{series_id}...")
+            # 注意：pyfredapi 的 get_series 方法可能需要指定 api_key 參數
+            # 或者它會自動讀取環境變數，取決於其內部實現
+            # 這裡顯式傳遞 key_to_use 以確保
+            series_data = pf.get_series(series_id=series_id, api_key=key_to_use)
+            if series_data is not None and not series_data.empty:
+                 # 將 Series 轉換為 DataFrame 並重命名列
+                series_df = series_data.to_frame(name=series_id)
+                if fred_data.empty:
+                    fred_data = series_df
+                else:
+                    # 合併數據，確保基於日期索引
+                    fred_data = pd.merge(fred_data, series_df, left_index=True, right_index=True, how='outer')
+            else:
+                print(f"警告：無法獲取 FRED 指標 {series_id} 的數據。")
+        if not fred_data.empty:
+            # 確保索引是日期格式
+            fred_data.index = pd.to_datetime(fred_data.index).date
+            print("成功獲取所有請求的 FRED 指標數據。")
+            return fred_data
+        else:
+            print("警告：未能獲取任何請求的 FRED 指標數據。")
+            return None
+    except Exception as e:
+        print(f"錯誤：獲取 FRED 數據時發生錯誤：{e}")
+        return None
+
+# --- 範例使用 ---
+# fred_indicators = # 聯邦基金利率、CPI、VIX
+# macro_data = get_fred_data(fred_indicators)
+
+# if macro_data is not None:
+#     print("\n宏觀經濟數據 (部分):")
+#     print(macro_data.tail())
+
+
+在本工作流程中，獲取的宏觀經濟數據主要用於提供情境分析的背景資訊，幫助使用者判斷整體市場環境，正如使用者請求中所述。這些數據並不會直接整合進支撐壓力或最大痛點價格的計算公式中 (12)。儘管宏觀因素無疑會影響股價和波動性，但本流程並未明確建立這種關係的模型。因此，FRED 數據在此扮演的是一個資訊疊加層的角色，供使用者自行解讀，而非核心計算的直接輸入變數。這點在使用和詮釋宏觀數據時需特別注意。
+
+III. 技術分析引擎：計算關鍵水平與價格帶
+
+本節利用前述獲取的 OHLCV 數據，計算並準備視覺化呈現關鍵的技術分析指標：支撐與壓力水平線，以及一個基於波動率的推薦價格帶。
+
+A. 計算與視覺化支撐與壓力 (S/R) 水平
+
+支撐（Support）是指價格下跌時可能遇到買盤支撐而停止下跌或反彈的價位；壓力（Resistance）則是指價格上漲時可能遇到賣壓阻力而停止上漲或回落的價位 (40)。識別 S/R 水平是技術分析中的常用技巧。
+
+計算 S/R 水平的方法有多種，包括基於歷史高低點、成交量密集區（Volume Profile）或樞紐點（Pivot Points） (40)。考慮到使用者需求和自動化計算的便利性，本流程選用標準樞紐點 (Standard Pivot Points) 方法來計算每日的潛在 S/R 水平。樞紐點及其衍生的 S/R 水平是基於前一個交易日的最高價（High）、最低價（Low）和收盤價（Close）計算得出的 (40)。
+
+標準樞紐點的計算公式如下：
+
+樞紐點 (Pivot Point, PP): PP=(前日High+前日Low+前日Close)/3
+
+第一支撐 (S1): S1=(2×PP)−前日High
+
+第一壓力 (R1): R1=(2×PP)−前日Low
+
+第二支撐 (S2): S2=PP−(前日High−前日Low)
+
+第二壓力 (R2): R2=PP+(前日High−前日Low)
+
+第三支撐 (S3): S3=前日Low−2×(前日High−PP) (或 S1−(前日High−前日Low))
+
+第三壓力 (R3): R3=前日High+2×(PP−前日Low) (或 R1+(前日High−前日Low))
+
+以下是使用 Pandas 計算這些水平的 Python 程式碼範例。注意需要使用 .shift(1) 來獲取前一日的數據 (40)。
+
+
+
+Python
+
+
+
+
+
+def calculate_pivot_points(df):
+    """
+    計算每日的標準樞紐點及其支撐和壓力水平。
+
+    Args:
+        df (pandas.DataFrame): 包含 'High', 'Low', 'Close' 欄位的 OHLCV DataFrame。
+
+    Returns:
+        pandas.DataFrame: 原始 DataFrame 附加了 PP, S1, R1, S2, R2, S3, R3 欄位。
+    """
+    if not all(col in df.columns for col in ['High', 'Low', 'Close']):
+        print("錯誤：輸入的 DataFrame 缺少 'High', 'Low', 或 'Close' 欄位。")
+        return df
+
+    # 使用 shift(1) 獲取前一日的數據
+    prev_high = df['High'].shift(1)
+    prev_low = df['Low'].shift(1)
+    prev_close = df['Close'].shift(1)
+
+    # 計算樞紐點 (PP)
+    df['PP'] = (prev_high + prev_low + prev_close) / 3
+
+    # 計算支撐水平
+    df = (2 * df['PP']) - prev_high
+    df = df['PP'] - (prev_high - prev_low)
+    df = prev_low - 2 * (prev_high - df['PP']) # 使用常見公式 S3 = L - 2*(H-PP)
+
+    # 計算壓力水平
+    df = (2 * df['PP']) - prev_low
+    df = df['PP'] + (prev_high - prev_low)
+    df = prev_high + 2 * (df['PP'] - prev_low) # 使用常見公式 R3 = H + 2*(PP-L)
+
+    print("已計算樞紐點及 S1-S3, R1-R3 水平。")
+    return df
+
+# --- 範例使用 ---
+# if aapl_data is not None:
+#     aapl_data_with_pivots = calculate_pivot_points(aapl_data.copy())
+#     print("\nAAPL 數據 (含樞紐點) 後 5 行:")
+#     # 顯示部分欄位以便觀察
+#     print(aapl_data_with_pivots].tail())
+
+
+雖然存在其他樞紐點計算方法（如 Woodie's, Camarilla, Fibonacci 47）以及更複雜的 S/R 識別技術，但標準樞紐點因其計算簡單、廣泛應用而被選中。這些計算出的水平線隨後可以在股價圖上繪製為水平線，供交易者參考 (40)。
+
+需要理解的是，樞紐點及其 S/R 水平是滯後指標，它們完全基於前一日的價格行為計算得出 (42-46)。這意味著它們僅反映了最近的市場活動，並不能預測未來走勢，也不考慮更長期的趨勢或基於成交量的關鍵價位。它們提供的是潛在的日內或極短期的參考水平，其有效性可能因市場狀況和個股特性而異 (47 指出簡單樞紐點策略效果可能一般)。因此，這些水平應被視為多種 S/R 分析方法中的一種，最好與其他工具（如移動平均線、趨勢線或本流程中計算的布林通道）結合使用。
+
+B. 定義推薦價格帶 (布林通道)
+
+為了提供一個「統計上可能的波動區間」或「關鍵交易區間」作為參考，本流程採用布林通道 (Bollinger Bands)。布林通道是一種基於統計學原理的技術分析工具，用於衡量市場波動性並判斷價格相對高低 (48)。
+
+布林通道由三條線組成 (48)：
+
+中軌 (Middle Band): 通常是 N 期簡單移動平均線 (Simple Moving Average, SMA)。
+
+上軌 (Upper Band): 中軌加上 K 倍的 N 期標準差 (SMA+K×σ)。
+
+下軌 (Lower Band): 中軌減去 K 倍的 N 期標準差 (SMA−K×σ)。
+
+標準參數設定通常為 N=20（週期）和 K=2（標準差倍數） (41)，本流程也將採用此設定。
+
+以下是使用 Pandas 計算布林通道的 Python 程式碼範例，利用 .rolling().mean() 計算移動平均，.rolling().std() 計算移動標準差 (41)。
+
+
+
+Python
+
+
+
+
+
+def calculate_bollinger_bands(df, period=20, std_dev=2):
+    """
+    計算布林通道。
+
+    Args:
+        df (pandas.DataFrame): 包含 'Close' 欄位的 OHLCV DataFrame。
+        period (int): 計算移動平均和標準差的週期。
+        std_dev (float): 標準差的倍數。
+
+    Returns:
+        pandas.DataFrame: 原始 DataFrame 附加了 'BB_Middle', 'BB_Upper', 'BB_Lower' 欄位。
+    """
+    if 'Close' not in df.columns:
+        print("錯誤：輸入的 DataFrame 缺少 'Close' 欄位。")
+        return df
+
+    # 計算中軌 (SMA)
+    df = df['Close'].rolling(window=period).mean()
+
+    # 計算標準差 (注意 ddof=0 使用母體標準差，有些文獻建議如此 [57])
+    df = df['Close'].rolling(window=period).std(ddof=0)
+
+    # 計算上軌和下軌
+    df = df + std_dev * df
+    df = df - std_dev * df
+
+    print(f"已計算週期為 {period}，標準差倍數為 {std_dev} 的布林通道。")
+    # 可以選擇性地刪除計算過程中的標準差欄位
+    # df = df.drop(columns=)
+    return df
+
+# --- 範例使用 ---
+# if aapl_data_with_pivots is not None:
+#     aapl_data_final = calculate_bollinger_bands(aapl_data_with_pivots.copy(), period=20, std_dev=2)
+#     print("\nAAPL 數據 (含樞紐點和布林通道) 後 5 行:")
+#     # 顯示部分欄位以便觀察
+#     print(aapl_data_final].tail())
+
+
+
+(註：pandas_ta 函式庫 48 提供了更簡潔的 ta.bbands() 函數，可直接計算布林通道，但此處展示基礎計算邏輯以求清晰。)
+
+布林通道的寬度反映了市場的波動性：波動劇烈時通道變寬，市場平靜時通道收窄 (51)。價格觸及上軌可能表示相對高位（潛在超買），觸及下軌則可能表示相對低位（潛在超賣） (41)。然而，觸及通道邊界本身並非必然的反轉信號，在強勁趨勢中，價格可能沿著通道邊界運行一段時間 (51)。
+
+在本流程中，由上軌和下軌構成的區域被定義為「推薦價格帶」。這個價格帶代表了基於近期價格波動統計計算出的、一個相對可能的價格活動範圍。
+
+與每日重新計算且相對固定的樞紐點不同，布林通道是動態的，它們根據最近 N 個週期的價格波動不斷調整。因此，布林通道定義的「高」或「低」是相對於近期市場行為和波動狀態而言的，而非絕對的估值水平。這提供了與樞紐點不同的視角，一個是基於前一日的靜態參考，另一個是基於近期波動的動態範圍。
+
+C. 整合圖表輸出
+
+最終的目標是生成一個包含多種資訊的綜合圖表，以便使用者進行視覺化分析。該圖表應至少包含：
+
+股價 K 線圖 (Candlestick Chart): 顯示每日的開、高、低、收價格 (59)。
+
+移動平均線 (Moving Averages): 例如 MA20 和 MA60，顯示短期和中期趨勢。
+
+樞紐點支撐與壓力線 (Pivot Point S/R Lines): 將計算出的 S1-S3 和 R1-R3 水平繪製為水平線。
+
+布林通道 (Bollinger Bands): 繪製上軌、中軌和下軌。
+
+可以使用 Python 的 matplotlib 函式庫 (15) 或更專門用於金融圖表的 mplfinance (59) 來創建此類圖表。mplfinance 在繪製 K 線圖和疊加技術指標方面通常更為便捷。
+
+以下是使用 mplfinance 繪製整合圖表的概念性程式碼結構：
+
+
+
+Python
+
+
+
+
+
+import mplfinance as mpf
+
+def plot_technical_chart(df, ticker, pivot_levels=, title_suffix="技術分析圖"):
+    """
+    使用 mplfinance 繪製包含 K 線、均線、樞紐點和布林通道的圖表。
+
+    Args:
+        df (pandas.DataFrame): 包含 OHLC, MA, Pivot, Bollinger Band 數據的 DataFrame。
+                                索引必須是 DatetimeIndex。
+        ticker (str): 股票代號。
+        pivot_levels (list): 要繪製的樞紐點水平列表 (例如)。
+        title_suffix (str): 圖表標題的後綴。
+    """
+    if df is None or df.empty:
+        print("錯誤：沒有數據可供繪圖。")
+        return
+
+    # 確保索引是 DatetimeIndex (mplfinance 要求)
+    if not isinstance(df.index, pd.DatetimeIndex):
+         try:
+             # 嘗試將索引轉換為 DatetimeIndex
+             # 假設原始索引是日期對象或可轉換的字串
+             df.index = pd.to_datetime(df.index)
+         except Exception as e:
+             print(f"錯誤：無法將索引轉換為 DatetimeIndex，mplfinance 可能無法繪圖：{e}")
+             # 可以考慮嘗試重設索引並將日期列作為繪圖依據，但標準用法是 DatetimeIndex
+             return
+
+    # 準備要疊加繪製的數據 (addplot)
+    plots_to_add =
+
+    # 添加移動平均線 (假設已計算並命名為 MA20, MA60)
+    if 'MA20' in df.columns:
+        plots_to_add.append(mpf.make_addplot(df['MA20'], color='orange', width=0.7, panel=0, secondary_y=False))
+    if 'MA60' in df.columns:
+         plots_to_add.append(mpf.make_addplot(df['MA60'], color='purple', width=0.7, panel=0, secondary_y=False))
+
+    # 添加布林通道線
+    if all(col in df.columns for col in):
+        plots_to_add.append(mpf.make_addplot(df, color='grey', linestyle='--', width=0.7, panel=0, secondary_y=False))
+        plots_to_add.append(mpf.make_addplot(df, color='blue', linestyle=':', width=0.7, panel=0, secondary_y=False))
+        plots_to_add.append(mpf.make_addplot(df, color='grey', linestyle='--', width=0.7, panel=0, secondary_y=False))
+
+    # 添加樞紐點水平線 (只繪製最近一天或其他指定天數的水平線，因為它們每天變化)
+    # 這裡僅示範繪製最後一天的水平線
+    last_date_pivots = df[pivot_levels].iloc[-1] # 獲取最後一天的樞紐點值
+    hlines_dict = {'hlines': last_date_pivots.tolist(),
+                   'colors': ['r']*len(pivot_levels), # 可自訂顏色
+                   'linestyle': '-.',
+                   'linewidths': 0.5}
+
+    # 設置圖表標題和樣式
+    chart_title = f"{ticker} {title_suffix}"
+    mc = mpf.make_marketcolors(up='r', down='g', inherit=True) # 紅漲綠跌
+    s = mpf.make_mpf_style(marketcolors=mc, gridstyle=':')
+
+    # 繪製圖表
+    try:
+        mpf.plot(df,
+                 type='candle',       # K 線圖
+                 style=s,
+                 title=chart_title,
+                 ylabel='價格',
+                 volume=True,         # 顯示成交量
+                 addplot=plots_to_add, # 疊加繪製的指標
+                 hlines=hlines_dict,  # 繪製水平線 (樞紐點)
+                 figratio=(16, 8),    # 圖表比例
+                 panel_ratios=(3, 1)  # 主圖與成交量圖比例
+                )
+        print(f"已生成 {ticker} 的技術分析圖表。")
+    except Exception as e:
+        print(f"錯誤：繪製 {ticker} 圖表時發生錯誤：{e}")
+
+
+# --- 範例使用 ---
+# 假設 aapl_data_final 是包含所有計算結果的 DataFrame
+# 並且其索引已轉換為 DatetimeIndex
+# if 'aapl_data_final' in locals() and aapl_data_final is not None:
+#     # 為了繪圖，需要確保索引是 DatetimeIndex
+#     if not isinstance(aapl_data_final.index, pd.DatetimeIndex):
+#         aapl_data_final.index = pd.to_datetime(aapl_data_final.index)
+#     # 計算 MA20 和 MA60 以便繪圖
+#     if 'Close' in aapl_data_final.columns:
+#         aapl_data_final['MA20'] = aapl_data_final['Close'].rolling(window=20).mean()
+#         aapl_data_final['MA60'] = aapl_data_final['Close'].rolling(window=60).mean()
+#     # 選擇要繪製的樞紐點水平
+#     pivots_to_show = # 可以加入 PP
+#     plot_technical_chart(aapl_data_final.tail(120), 'AAPL', pivot_levels=pivots_to_show) # 繪製最近 120 天
+
+
+
+IV. 最大痛點分析模組：探索選擇權市場情緒
+
+本節深入探討選擇權市場的一個特定理論——最大痛點 (Max Pain) 理論，包括其概念、計算方法以及一個評估其近期有效性的框架。
+
+A. 最大痛點 (Max Pain) 理論闡述
+
+最大痛點理論是一個在選擇權交易領域流傳的觀點，其核心思想是：隨著選擇權合約接近到期日，標的資產（如股票）的價格傾向於朝著某個特定的履約價移動，而這個履約價會使得最多數量的選擇權合約（包括買權和賣權，通常以總的未平倉合約的內在價值計算）在到期時變為價外 (Out-of-the-Money, OTM) 而失去價值 (12)。
+
+這個價格點被稱為「最大痛點價格」，因為它會給最大數量的選擇權買方帶來損失（他們支付的權利金歸零），同時，理論上，這會讓選擇權賣方（通常被認為包括做市商或大型機構）的總體損失最小化，或者說獲利最大化 (14)。
+
+關於 Max Pain 現象背後的原因存在爭議。一種觀點認為，這是由於選擇權賣方（特別是大型機構或做市商）為了對沖風險或最大化自身利益，在臨近到期時通過買賣標的股票來主動引導價格朝向對他們最有利（即買方損失最大）的履約價移動 (60)。另一種觀點則認為，這可能只是市場參與者（包括賣方）進行Delta中性對沖等正常市場活動所產生的自然結果，或者是隨機波動的巧合 (2)。
+
+重要的是要認識到，Max Pain 理論並非一個被普遍接受或嚴格證實的金融定律 (65)。其有效性可能受到市場條件、股票流動性、是否有重大新聞事件等多種因素的影響。
+
+B. 計算最大痛點價格
+
+計算特定到期日的 Max Pain 價格，其核心是找出哪個履約價會導致到期時期權賣方（整體而言）的總支付金額（即期權買方的總內在價值）最小。計算步驟如下 (12)：
+
+獲取數據： 取得目標股票在最近到期日的所有履約價（Strikes）、對應的買權未平倉量（Call OI）和賣權未平倉量（Put OI） (13)。
+
+假設結算價： 遍歷數據中每一個可用的履約價，將其假設為該股票在到期日的最終結算價格 (PotentialExpiryPrice)。
+
+計算總內在價值： 對於每一個假設的結算價 (PotentialExpiryPrice)，計算市場上所有未平倉選擇權在該價格結算時的總內在價值。這需要分別計算所有買權和賣權的價值：
+
+買權總價值 (Total Call Value): 對於所有履約價為 Strike_i 的買權，其在 PotentialExpiryPrice 結算的內在價值為 Max(0,PotentialExpiryPrice−Strikei​)。將此價值乘以該履約價的買權未平倉量 OpenInterest_i，然後對所有買權履約價求和。 TotalCallValue=∑i​Max(0,PotentialExpiryPrice−Strikei​)×CallOpenInteresti​
+
+賣權總價值 (Total Put Value): 對於所有履約價為 Strike_j 的賣權，其在 PotentialExpiryPrice 結算的內在價值為 Max(0,Strikej​−PotentialExpiryPrice)。將此價值乘以該履約價的賣權未平倉量 OpenInterest_j，然後對所有賣權履約價求和。 TotalPutValue=∑j​Max(0,Strikej​−PotentialExpiryPrice)×PutOpenInterestj​
+
+計算總支付金額： 在假設的結算價 PotentialExpiryPrice 下，選擇權賣方需要支付的總金額（即買方的總內在價值）為： TotalPayout(PotentialExpiryPrice)=TotalCallValue+TotalPutValue
+
+找出 Max Pain 點： 重複步驟 3 和 4，計算出每一個可能的履約價作為結算價時的 TotalPayout。Max Pain 價格就是那個使得 TotalPayout 最小的 PotentialExpiryPrice。
+
+以下是實現此計算邏輯的 Python/Pandas 程式碼概念：
+
+
+
+Python
+
+
+
+
+
+import numpy as np
+
+def calculate_max_pain(options_df):
+    """
+    根據選擇權鏈數據計算 Max Pain 價格。
+
+    Args:
+        options_df (pandas.DataFrame): 包含 'strike', 'openInterest', 'CALL' (布林值) 欄位的
+                                       單一到期日選擇權鏈 DataFrame。
+
+    Returns:
+        float: 計算出的 Max Pain 價格 (履約價)。
+               若計算失敗或數據不足則返回 None。
+    """
+    if options_df is None or options_df.empty or not all(col in options_df.columns for col in ['strike', 'openInterest', 'CALL']):
+        print("錯誤：選擇權數據不完整或缺失，無法計算 Max Pain。")
+        return None
+    if options_df['strike'].nunique() < 2: # 需要至少兩個履約價才有意義
+        print("警告：選擇權履約價數量不足，Max Pain 計算可能無意義。")
+        # 可以選擇返回 None 或繼續計算
+        # return None
+
+    # 獲取所有唯一的履約價作為潛在的結算價
+    possible_expiry_prices = sorted(options_df['strike'].unique())
+    min_pain = float('inf')
+    max_pain_strike = None
+
+    # 分離買權和賣權數據以便計算
+    calls = options_df[options_df['CALL'] == True]
+    puts = options_df[options_df['CALL'] == False]
+
+    # 遍歷每一個可能的結算價
+    for potential_price in possible_expiry_prices:
+        total_payout = 0
+
+        # 計算買權的總內在價值
+        call_payout = np.maximum(0, potential_price - calls['strike']) * calls['openInterest']
+        total_payout += call_payout.sum()
+
+        # 計算賣權的總內在價值
+        put_payout = np.maximum(0, puts['strike'] - potential_price) * puts['openInterest']
+        total_payout += put_payout.sum()
+
+        # 尋找最小的總支付金額
+        if total_payout < min_pain:
+            min_pain = total_payout
+            max_pain_strike = potential_price
+        # 如果支付金額相同，通常選擇較接近當前股價的那個，但這裡簡化為取第一個找到的
+        # 或者可以加入其他邏輯，例如選擇總 OI 最大的那個
+
+    if max_pain_strike is not None:
+        print(f"計算完成，Max Pain 價格為：{max_pain_strike}")
+    else:
+        print("警告：未能確定 Max Pain 價格。")
+
+    return max_pain_strike
+
+# --- 範例使用 ---
+# 假設 merged_options_df 是合併了 calls 和 puts 並添加了 'CALL' 標記的 DataFrame
+# merged_options_df = pd.concat(, ignore_index=True) if aapl_calls is not None and aapl_puts is not None else None
+# max_pain_price_aapl = calculate_max_pain(merged_options_df)
+# if max_pain_price_aapl:
+#     print(f"AAPL 的 Max Pain 價格是: {max_pain_price_aapl}")
+
+
+
+表 1：Max Pain 計算範例 (假設數據)
+
+為了更清晰地展示計算過程，下表使用假設的選擇權數據演示了針對兩個潛在結算價（$100 和 $101）的總支付金額計算：
+
+履約價 (Strike)
+
+買權 OI (Call OI)
+
+賣權 OI (Put OI)
+
+結算價 $100 時買權內在價值
+
+結算價 $100 時賣權內在價值
+
+結算價 $100 時總支付
+
+結算價 $101 時買權內在價值
+
+結算價 $101 時賣權內在價值
+
+結算價 $101 時總支付
+
+$98
+
+300
+
+500
+
+Max(0,100−98)∗300=600
+
+Max(0,98−100)∗500=0
+
+600
+
+Max(0,101−98)∗300=900
+
+Max(0,98−101)∗500=0
+
+900
+
+$99
+
+400
+
+1000
+
+Max(0,100−99)∗400=400
+
+Max(0,99−100)∗1000=0
+
+400
+
+Max(0,101−99)∗400=800
+
+Max(0,99−101)∗1000=0
+
+800
+
+$100
+
+1000
+
+1000
+
+Max(0,100−100)∗1000=0
+
+Max(0,100−100)∗1000=0
+
+0
+
+Max(0,101−100)∗1000=1000
+
+Max(0,100−101)∗1000=0
+
+1000
+
+$101
+
+300
+
+200
+
+Max(0,100−101)∗300=0
+
+Max(0,101−100)∗200=200
+
+200
+
+Max(0,101−101)∗300=0
+
+Max(0,101−101)∗200=0
+
+0
+
+$102
+
+200
+
+100
+
+Max(0,100−102)∗200=0
+
+Max(0,102−100)∗100=200
+
+200
+
+Max(0,101−102)∗200=0
+
+Max(0,102−101)∗100=100
+
+100
+
+總計
+
+
+
+
+
+
+
+
+
+$1400
+
+
+
+
+
+$2800
+
+註：此處的支付金額未乘以合約乘數（通常為 100）。
+
+在此範例中 (14)，假設結算價為 $100 時，總支付金額為 $1400；假設結算價為 $101 時，總支付金額為 $2800。如果繼續計算其他履約價，最終會找到使總支付金額最小的那個履約價，即為 Max Pain 價格。在此例中，若 $100 是最低點，則 Max Pain 價格為 $100。這個表格清楚地展示了計算邏輯，有助於理解和驗證程式碼。
+
+C. 評估 Max Pain 的有效性
+
+計算出 Max Pain 價格後，下一步是評估該理論對於所分析的特定股票在最近的結算週期是否具有參考價值。由於 Max Pain 理論本身的爭議性以及影響股價因素的複雜性，這裡的評估主要是一種定性的、觀察性的方法，而非嚴謹的統計回測 (76)。
+
+評估方法：
+
+計算 Max Pain： 使用前述方法計算出最近到期日的 Max Pain 價格。
+
+獲取結算價： 找出該股票在選擇權到期結算日的實際收盤價（或結算價格，取決於交易所規則）。
+
+比較價格： 比較計算出的 Max Pain 價格與實際結算價格 (67)。
+
+觀察趨勢： 回顧選擇權到期前一週左右（尤其是最後幾天）的股價走勢 (62)。觀察價格是否有向計算出的 Max Pain 水平靠攏或盤整的趨勢 (2)？
+
+評估標準：
+
+接近度 (Proximity)： Max Pain 價格與實際結算價的差距有多大？差距越小，似乎表明理論在該次到期具有一定的指示性。可以用絕對價差或百分比價差來衡量。
+
+趨近性 (Gravitation)： 在到期前的關鍵時期（如最後一週），股價是否表現出向 Max Pain 價格移動的傾向？即使最終結算價與 Max Pain 不完全一致，但若觀察到這種趨近行為，也可視為理論影響力的一種體現。
+
+市場背景 (Context)： 評估時應考慮當時的整體市場狀況、是否有影響股價的重大新聞或事件發生。這些外部因素可能輕易壓倒 Max Pain 理論的潛在影響力。同時，理論的有效性可能因股票而異，例如在流動性較差、市值較小的股票上可能更明顯 (62)，而在大型股或指數選擇權上效果較弱 (62)。
+
+評估的局限性：
+
+單一樣本： 這種評估是基於單一到期日的觀察，不具備統計顯著性。一次的吻合或偏離都可能是巧合。
+
+Max Pain 的動態性： Max Pain 價格本身會隨著未平倉量的變化而每日甚至每時變動 (61)。本流程計算的是某個時間點的 Max Pain，而市場參與者的行為和對沖是持續的。
+
+缺乏歷史數據： 由於免費獲取長期歷史選擇權未平倉數據的困難 (21)，無法進行大規模的回測來驗證 Max Pain 策略的長期有效性 (76)。
+
+因此，這個評估步驟更像是一種「體感測試」，旨在提供一個框架，讓使用者自行判斷 Max Pain 理論對他們所關注的股票和特定時間段是否似乎有關聯性，而不是提供一個確鑿的結論。它強調的是觀察和情境判斷，而非科學驗證。
+
+V. Google Colab 實作：完整的自動化工作流程
+
+本節將整合前述所有概念和計算邏輯，提供一個可在 Google Colab 環境中執行的完整 Python 程式碼框架。
+
+A. 環境設定與函式庫導入
+
+在 Colab 筆記本的開頭，需要安裝並導入所有必要的 Python 函式庫。
+
+
+
+Python
+
+
+
+
+
+# --- 安裝必要的函式庫 ---
+!pip install yfinance pandas numpy matplotlib mplfinance pyfredapi requests beautifulsoup4 lxml
+
+# --- 導入函式庫 ---
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import mplfinance as mpf
+import pyfredapi as pf
+import requests
+from bs4 import BeautifulSoup
+import os
+import datetime
+from dateutil.relativedelta import relativedelta # 用於計算日期
+
+print("必要的函式庫已安裝並導入。")
+
+
+(註：requests, beautifulsoup4, lxml 主要用於潛在的台股選擇權網頁抓取。)
+
+B. 使用者參數定義
+
+為了方便使用者自訂分析目標和參數，將所有可配置的變數集中放置在程式碼的開頭。
+
+
+
+Python
+
+
+
+
+
+# --- 使用者需配置的參數 ---
+
+# 股票代號
+US_STOCK_TICKER = 'AAPL'  # 美股代號範例
+TW_STOCK_TICKER = '2330.TW' # 台股代號範例 (注意：選擇權數據獲取方式不同且風險高)
+
+# 分析時間範圍
+ANALYSIS_PERIOD = '2y' # 例如 '1y', '2y', '5y', 'max'
+
+# FRED API 金鑰 (若要使用宏觀數據，必須填寫)
+# 建議設置為環境變數 FRED_API_KEY
+# os.environ = "YOUR_FRED_API_KEY"
+FRED_API_KEY = None # 或者直接在這裡填寫你的金鑰字串 (注意安全)
+
+# FRED 宏觀經濟指標代號列表
+FRED_SERIES_IDS = # 範例：聯邦基金利率、美國CPI、VIX指數
+
+# 技術分析參數
+MOVING_AVERAGES = [1, 2] # 要計算和繪製的移動平均線週期
+PIVOT_LEVELS_TO_PLOT = # 要在圖上顯示的樞紐點水平
+BOLLINGER_PERIOD = 20 # 布林通道週期
+BOLLINGER_STD_DEV = 2.0 # 布林通道標準差倍數
+
+# 台股選擇權抓取相關 (高風險，需謹慎使用)
+# 注意：TAIFEX 網站結構可能隨時變更，導致抓取失敗
+# 這裡僅為示例，實際 URL 和解析邏輯需根據當前 TAIFEX 網站情況調整
+TAIFEX_OPTIONS_URL = "YOUR_TARGET_TAIFEX_URL" # 需要自行尋找並填寫目標 URL
+SCRAPE_TAIWAN_OPTIONS = False # 設為 True 以嘗試抓取台股選擇權 (預設關閉)
+
+# Max Pain 分析相關
+ANALYZE_MAX_PAIN_US = True # 是否分析美股 Max Pain
+ANALYZE_MAX_PAIN_TW = SCRAPE_TAIWAN_OPTIONS # 是否分析台股 Max Pain (依賴抓取)
+
+print("使用者參數已設定。")
+
+
+表 2：使用者參數指南
+
+
+
+變數名稱
+
+描述
+
+數據類型
+
+範例值
+
+US_STOCK_TICKER
+
+要分析的美國股票代號 (來自 Yahoo Finance)
+
+string
+
+'AAPL'
+
+TW_STOCK_TICKER
+
+要分析的台灣股票代號 (來自 Yahoo Finance, 需加 .TW 後綴)
+
+string
+
+'2330.TW'
+
+ANALYSIS_PERIOD
+
+歷史數據的時間範圍 (yfinance 格式)
+
+string
+
+'2y'
+
+FRED_API_KEY
+
+你的 FRED API 金鑰 (若為 None，則嘗試讀取環境變數)
+
+string
+
+'abcdefghijklmnopqrstuvwxyz123456' 或 None
+
+FRED_SERIES_IDS
+
+要從 FRED 獲取的宏觀指標代號列表
+
+list
+
+``
+
+MOVING_AVERAGES
+
+要計算和繪製的移動平均線週期列表
+
+list
+
+1
+
+PIVOT_LEVELS_TO_PLOT
+
+要在圖表上顯示的樞紐點水平列表 (可用：'PP', 'S1', 'S2', 'S3', 'R1', 'R2', 'R3')
+
+list
+
+``
+
+BOLLINGER_PERIOD
+
+布林通道計算週期
+
+int
+
+20
+
+BOLLINGER_STD_DEV
+
+布林通道標準差倍數
+
+float
+
+2.0
+
+TAIFEX_OPTIONS_URL
+
+(高風險) 用於抓取台股選擇權數據的 TAIFEX 目標網頁 URL (需自行確認)
+
+string
+
+"https://..."
+
+SCRAPE_TAIWAN_OPTIONS
+
+(高風險) 是否啟用台股選擇權數據抓取功能
+
+boolean
+
+False (預設)
+
+ANALYZE_MAX_PAIN_US
+
+是否對指定的美股執行 Max Pain 分析
+
+boolean
+
+True
+
+ANALYZE_MAX_PAIN_TW
+
+是否對指定的台股執行 Max Pain 分析 (僅在 SCRAPE_TAIWAN_OPTIONS 為 True 時有效)
+
+boolean
+
+False (預設)
+
+將使用者參數集中管理並提供清晰的說明文件（如上表），可以極大地方便使用者根據自身需求調整分析目標，而無需修改核心程式碼邏輯，提高了程式的可維護性和易用性。
+
+C. 模組化程式碼結構 (函數)
+
+為了提高程式碼的可讀性、可重用性和可維護性，建議將整個工作流程拆分成多個獨立的函數，每個函數負責一個特定的任務。以下是建議的函數劃分：
+
+get_ohlcv_data(ticker, period, interval): 獲取指定股票的 OHLCV 數據。
+
+get_us_options_chain(ticker_symbol, expiry_date=None): 獲取美股選擇權鏈數據。
+
+scrape_tw_options_chain(ticker_code, expiry_date=None): (高風險) 嘗試從 TAIFEX 網站抓取台股選擇權鏈數據。此函數內部應包含顯著的風險警告和錯誤處理。
+
+get_fred_data(series_ids, api_key=None): 從 FRED API 獲取宏觀經濟數據。
+
+calculate_moving_averages(df, windows): 計算移動平均線。
+
+calculate_pivot_points(df): 計算標準樞紐點及 S/R 水平。
+
+calculate_bollinger_bands(df, period, std_dev): 計算布林通道。
+
+calculate_max_pain(options_df): 計算 Max Pain 價格。
+
+plot_technical_chart(df, ticker, pivot_levels_to_plot, moving_averages, title_suffix): 繪製整合技術分析圖表。
+
+evaluate_max_pain(max_pain_price, ticker_symbol, ohlcv_data, expiry_date): 提供 Max Pain 有效性的定性評估框架。
+
+main_workflow(...): 主函數，按順序調用其他函數，串聯整個分析流程，處理用戶輸入參數並輸出結果。
+
+D. 完整可執行的 Python 程式碼
+
+
+
+Python
+
+
+
+
+
+# --- 環境設定與函式庫導入 ---
+# (請確保已執行 A 部分的!pip install 和 import)
+
+# --- 使用者需配置的參數 ---
+# (複製 B 部分的參數設定區塊於此)
+US_STOCK_TICKER = 'AAPL'
+TW_STOCK_TICKER = '2330.TW'
+ANALYSIS_PERIOD = '2y'
+FRED_API_KEY = None # 確保已設定環境變數或在此填寫
+FRED_SERIES_IDS =
+MOVING_AVERAGES = [1, 2]
+PIVOT_LEVELS_TO_PLOT =
+BOLLINGER_PERIOD = 20
+BOLLINGER_STD_DEV = 2.0
+TAIFEX_OPTIONS_URL = "YOUR_TARGET_TAIFEX_URL" # 需自行確認
+SCRAPE_TAIWAN_OPTIONS = False
+ANALYZE_MAX_PAIN_US = True
+ANALYZE_MAX_PAIN_TW = SCRAPE_TAIWAN_OPTIONS
+
+# --- 函數定義 ---
+
+def get_ohlcv_data(ticker, period="2y", interval="1d"):
+    """使用 yfinance 獲取指定股票的歷史 OHLCV 數據。"""
+    try:
+        stock = yf.Ticker(ticker)
+        data = stock.history(period=period, interval=interval, auto_adjust=True)
+        if data.empty:
+            print(f"警告：無法獲取 {ticker} 的 OHLCV 數據。")
+            return None
+        data.index = pd.to_datetime(data.index).date # 確保索引是日期對象
+        print(f"成功獲取 {ticker} 的 {period} OHLCV 數據。")
+        return data
+    except Exception as e:
+        print(f"錯誤：獲取 {ticker} 的 OHLCV 數據時發生錯誤：{e}")
+        return None
+
+def get_us_options_chain(ticker_symbol, expiry_date=None):
+    """使用 yfinance 獲取指定美國股票的選擇權鏈數據。"""
+    try:
+        tk = yf.Ticker(ticker_symbol)
+        expiries = tk.options
+        if not expiries:
+            print(f"警告：無法找到 {ticker_symbol} 的任何選擇權到期日。")
+            return None, None
+
+        target_expiry = None
+        if expiry_date is None:
+            # 嘗試尋找最近的未來到期日
+            today = datetime.date.today()
+            future_expiries = [exp for exp in expiries if datetime.datetime.strptime(exp, '%Y-%m-%d').date() >= today]
+            if future_expiries:
+                target_expiry = min(future_expiries)
+                print(f"未指定到期日，自動選取最近未來到期日：{target_expiry}")
+            else:
+                target_expiry = expiries[-1] # 如果沒有未來到期日，選最後一個
+                print(f"警告：未找到未來到期日，選取最後一個可用到期日：{target_expiry}")
+
+        elif expiry_date in expiries:
+            target_expiry = expiry_date
+        else:
+             # 嘗試尋找最近的未來到期日
+            today = datetime.date.today()
+            future_expiries = [exp for exp in expiries if datetime.datetime.strptime(exp, '%Y-%m-%d').date() >= today]
+            if future_expiries:
+                target_expiry = min(future_expiries)
+                print(f"警告：指定的到期日 {expiry_date} 無效。自動選取最近未來到期日：{target_expiry}")
+            else:
+                target_expiry = expiries[-1] # 如果沒有未來到期日，選最後一個
+                print(f"警告：指定的到期日 {expiry_date} 無效，且未找到未來到期日。選取最後一個可用到期日：{target_expiry}")
+
+
+        opt_chain = tk.option_chain(target_expiry)
+        calls = opt_chain.calls
+        puts = opt_chain.puts
+
+        if calls.empty and puts.empty:
+             print(f"警告：無法獲取 {ticker_symbol} 在 {target_expiry} 的選擇權鏈數據。")
+             return None, None
+
+        print(f"成功獲取 {ticker_symbol} 在 {target_expiry} 的選擇權鏈數據。")
+        # 合併並添加標記
+        calls['CALL'] = True
+        puts['CALL'] = False
+        merged_options = pd.concat([calls, puts], ignore_index=True)
+        # 清理數據類型
+        for col in ['strike', 'openInterest', 'volume']:
+             if col in merged_options.columns:
+                 merged_options[col] = pd.to_numeric(merged_options[col], errors='coerce')
+        merged_options.dropna(subset=['strike', 'openInterest'], inplace=True) # 移除關鍵數據缺失的行
+        merged_options['ExpiryDate'] = target_expiry # 添加到期日信息
+
+        return merged_options, target_expiry
+
+    except Exception as e:
+        print(f"錯誤：獲取 {ticker_symbol} 選擇權鏈時發生錯誤：{e}")
+        return None, None
+
+def scrape_tw_options_chain(ticker_code, expiry_date=None):
+    """
+    (高風險函數) 嘗試從 TAIFEX 網站抓取台股選擇權鏈數據。
+    *** 警告：此函數極度不穩定，依賴 TAIFEX 網站結構，且可能違反其服務條款。 ***
+    *** 僅為概念演示，實際的 URL 和解析邏輯需要使用者自行研究、開發和維護。 ***
+    """
+    print("\n--- 開始嘗試抓取台股選擇權數據 (高風險) ---")
+    print("警告：TAIFEX 網站結構可能隨時變更，導致此功能失效。")
+    print("警告：自動抓取可能違反 TAIFEX 服務條款，請自行承擔風險。")
+
+    if not TAIFEX_OPTIONS_URL or TAIFEX_OPTIONS_URL == "YOUR_TARGET_TAIFEX_URL":
+        print("錯誤：未設定有效的 TAIFEX_OPTIONS_URL。無法進行抓取。")
+        return None, None
+
+    # --- 以下為抓取邏輯的 *假設性* 範例 ---
+    # --- 實際程式碼需根據目標 URL 和網頁結構編寫 ---
+    try:
+        # 1. 發送請求獲取網頁內容 (可能需要處理 headers, cookies 等)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+        response = requests.get(TAIFEX_OPTIONS_URL, headers=headers, timeout=15)
+        response.raise_for_status() # 檢查請求是否成功
+
+        # 2. 使用 BeautifulSoup 解析 HTML
+        soup = BeautifulSoup(response.text, 'lxml') # 或 'html.parser'
+
+        # 3. 定位包含選擇權數據的表格或元素
+        #    (這部分高度依賴實際網頁結構，需要使用瀏覽器開發者工具檢查)
+        #    例如：table = soup.find('table', {'id': 'options_data_table'})
+        #    或尋找特定的 class, tag 等
+
+        # 4. 從表格中提取數據 (履約價, 買權 OI, 賣權 OI)
+        #    遍歷表格的行 (tr) 和單元格 (td)
+        #    需要仔細處理欄位對應和數據清洗 (去除逗號、轉換為數字)
+
+        # 5. 將提取的數據整理成 Pandas DataFrame
+        #    欄位應包含 'strike', 'openInterest', 'CALL' (True/False)
+        #    例如：
+        #    data =
+        #    rows = table.find_all('tr')[1:] # 跳過表頭
+        #    for row in rows:
+        #        cols = row.find_all('td')
+        #        try:
+        #            strike = float(cols.text.replace(',', ''))
+        #            call_oi = int(cols[CALL_OI_COL_INDEX].text.replace(',', ''))
+        #            put_oi = int(cols.text.replace(',', ''))
+        #            data.append({'strike': strike, 'openInterest': call_oi, 'CALL': True})
+        #            data.append({'strike': strike, 'openInterest': put_oi, 'CALL': False})
+        #        except (ValueError, IndexError):
+        #            continue # 跳過無法解析的行
+        #    options_df = pd.DataFrame(data)
+
+        # --- 假設抓取成功並得到 options_df ---
+        # merged_options = options_df # 假設已是合併格式
+        # target_expiry = expiry_date # 假設已確定或從網頁提取
+
+        # --- 實際應替換為真實的抓取和解析代碼 ---
+        print("錯誤：尚未實現具體的 TAIFEX 抓取邏輯。")
+        print("請使用者根據實際情況自行編寫 scrape_tw_options_chain 函數。")
+        return None, None # 返回 None 表示抓取失敗或未實現
+
+        # print(f"成功抓取並解析 {ticker_code} 在 {target_expiry} 的選擇權數據。")
+        # return merged_options, target_expiry
+
+    except requests.exceptions.RequestException as e:
+        print(f"錯誤：請求 TAIFEX 網頁失敗：{e}")
+        return None, None
+    except Exception as e:
+        print(f"錯誤：解析 TAIFEX 網頁或處理數據時發生錯誤：{e}")
+        return None, None
+    finally:
+        print("--- 台股選擇權數據抓取嘗試結束 ---")
+
+
+def get_fred_data(series_ids, api_key=None):
+    """使用 pyfredapi 從 FRED 獲取指定的宏觀經濟指標數據。"""
+    fred_data = pd.DataFrame()
+    key_to_use = api_key if api_key else os.getenv('FRED_API_KEY')
+
+    if not key_to_use:
+        print("錯誤：未提供 FRED API Key。")
+        return None
+
+    try:
+        all_series_data = pf.get_series_bulk(series_ids=series_ids, api_key=key_to_use)
+        if all_series_data:
+            # pyfredapi >= 0.9.0 返回字典 {series_id: dataframe}
+            fred_data = pd.concat(all_series_data.values(), axis=1)
+            fred_data.columns = all_series_data.keys() # 確保欄位名稱正確
+            fred_data.index = pd.to_datetime(fred_data.index).date # 確保索引是日期對象
+            print("成功獲取所有請求的 FRED 指標數據。")
+            return fred_data
+        else:
+            print("警告：未能獲取任何請求的 FRED 指標數據。")
+            return None
+    except Exception as e:
+        print(f"錯誤：獲取 FRED 數據時發生錯誤：{e}")
+        # 嘗試逐一獲取
+        fred_data_single = pd.DataFrame()
+        print("嘗試逐一獲取 FRED 指標...")
+        for series_id in series_ids:
+            try:
+                series_data = pf.get_series(series_id=series_id, api_key=key_to_use)
+                if series_data is not None and not series_data.empty:
+                    series_df = series_data.to_frame(name=series_id)
+                    if fred_data_single.empty:
+                        fred_data_single = series_df
+                    else:
+                        fred_data_single = pd.merge(fred_data_single, series_df, left_index=True, right_index=True, how='outer')
+                else:
+                     print(f"警告：無法獲取 FRED 指標 {series_id} 的數據。")
+            except Exception as inner_e:
+                 print(f"錯誤：獲取單一 FRED 指標 {series_id} 時失敗：{inner_e}")
+
+        if not fred_data_single.empty:
+             fred_data_single.index = pd.to_datetime(fred_data_single.index).date
+             print("成功獲取部分 FRED 指標數據。")
+             return fred_data_single
+        else:
+             print("警告：最終未能獲取任何 FRED 指標數據。")
+             return None
+
+
+def calculate_moving_averages(df, windows):
+    """計算指定週期的移動平均線。"""
+    if 'Close' not in df.columns:
+        print("錯誤：缺少 'Close' 欄位，無法計算移動平均線。")
+        return df
+    for window in windows:
+        col_name = f'MA{window}'
+        df[col_name] = df['Close'].rolling(window=window).mean()
+    print(f"已計算移動平均線：{', '.join([f'MA{w}' for w in windows])}。")
+    return df
+
+def calculate_pivot_points(df):
+    """計算每日的標準樞紐點及其支撐和壓力水平。"""
+    if not all(col in df.columns for col in ['High', 'Low', 'Close']):
+        print("錯誤：缺少 'High', 'Low', 或 'Close' 欄位，無法計算樞紐點。")
+        return df
+    prev_high = df['High'].shift(1)
+    prev_low = df['Low'].shift(1)
+    prev_close = df['Close'].shift(1)
+    df['PP'] = (prev_high + prev_low + prev_close) / 3
+    df = (2 * df['PP']) - prev_high
+    df = df['PP'] - (prev_high - prev_low)
+    df = prev_low - 2 * (prev_high - df['PP'])
+    df = (2 * df['PP']) - prev_low
+    df = df['PP'] + (prev_high - prev_low)
+    df = prev_high + 2 * (df['PP'] - prev_low)
+    print("已計算樞紐點及 S1-S3, R1-R3 水平。")
+    return df
+
+def calculate_bollinger_bands(df, period=20, std_dev=2):
+    """計算布林通道。"""
+    if 'Close' not in df.columns:
+        print("錯誤：缺少 'Close' 欄位，無法計算布林通道。")
+        return df
+    df = df['Close'].rolling(window=period).mean()
+    df = df['Close'].rolling(window=period).std(ddof=0)
+    df = df + std_dev * df
+    df = df - std_dev * df
+    print(f"已計算週期為 {period}，標準差倍數為 {std_dev} 的布林通道。")
+    # df = df.drop(columns=) # 可選：移除中間計算欄位
+    return df
+
+def calculate_max_pain(options_df):
+    """根據選擇權鏈數據計算 Max Pain 價格。"""
+    if options_df is None or options_df.empty or not all(col in options_df.columns for col in ['strike', 'openInterest', 'CALL']):
+        print("錯誤：選擇權數據不完整或缺失，無法計算 Max Pain。")
+        return None
+    if options_df['strike'].nunique() < 2:
+        print("警告：選擇權履約價數量不足，Max Pain 計算可能無意義。")
+        # return None # 或繼續
+
+    possible_expiry_prices = sorted(options_df['strike'].unique())
+    min_pain = float('inf')
+    max_pain_strike = None
+    calls = options_df[options_df['CALL'] == True]
+    puts = options_df[options_df['CALL'] == False]
+
+    for potential_price in possible_expiry_prices:
+        total_payout = 0
+        call_payout = np.maximum(0, potential_price - calls['strike']) * calls['openInterest']
+        total_payout += call_payout.sum()
+        put_payout = np.maximum(0, puts['strike'] - potential_price) * puts['openInterest']
+        total_payout += put_payout.sum()
+
+        if total_payout < min_pain:
+            min_pain = total_payout
+            max_pain_strike = potential_price
+
+    if max_pain_strike is not None:
+        print(f"計算完成，Max Pain 價格為：{max_pain_strike}")
+    else:
+        print("警告：未能確定 Max Pain 價格。")
+    return max_pain_strike
+
+
+def plot_technical_chart(df, ticker, pivot_levels_to_plot=, moving_averages=[1, 2], title_suffix="技術分析圖", lookback_days=120):
+    """使用 mplfinance 繪製包含 K 線、均線、樞紐點和布林通道的圖表。"""
+    if df is None or df.empty:
+        print("錯誤：沒有數據可供繪圖。")
+        return
+
+    plot_df = df.tail(lookback_days).copy() # 只繪製最近 N 天的數據
+
+    # 確保索引是 DatetimeIndex
+    if not isinstance(plot_df.index, pd.DatetimeIndex):
+         try:
+             plot_df.index = pd.to_datetime(plot_df.index)
+         except Exception as e:
+             print(f"錯誤：無法將索引轉換為 DatetimeIndex：{e}")
+             return
+
+    plots_to_add =
+    # 添加移動平均線
+    for ma in moving_averages:
+        col_name = f'MA{ma}'
+        if col_name in plot_df.columns:
+            plots_to_add.append(mpf.make_addplot(plot_df[col_name], width=0.7, panel=0, secondary_y=False))
+
+    # 添加布林通道線
+    if all(col in plot_df.columns for col in):
+        plots_to_add.append(mpf.make_addplot(plot_df, color='grey', linestyle='--', width=0.7, panel=0, secondary_y=False))
+        plots_to_add.append(mpf.make_addplot(plot_df, color='blue', linestyle=':', width=0.7, panel=0, secondary_y=False))
+        plots_to_add.append(mpf.make_addplot(plot_df, color='grey', linestyle='--', width=0.7, panel=0, secondary_y=False))
+
+    # 添加樞紐點水平線 (只繪製最後一天的)
+    hlines_dict = None
+    valid_pivots = [p for p in pivot_levels_to_plot if p in plot_df.columns]
+    if valid_pivots:
+        last_date_pivots = plot_df[valid_pivots].iloc[-1].dropna() # 獲取最後一天有效的樞紐點值
+        if not last_date_pivots.empty:
+             # 為不同水平設置不同顏色和樣式
+             colors = {'PP': 'black', 'S1': 'green', 'S2': 'darkgreen', 'S3': 'lime', 'R1': 'red', 'R2': 'darkred', 'R3': 'salmon'}
+             linestyles = {'PP': '-', 'S1': '--', 'S2': '--', 'S3': '--', 'R1': '-.', 'R2': '-.', 'R3': '-.'}
+             hlines_dict = {'hlines': last_date_pivots.tolist(),
+                            'colors': [colors.get(p, 'grey') for p in last_date_pivots.index],
+                            'linestyle': [linestyles.get(p, ':') for p in last_date_pivots.index],
+                            'linewidths': 0.6}
+             # 添加標籤到圖例 (mplfinance 可能不直接支持 hlines 標籤，需額外處理或標註)
+
+
+    chart_title = f"{ticker} {title_suffix} ({plot_df.index.min().strftime('%Y-%m-%d')} to {plot_df.index.max().strftime('%Y-%m-%d')})"
+    mc = mpf.make_marketcolors(up='red', down='green', inherit=True) # 紅漲綠跌
+    s = mpf.make_mpf_style(marketcolors=mc, gridstyle=':')
+
+    try:
+        fig, axes = mpf.plot(plot_df,
+                 type='candle',
+                 style=s,
+                 title=chart_title,
+                 ylabel='價格',
+                 volume=True,
+                 addplot=plots_to_add,
+                 hlines=hlines_dict,
+                 figratio=(16, 9),
+                 panel_ratios=(4, 1), # 增加主圖比例
+                 returnfig=True # 返回 figure 和 axes 對象以便後續添加圖例
+                )
+
+        # 手動添加樞紐點圖例標籤 (如果 hlines 支持不好)
+        if hlines_dict and axes:
+            ax_main = axes # 主圖的 axes
+            labels = last_date_pivots.index
+            values = last_date_pivots.values
+            line_colors = hlines_dict['colors']
+            line_styles = hlines_dict['linestyle']
+            handles =
+            for i, label in enumerate(labels):
+                 # 創建一個不可見的線條來代表 hline
+                 line, = ax_main.plot(,, color=line_colors[i], linestyle=line_styles[i], lw=0.6, label=f"{label}: {values[i]:.2f}")
+                 handles.append(line)
+            # 更新圖例以包含樞紐點
+            ax_main.legend(handles=handles + ax_main.get_legend().legendHandles, loc='best') # 合併圖例
+
+
+        plt.show() # 顯示圖表
+        print(f"已生成 {ticker} 的技術分析圖表。")
+    except Exception as e:
+        print(f"錯誤：繪製 {ticker} 圖表時發生錯誤：{e}")
+
+
+def evaluate_max_pain(max_pain_price, ticker_symbol, ohlcv_data, expiry_date_str):
+    """提供 Max Pain 有效性的定性評估框架。"""
+    if max_pain_price is None or ohlcv_data is None or expiry_date_str is None:
+        print("資訊不足，無法評估 Max Pain。")
+        return
+
+    print(f"\n--- {ticker_symbol} Max Pain ({expiry_date_str} 到期) 評估 ---")
+    print(f"計算出的 Max Pain 價格：{max_pain_price:.2f}")
+
+    try:
+        expiry_date = datetime.datetime.strptime(expiry_date_str, '%Y-%m-%d').date()
+
+        # 尋找結算日或之後的第一個交易日數據
+        settlement_data = None
+        current_date = expiry_date
+        while settlement_data is None and current_date <= ohlcv_data.index.max():
+             if current_date in ohlcv_data.index:
+                 settlement_data = ohlcv_data.loc[current_date]
+                 break
+             current_date += datetime.timedelta(days=1)
+
+
+        if settlement_data is not None:
+            settlement_price = settlement_data['Close']
+            settlement_date_found = settlement_data.name # 獲取實際找到的日期
+            print(f"結算日 ({settlement_date_found}) 收盤價：{settlement_price:.2f}")
+
+            # 1. 接近度評估
+            price_diff = abs(settlement_price - max_pain_price)
+            price_diff_percent = (price_diff / settlement_price) * 100 if settlement_price!= 0 else float('inf')
+            print(f"與結算價的絕對價差：{price_diff:.2f}")
+            print(f"與結算價的百分比差異：{price_diff_percent:.2f}%")
+            if price_diff_percent < 1.0: # 閾值可調
+                print("評估：Max Pain 價格與結算價非常接近。")
+            elif price_diff_percent < 3.0:
+                print("評估：Max Pain 價格與結算價相對接近。")
+            else:
+                print("評估：Max Pain 價格與結算價差距較大。")
+
+            # 2. 趨近性觀察 (觀察到期前一週)
+            start_eval_date = expiry_date - datetime.timedelta(days=7)
+            eval_period_data = ohlcv_data[(ohlcv_data.index >= start_eval_date) & (ohlcv_data.index <= expiry_date)]
+
+            if not eval_period_data.empty:
+                print("\n觀察到期前一週價格走勢：")
+                plt.figure(figsize=(10, 4))
+                plt.plot(eval_period_data.index, eval_period_data['Close'], label='收盤價', marker='.')
+                plt.axhline(max_pain_price, color='red', linestyle='--', label=f'Max Pain ({max_pain_price:.2f})')
+                plt.title(f"{ticker_symbol} 到期前一週價格 vs Max Pain ({expiry_date_str} 到期)")
+                plt.xlabel("日期")
+                plt.ylabel("價格")
+                plt.legend()
+                plt.grid(True)
+                plt.show()
+                print("請觀察圖表，判斷價格在到期前是否有向 Max Pain 價格移動的趨勢。")
+            else:
+                print("無法獲取到期前一週的價格數據進行趨勢觀察。")
+
+        else:
+            print(f"警告：在數據中找不到 {expiry_date} 或之後的交易日數據，無法確定結算價。")
+
+    except ValueError:
+         print(f"錯誤：無法解析到期日字串 {expiry_date_str}。請確保格式為 YYYY-MM-DD。")
+    except Exception as e:
+        print(f"錯誤：評估 Max Pain 時發生錯誤：{e}")
+
+    print("重要提示：此評估為定性觀察，非嚴謹回測。Max Pain 理論有效性存疑且因股而異。")
+    print(f"--- {ticker_symbol} Max Pain 評估結束 ---")
+
+
+def main_workflow(us_ticker, tw_ticker, period, fred_api_key, fred_series_ids,
+                  ma_windows, pivot_levels, bb_period, bb_stddev,
+                  scrape_tw_opt, analyze_mp_us, analyze_mp_tw):
+    """主工作流程函數"""
+
+    print("===== 開始執行股票分析工作流程 =====")
+
+    # --- 1. 處理宏觀數據 ---
+    print("\n--- 正在獲取宏觀經濟數據 ---")
+    macro_data = None
+    if fred_series_ids:
+        macro_data = get_fred_data(fred_series_ids, fred_api_key)
+        if macro_data is not None:
+            print("宏觀數據預覽 (後 5 行):")
+            print(macro_data.tail())
+        else:
+            print("未能成功獲取宏觀數據。")
+    else:
+        print("未指定 FRED 指標，跳過宏觀數據獲取。")
+
+
+    # --- 2. 分析美股 ---
+    print(f"\n--- 開始分析美股：{us_ticker} ---")
+    us_ohlcv = get_ohlcv_data(us_ticker, period)
+
+    if us_ohlcv is not None:
+        # 計算技術指標
+        us_data_tech = calculate_moving_averages(us_ohlcv.copy(), ma_windows)
+        us_data_tech = calculate_pivot_points(us_data_tech)
+        us_data_tech = calculate_bollinger_bands(us_data_tech, bb_period, bb_stddev)
+
+        # 繪製技術圖表
+        plot_technical_chart(us_data_tech, us_ticker, pivot_levels, ma_windows, title_suffix="技術分析圖")
+
+        # Max Pain 分析 (如果啟用)
+        if analyze_mp_us:
+            print(f"\n--- 開始 {us_ticker} Max Pain 分析 ---")
+            us_options_df, us_expiry = get_us_options_chain(us_ticker)
+            if us_options_df is not None:
+                max_pain_us = calculate_max_pain(us_options_df)
+                if max_pain_us is not None and us_expiry is not None:
+                     # 傳遞 OHLCV 數據用於評估
+                    evaluate_max_pain(max_pain_us, us_ticker, us_ohlcv, us_expiry)
+            else:
+                print(f"無法獲取 {us_ticker} 的選擇權數據，跳過 Max Pain 分析。")
+    else:
+        print(f"無法獲取 {us_ticker} 的價格數據，跳過美股分析。")
+
+
+    # --- 3. 分析台股 ---
+    print(f"\n--- 開始分析台股：{tw_ticker} ---")
+    tw_ohlcv = get_ohlcv_data(tw_ticker, period)
+
+    if tw_ohlcv is not None:
+         # 計算技術指標
+        tw_data_tech = calculate_moving_averages(tw_ohlcv.copy(), ma_windows)
+        tw_data_tech = calculate_pivot_points(tw_data_tech)
+        tw_data_tech = calculate_bollinger_bands(tw_data_tech, bb_period, bb_stddev)
+
+        # 繪製技術圖表
+        plot_technical_chart(tw_data_tech, tw_ticker, pivot_levels, ma_windows, title_suffix="技術分析圖")
+
+        # Max Pain 分析 (如果啟用且依賴抓取)
+        if analyze_mp_tw:
+            print(f"\n--- 開始 {tw_ticker} Max Pain 分析 (依賴網頁抓取) ---")
+            if scrape_tw_opt:
+                # 注意：這裡的 ticker_code 可能需要轉換 (例如 '2330' 而非 '2330.TW')
+                # 這取決於 TAIFEX 網站的表示方式，需要使用者確認
+                tw_ticker_code_for_scrape = tw_ticker.split('.')
+                tw_options_df, tw_expiry = scrape_tw_options_chain(tw_ticker_code_for_scrape)
+
+                if tw_options_df is not None:
+                    max_pain_tw = calculate_max_pain(tw_options_df)
+                    if max_pain_tw is not None and tw_expiry is not None:
+                        # 傳遞 OHLCV 數據用於評估
+                        evaluate_max_pain(max_pain_tw, tw_ticker, tw_ohlcv, tw_expiry)
+                else:
+                    print(f"無法通過網頁抓取獲取 {tw_ticker} 的選擇權數據，跳過 Max Pain 分析。")
+            else:
+                print("未啟用台股選擇權抓取 (SCRAPE_TAIWAN_OPTIONS=False)，跳過 Max Pain 分析。")
+    else:
+        print(f"無法獲取 {tw_ticker} 的價格數據，跳過台股分析。")
+
+    print("\n===== 股票分析工作流程執行完畢 =====")
+
+
+# --- 執行主工作流程 ---
+if __name__ == "__main__":
+    main_workflow(
+        us_ticker=US_STOCK_TICKER,
+        tw_ticker=TW_STOCK_TICKER,
+        period=ANALYSIS_PERIOD,
+        fred_api_key=FRED_API_KEY,
+        fred_series_ids=FRED_SERIES_IDS,
+        ma_windows=MOVING_AVERAGES,
+        pivot_levels=PIVOT_LEVELS_TO_PLOT,
+        bb_period=BOLLINGER_PERIOD,
+        bb_stddev=BOLLINGER_STD_DEV,
+        scrape_tw_opt=SCRAPE_TAIWAN_OPTIONS,
+        analyze_mp_us=ANALYZE_MAX_PAIN_US,
+        analyze_mp_tw=ANALYZE_MAX_PAIN_TW
+    )
+
+
+
+(請注意：上述程式碼為一個完整的框架，特別是 scrape_tw_options_chain 函數需要使用者根據實際 TAIFEX 網站情況自行填充抓取邏輯。運行前請務必仔細檢查參數設定，尤其是 FRED API Key 和台股抓取相關設定。)
+
+VI. 解讀結果與理解限制
+
+本節旨在說明如何解讀前述流程產生的技術分析圖表和 Max Pain 評估結果，並再次強調所使用數據源的內在風險與限制。
+
+A. 讀懂技術分析輸出
+
+工作流程產生的整合圖表提供了豐富的視覺資訊，解讀時應注意以下幾點：
+
+樞紐點 (S1-S3, R1-R3, PP): 這些每日計算的水平線代表基於前一日價格行為的潛在短期支撐與壓力區 (40)。價格接近這些水平時，可能（但非必然）會出現暫停、盤整或反轉。它們是日內或極短期的參考點，其強度和有效性需結合其他指標判斷。
+
+布林通道 (Bollinger Bands):
+
+通道寬度： 反映了近期的市場波動性。通道變寬表示波動加劇，變窄（"擠壓 Squeeze" 51）則表示波動降低，可能預示著未來價格會有較大變動 (51)。
+
+價格位置： 價格接近上軌，表示相對於近期波動區間處於相對高位；接近下軌則處於相對低位 (54)。這可能暗示潛在的超買或超賣狀態，但需注意價格可能沿著軌道運行 (51)。
+
+中軌 (SMA): 通常是 20 日簡單移動平均線，可作為短期趨勢的參考 (53)。價格在中軌上方可能視為偏多，下方則偏空。
+
+移動平均線 (MA20, MA60): 分別代表短期（約一個月）和中期（約一季）的平均價格趨勢。它們的走向（向上、向下、走平）和相對位置（如黃金交叉、死亡交叉，雖然本分析不直接判斷）可用於輔助判斷趨勢方向和強度。
+
+B. 情境化 Max Pain 評估
+
+Max Pain 分析部分的產出旨在評估該理論在特定股票和到期日的潛在關聯性：
+
+計算結果： Max Pain 價格本身代表了理論上使選擇權賣方總體損失最小（買方損失最大）的履約價 (2)。
+
+評估意義： 將 Max Pain 價格與實際結算價比較，並觀察到期前的價格趨勢，是為了定性地感受市場價格是否受到選擇權市場大量未平倉合約的潛在引力影響 (67)。
+
+非交易信號： 必須強調，Max Pain 價格不應被視為直接的買賣信號 (2)。它更多地反映了市場某個層面的倉位結構和潛在壓力點，尤其是在臨近到期日時 (62)。一個較大的 Max Pain 價格與當前股價的偏離，可能暗示價格有回歸壓力，但這僅是眾多影響因素之一。
+
+C. 關鍵數據源風險評估
+
+理解本工作流程所依賴數據源的固有風險至關重要：
+
+yfinance:
+
+非即時性與延遲： 數據並非交易所即時數據，可能存在數分鐘至更長時間的延遲 (9)。
+
+準確性與完整性： 數據偶爾可能出現錯誤、遺漏（尤其對某些股票的選擇權數據 18 或歷史數據），或與官方數據源存在細微差異 (11)。選擇權數據缺乏希臘字母 (10)。
+
+依賴性： yfinance 的可用性完全依賴於 Yahoo Finance 網站的持續運營和其數據接口的穩定性 (6)。
+
+總結： yfinance 是一個方便、免費的數據來源，適用於一般性分析和學習，但其數據質量和可靠性無法與付費的專業數據源相比。
+
+TAIFEX 網頁抓取 (若啟用):
+
+極高脆弱性： 這是整個流程中最不穩定的環節。TAIFEX 網站的任何更新（HTML 結構、CSS 類名、URL 變更、數據呈現方式）都極有可能導致抓取腳本完全失效 (21)。
+
+潛在法律與合規風險： 自動化抓取可能違反 TAIFEX 的服務使用條款 (27)，儘管個人少量使用可能處於灰色地帶 (29)。使用者需自行評估並承擔相關法律風險。
+
+IP 封鎖風險： 過於頻繁或不當的抓取行為可能導致使用者的 IP 位址被 TAIFEX 網站封鎖。
+
+數據解析錯誤： 即使抓取成功，網頁數據格式的微小變化也可能導致解析錯誤，產生不準確的結果。
+
+總結： 依賴網頁抓取獲取台股選擇權數據是一個高風險、高維護成本的方案。雖然技術上可能實現短期自動化，但長期穩定性毫無保障。
+
+FRED API:
+
+可靠性： 相較於 yfinance 和網頁抓取，FRED API 通常被認為是較為穩定和可靠的官方數據來源 (37)。
+
+依賴性： 仍需依賴 FRED 服務的持續可用性以及使用者 API 金鑰的有效性。
+
+數據頻率： FRED 數據多為日度、月度、季度或年度數據，不適用於高頻分析。
+
+一般性限制：
+
+歷史不代表未來： 所有基於歷史數據的技術分析和理論（包括樞紐點、布林通道、Max Pain）都假設歷史模式會重演，但未來市場可能因各種已知或未知因素而表現不同 (47)。
+
+模型簡化： 本流程使用的模型（如標準樞紐點、標準布林通道、基礎 Max Pain 計算）是市場的簡化表示，忽略了許多其他可能影響價格的因素（如訂單流、市場深度、詳細財報、突發新聞等）。
+
+整個工作流程的總體可靠性受其最薄弱環節的制約。對於美股分析，主要風險來自 yfinance 數據的質量 (9)。而對於台股分析，尤其是涉及 Max Pain 的部分，引入的 TAIFEX 網頁抓取步驟 (21-28) 大大增加了流程的脆弱性和失敗的可能性。使用者必須清楚地認識到這種分層的風險狀況：美股分析相對穩定，而台股分析（特別是選擇權部分）則伴隨著顯著更高的不確定性。
+
+VII. 結論：有效利用此分析工作流程
+
+A. 交付成果總結
+
+本報告提供了一個基於 Python 並可在 Google Colab 中執行的自動化股票分析工作流程。其核心能力包括：系統性地獲取指定美股與台股的歷史價格、美國選擇權鏈數據（並指出了獲取台股選擇權數據的挑戰與高風險抓取方案）、以及 FRED 宏觀經濟指標；計算並視覺化關鍵技術水平，如標準樞紐點（S/R）和布林通道（價格帶）；以及計算 Max Pain 價格並提供一個定性的評估框架。此流程旨在為具備技術能力的交易者或投資者提供一個利用公開數據進行初步分析的工具。
+
+B. 強調注意事項
+
+使用者在運用此工作流程時，必須時刻謹記其內在的局限性：
+
+數據源風險： 深刻理解 yfinance 的數據限制，以及（若啟用）TAIFEX 網頁抓取的極高不穩定性和潛在合規風險。數據質量直接影響分析結果的可靠性。
+
+理論的概率性： 技術分析指標（樞紐點、布林通道）和 Max Pain 理論本質上是基於歷史模式和統計概率的觀察，它們不能保證未來的市場走向。市場行為受到多重複雜因素影響。
+
+非投資建議： 本工作流程及其產出僅為分析工具和參考資訊，絕非直接的買賣建議。使用者必須結合自身的風險承受能力、投資策略以及對市場的獨立判斷來做出決策。此工具應用於輔助決策，而非取代審慎的思考和盡職調查。
+
+C. 潛在的增強方向 (未來工作)
+
+本工作流程可以作為一個基礎框架，未來可考慮從以下方向進行擴展和增強：
+
+更豐富的技術指標： 整合更多技術分析指標，如相對強弱指數 (RSI)、移動平均收斂發散指標 (MACD)、成交量加權平均價 (VWAP) 或基於成交量分佈的支撐壓力分析。
+
+更穩健的錯誤處理： 針對數據獲取（特別是網頁抓取）環節，開發更完善的錯誤捕捉、重試機制和日誌記錄。
+
+數據源升級： 對於追求更高可靠性的使用者，可以考慮接入付費的金融數據 API，以獲取更準確、即時且全面的數據（包括台股選擇權和選擇權希臘字母）。
+
+進階評估與回測： 若能獲取可靠的歷史選擇權數據，可以開發更為量化的 Max Pain 策略回測框架，以統計學方法評估其歷史表現。
+
+使用者介面： 利用 Streamlit 或 Dash 等工具，將此 Colab 流程封裝成一個互動式的 Web 應用程式，提升易用性。
+
+總之，本報告提供的 Python 工作流程是在免費或半免費數據條件下，進行自動化股票技術分析與 Max Pain 評估的一次嘗試。使用者應在充分理解其能力與限制的前提下，審慎地運用其分析結果。
+
+引用的著作
+
+TAIWAN FUTURES EXCHANGE - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eIndex
+
+Max Pain Explained: How It's Calculated, With Examples - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/terms/m/maxpain.asp
+
+Import Federal Reserve Economic Data (FRED) - Stata, 檢索日期：4月 27, 2025， https://www.stata.com/links/stata-basics/import-data-fred/
+
+St. Louis Fed Web Services: API Key - FRED, 檢索日期：4月 27, 2025， https://fred.stlouisfed.org/docs/api/api_key.html
+
+FRED - Federal Reserve of Economic Data - Exploratory, 檢索日期：4月 27, 2025， https://docs.exploratory.io/data_import/cloud-apps-data/fred
+
+YFinance Python Package in a Spreadsheet - Row Zero, 檢索日期：4月 27, 2025， https://rowzero.io/blog/yfinance
+
+Download Financial Dataset Using Yahoo Finance in Python | A Complete Guide, 檢索日期：4月 27, 2025， https://www.analyticsvidhya.com/blog/2021/06/download-financial-dataset-using-yahoo-finance-in-python-a-complete-guide/
+
+how to get 1 minute price data of a specific time and date from yfinance? - Stack Overflow, 檢索日期：4月 27, 2025， https://stackoverflow.com/questions/69687722/how-to-get-1-minute-price-data-of-a-specific-time-and-date-from-yfinance
+
+Unable to get open price of a stock on the current day itself, getting yesterday instead · Issue #1591 · ranaroussi/yfinance - GitHub, 檢索日期：4月 27, 2025， https://github.com/ranaroussi/yfinance/issues/1591
+
+How to get Stock Options data with Python and yFinance - YouTube, 檢索日期：4月 27, 2025， https://www.youtube.com/watch?v=ZLbVsPy13QI
+
+yfinance Python Tutorial: Get Free Market Data - YouTube, 檢索日期：4月 27, 2025， https://www.youtube.com/watch?v=SxIwqdedomg&pp=0gcJCdgAo7VqN5tD
+
+A python command line tool to calculate options max pain for a given company symbol and options expiry date. - GitHub, 檢索日期：4月 27, 2025， https://github.com/asad70/Options-Max-Pain-Calculator
+
+Calculate Stock Options Max Pain Using Data From Yahoo Finance With Python, 檢索日期：4月 27, 2025， https://www.nbshare.io/notebook/318554522/Calculate-Stock-Options-Max-Pain-Using-Data-From-Yahoo-Finance-With-Python/
+
+What is Max Pain in Options? Max pain price explained - Option Alpha, 檢索日期：4月 27, 2025， https://optionalpha.com/learn/max-pain-options
+
+Options Metrics with Python: Unusual Activity & Put/Call Ratio - CodeArmo, 檢索日期：4月 27, 2025， https://www.codearmo.com/python-tutorial/calculate-options-metrics-python
+
+Get Free Options Data with Python: Yahoo finance & Pandas Tutorial - CodeArmo, 檢索日期：4月 27, 2025， https://www.codearmo.com/python-tutorial/options-trading-getting-options-data-yahoo-finance
+
+How To Get Options Data In Python Using yahoo_fin - YouTube, 檢索日期：4月 27, 2025， https://www.youtube.com/watch?v=Lj8QHPg2Rwg
+
+TWSE Capitalization Weighted Stock Index (^TWII) Options Chain - Yahoo Finance, 檢索日期：4月 27, 2025， https://ca.finance.yahoo.com/quote/%5ETWII/options/
+
+2 Unstoppable Stocks Destined to Achieve a $1 Trillion Valuation | The Motley Fool, 檢索日期：4月 27, 2025， https://www.fool.com/investing/2025/04/25/2-unstoppable-stocks-destined-to-achieve-a-1-trill/
+
+TAIWAN FUTURES EXCHANGE-Products-Equity Options-Single Stock Options/ETF Options - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eng2/sSO
+
+TAIWAN FUTURES EXCHANGE-Investor Protection-FAQ-Questions Frequently Asked by Traders-Information Systems, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eng9/tradersQAIS
+
+TAIWAN FUTURES EXCHANGE-Market Data-Data Download-Trading Information-Options-Historical Data Download - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eng3/optDailyMarketView?menuid1=03
+
+TAIWAN FUTURES EXCHANGE-Market Data-Daily Market Report-Options-Historical Data Download - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eng3/optDailyMarketView
+
+TAIWAN FUTURES EXCHANGE-Market Data-Market Data of Major Institutional Traders-Query-General Table-By the Date - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eng3/totalTableDate
+
+Webscraping NSE Options prices using Python BeautifulSoup, regarding encoding correction - Stack Overflow, 檢索日期：4月 27, 2025， https://stackoverflow.com/questions/54006315/webscraping-nse-options-prices-using-python-beautifulsoup-regarding-encoding-co
+
+Web Scrape - How do I click options based on select name using contains value?, 檢索日期：4月 27, 2025， https://stackoverflow.com/questions/66711929/web-scrape-how-do-i-click-options-based-on-select-name-using-contains-value
+
+TAIWAN FUTURES EXCHANGE-Privacy Statement - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eduEng/privacy
+
+TAIWAN FUTURES EXCHANGE-TAIFEX Website Terms of Service - 臺灣期貨交易所, 檢索日期：4月 27, 2025， https://www.taifex.com.tw/enl/eduEng/userTerms
+
+Is Web Scraping Legal? Navigating Terms of Service and Best Practices | EWDCI, 檢索日期：4月 27, 2025， https://ethicalwebdata.com/is-web-scraping-legal-navigating-terms-of-service-and-best-practices/
+
+Taiwan Futures Exchange | LSEG, 檢索日期：4月 27, 2025， https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/futures-data/taiwan-futures-exchange
+
+Taiwan Weighted Idx May '25 Futures Historical Data - Barchart.com, 檢索日期：4月 27, 2025， https://www.barchart.com/futures/quotes/TWK25/price-history/download
+
+Taiwan Futures Exchange (TAIFEX) (XTAF) Historical and Intraday Futures Price Data | Barchart Solutions, 檢索日期：4月 27, 2025， https://www.barchart.com/solutions/data/market/TAIWA
+
+FRED API in Python: Automated US Federal Reserve Economic Data - datons, 檢索日期：4月 27, 2025， https://datons.ai/download-and-analyze-fred-data-automatically-with-python/
+
+St. Louis Fed Web Services: FRED® API, 檢索日期：4月 27, 2025， https://fred.stlouisfed.org/docs/api/fred/
+
+FRED API key — fredr-key - Sam Boysel, 檢索日期：4月 27, 2025， https://sboysel.github.io/fredr/reference/fredr-key.html
+
+Quickstart Guide — FRB 1.0 documentation, 檢索日期：4月 27, 2025， https://frb.readthedocs.io/en/latest/usage.html
+
+fredapi - PyPI, 檢索日期：4月 27, 2025， https://pypi.org/project/fredapi/
+
+pyfredapi - Read the Docs, 檢索日期：4月 27, 2025， https://pyfredapi.readthedocs.io/en/latest/
+
+gw-moore/pyfredapi: Python API Client for FRED - GitHub, 檢索日期：4月 27, 2025， https://github.com/gw-moore/pyfredapi
+
+Support and Resistance Levels | Python - The FinAnalytics, 檢索日期：4月 27, 2025， https://www.thefinanalytics.com/post/support-and-resistance-levels
+
+Technical Analysis Bollinger Bands with Python | FMP - Financial Modeling Prep, 檢索日期：4月 27, 2025， https://site.financialmodelingprep.com/developer/docs/blog/technical-analysis-bollinger-bands-with-python
+
+Pivot Point: Definition, Formulas, Uses and Limitations, 檢索日期：4月 27, 2025， https://www.bajajfinserv.in/pivot-points
+
+Pivot point (technical analysis) - Wikipedia, 檢索日期：4月 27, 2025， https://en.wikipedia.org/wiki/Pivot_point_(technical_analysis)
+
+Pivot Points - Definition, Calculation, Formula, Examples - Corporate Finance Institute, 檢索日期：4月 27, 2025， https://corporatefinanceinstitute.com/resources/career-map/sell-side/capital-markets/pivot-points/
+
+How are the pivot points derived while using the Central Pivot Range (CPR)?, 檢索日期：4月 27, 2025， https://support.zerodha.com/category/trading-and-markets/charts-and-orders/charts/articles/how-are-pivot-points-derived-while-using-the-cpr
+
+How to Calculate Pivot Points - Babypips.com, 檢索日期：4月 27, 2025， https://www.babypips.com/learn/forex/how-to-calculate-pivot-points
+
+Pivot Point Strategy - QuantInsti Blog, 檢索日期：4月 27, 2025， https://blog.quantinsti.com/pivot-point-strategy/
+
+How To Implement Bollinger Bands In Python Using Pandas TA - TradeNvestEasy, 檢索日期：4月 27, 2025， https://tradenvesteasy.com/how-to-implement-bollinger-bands-in-python/
+
+Bollinger Bands Explained: Formula & Trading Strategies | Britannica Money, 檢索日期：4月 27, 2025， https://www.britannica.com/money/bollinger-bands-indicator
+
+Bollinger Bands - Wikipedia, 檢索日期：4月 27, 2025， https://en.wikipedia.org/wiki/Bollinger_Bands
+
+What Are Bollinger Bands? - Fidelity Investments, 檢索日期：4月 27, 2025， https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/bollinger-bands
+
+RSI with Bollinger Bands | TrendSpider Learning Center, 檢索日期：4月 27, 2025， https://trendspider.com/learning-center/rsi-with-bollinger-bands/
+
+Bollinger Bands: Strategy & Formula in Trading | CMC Markets, 檢索日期：4月 27, 2025， https://www.cmcmarkets.com/en-gb/trading-guides/what-are-bollinger-bands
+
+Bollinger Bands: What They Are, and What They Tell Investors - Investopedia, 檢索日期：4月 27, 2025， https://www.investopedia.com/terms/b/bollingerbands.asp
+
+Pandas Bollinger Bands - Kaggle, 檢索日期：4月 27, 2025， https://www.kaggle.com/code/blakemarterella/pandas-bollinger-bands
+
+Calculate Bollinger Z-score using Pandas - python - Stack Overflow, 檢索日期：4月 27, 2025， https://stackoverflow.com/questions/77499302/calculate-bollinger-z-score-using-pandas
+
+Calculating Bollinger Band Correctly - Quantitative Finance Stack Exchange, 檢索日期：4月 27, 2025， https://quant.stackexchange.com/questions/11264/calculating-bollinger-band-correctly
+
+Bollinger Bands with Python - CodeArmo, 檢索日期：4月 27, 2025， https://www.codearmo.com/python-tutorial/bollinger-bands-python
+
+Python for Finance with yfinance | Stock Market - Kaggle, 檢索日期：4月 27, 2025， https://www.kaggle.com/code/rizwanrizwannazir/python-for-finance-with-yfinance-stock-market
+
+Max Pain Options | Blog | Option Samurai, 檢索日期：4月 27, 2025， https://optionsamurai.com/blog/max-pain-options/
+
+Max Pain (Options) - Overview, How It Works, Calculation - Corporate Finance Institute, 檢索日期：4月 27, 2025， https://corporatefinanceinstitute.com/resources/derivatives/max-pain-options/
+
+Max Pain | OptionCharts, 檢索日期：4月 27, 2025， https://optioncharts.io/docs/max-pain
+
+What is Max Pain? Meaning, How to Calculate & Example | BlinkX, 檢索日期：4月 27, 2025， https://blinkx.in/en/knowledge-base/derivatives/what-is-max-pain
+
+What Is Max Pain in Options Trading? - SoFi, 檢索日期：4月 27, 2025， https://www.sofi.com/learn/content/max-pain-options/
+
+Max Pain Theory Explained - SpotGamma Support Center, 檢索日期：4月 27, 2025， https://support.spotgamma.com/hc/en-us/articles/12772191681299-Max-Pain-Theory-Explained
+
+Max Pain & PCR Ratio – Varsity by Zerodha, 檢索日期：4月 27, 2025， https://zerodha.com/varsity/chapter/max-pain-pcr-ratio/
+
+Max Pain Theory: Boost Options Trading with 1LY Options - Alice Blue, 檢索日期：4月 27, 2025， https://aliceblueonline.com/max-pain-theory-boost-options-trading-with-1ly-options/
+
+Unveiling the Mystery of 'Max Pain' in Options Trading, 檢索日期：4月 27, 2025， https://thetradinganalyst.com/max-pain-options/
+
+Understanding Max Pain in the Stock Market - ICFM, 檢索日期：4月 27, 2025， https://www.icfmindia.com/blog/understanding-max-pain-in-the-stock-market
+
+Understanding Max Pain: Its Theory, Complications & Example - Kotak Securities, 檢索日期：4月 27, 2025， https://www.kotaksecurities.com/investing-guide/derivatives/understand-max-pain/
+
+Max Pain Options: How to Optimize Your Trading Strategies - XS, 檢索日期：4月 27, 2025， https://www.xs.com/en/blog/max-pain-options/
+
+All About Max Pain - My Espresso, 檢索日期：4月 27, 2025， https://www.myespresso.com/bootcamp/module/options/max-pain
+
+Quant Investing: Max-Pain Theory and the Option Force Crystal Ball - Gamma Paradigm, 檢索日期：4月 27, 2025， https://gammaparadigm.com/2021/10/06/max-pain-theory-and-the-option-force-crystal-ball/
+
+How Accurate is Max Pain in Option Trading?, 檢索日期：4月 27, 2025， https://optioncharts.io/blog/how-accurate-is-max-pain-in-option-trading
+
+Updated-Max-Pain-Calculator - GitHub, 檢索日期：4月 27, 2025， https://github.com/asad70/Options-Max-Pain-Calculator/blob/master/Updated-Max-Pain-Calculator
+
+vishalv95/MaxPain: Trading strategy based on the Maximum Pain Theory - GitHub, 檢索日期：4月 27, 2025， https://github.com/vishalv95/MaxPain
+
+Backtesting a Trading Strategy in Python With Datalore and AI Assistant - The JetBrains Blog, 檢索日期：4月 27, 2025， https://blog.jetbrains.com/datalore/2024/04/05/backtesting-a-trading-strategy-in-python-with-datalore-and-ai-assistant
+
+Building your own backtester : r/algotrading - Reddit, 檢索日期：4月 27, 2025， https://www.reddit.com/r/algotrading/comments/104ji58/building_your_own_backtester/
+
+Build a custom backtester with Python - AlgoTrading101 Blog, 檢索日期：4月 27, 2025， https://algotrading101.com/learn/build-my-own-custom-backtester-python/
+
+Python backtesting frameworks that take spread into account? : r/algotrading - Reddit, 檢索日期：4月 27, 2025， https://www.reddit.com/r/algotrading/comments/fn6nt4/python_backtesting_frameworks_that_take_spread/
+
+Profiting from Max Pain Options Theory - YouTube, 檢索日期：4月 27, 2025， https://www.youtube.com/watch?v=39CPROAWw6A

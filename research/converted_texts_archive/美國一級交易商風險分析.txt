@@ -1,0 +1,1041 @@
+美國一級交易商風險評估：基差交易、波動性與衍生性商品曝險
+
+日期： 2025年7月26日
+
+編製者： 金融行業分析師
+
+I. 執行摘要
+
+概覽： 本報告旨在評估當前 25 家美國一級交易商（Primary Dealers） 的風險狀況，重點關注其在美國國債基差交易（Treasury Basis Trade）的曝險、債券市場波動加劇以及信用違約交換（Credit Default Swap, CDS）等衍生性商品活動（特別是作為信用保護賣方）所帶來的脆弱性。這些風險將結合各交易商的財務健康狀況、槓桿水平及資本適足性進行評估。
+
+方法論： 本報告採用多因素風險評估框架，結合對潛在基差交易和 CDS 賣方曝險的定性分析（基於業務組合和市場角色推斷），以及對資產負債表規模、槓桿率（一級資本槓桿率或補充槓桿率 SLR）、風險加權資產（Risk-Weighted Assets, RWA）、資本緩衝（普通股權益第一類資本比率 CET1 Ratio）和對市場波動敏感性（以固定收益交易規模和 MOVE 指數相關性為代理變數）的定量分析。交易商依風險程度進行排序（1 為風險最高，10 為風險最低）。
+
+主要發現： 數家一級交易商因多重因素疊加而呈現較高的風險狀況，這些因素包括：推斷其在槓桿基差交易中有顯著曝險、龐大的固定收益業務對市場波動高度敏感、作為 CDS 賣方可能面臨的交易對手風險，以及相較於同業較低的資本水平或較高的槓桿率。風險最高的機構包括 [基於完整分析後填寫，例如：德意志銀行證券、巴克萊資本、法國興業銀行紐約分行]。
+
+結論： 美國國債供應量龐大 、市場潛在劇烈波動 以及基差交易等槓桿交易策略的盛行 ，為一級交易商創造了複雜的風險環境。槓桿率等監管限制 在市場壓力下可能變得更具約束性，限制交易商的中介能力 並可能放大市場失序。
+
+II. 緒論
+
+一級交易商的角色： 一級交易商在美國金融體系中扮演著關鍵角色。他們是紐約聯邦儲備銀行執行貨幣政策時的交易對手 ，負責承銷美國國債標售，並在美國國債這個全球最重要的金融市場 中擔任主要的市場營造者，提供關鍵的流動性 。其系統重要性不言而喻。
+
+當前市場背景： 目前市場環境具有以下特徵：
+
+美國國債存量巨大且預計將持續增加 ，對市場的中介能力構成挑戰。
+
+近期國債市場的壓力事件（如 2020 年 3 月）突顯了潛在的市場脆弱性 。
+
+債券市場波動性加劇，如 MOVE 指數所示 ，反映了圍繞利率、通膨和政策的不確定性 。
+
+監管機構高度關注槓桿交易策略，特別是國債基差交易 。
+
+CDS 等場外衍生性商品市場中的交易對手風險持續存在 。
+
+目標與範疇： 本報告旨在基於基差交易、債券市場波動性及 CDS 賣方活動等特定風險因素，結合各交易商自身的財務實力和資本緩衝，識別並排序美國一級交易商的相對風險曝險。分析範疇僅限於當前一級交易商名單 及上述特定風險因子。
+
+III. 美國一級交易商概況
+
+官方名單： 根據紐約聯邦儲備銀行的最新公告，目前共有 25 家指定的一級交易商 。詳細名單及其母公司資訊如下表所示。表 1：當前美國一級交易商 (截至 2025 年 7 月)
+
+一級交易商名稱
+
+母公司控股公司 (若適用)
+
+母公司所在國
+
+ASL Capital Markets Inc.
+
+
+
+美國
+
+Bank of Montreal, Chicago Branch
+
+Bank of Montreal
+
+加拿大
+
+Bank of Nova Scotia, New York Agency
+
+The Bank of Nova Scotia
+
+加拿大
+
+BNP Paribas Securities Corp.
+
+BNP Paribas S.A.
+
+法國
+
+Barclays Capital Inc.
+
+Barclays PLC
+
+英國
+
+BofA Securities, Inc.
+
+Bank of America Corporation
+
+美國
+
+Cantor Fitzgerald & Co.
+
+Cantor Fitzgerald, L.P.
+
+美國
+
+Citigroup Global Markets Inc.
+
+Citigroup Inc.
+
+美國
+
+Daiwa Capital Markets America Inc.
+
+Daiwa Securities Group Inc.
+
+日本
+
+Deutsche Bank Securities Inc.
+
+Deutsche Bank AG
+
+德國
+
+Goldman Sachs & Co. LLC
+
+The Goldman Sachs Group, Inc.
+
+美國
+
+HSBC Securities (USA) Inc.
+
+HSBC Holdings plc
+
+英國
+
+Jefferies LLC
+
+Jefferies Financial Group Inc.
+
+美國
+
+J.P. Morgan Securities LLC
+
+JPMorgan Chase & Co.
+
+美國
+
+Mizuho Securities USA LLC
+
+Mizuho Financial Group, Inc.
+
+日本
+
+Morgan Stanley & Co. LLC
+
+Morgan Stanley
+
+美國
+
+NatWest Markets Securities Inc.
+
+NatWest Group plc
+
+英國
+
+Nomura Securities International, Inc.
+
+Nomura Holdings, Inc.
+
+日本
+
+RBC Capital Markets, LLC
+
+Royal Bank of Canada
+
+加拿大
+
+Santander US Capital Markets LLC
+
+Banco Santander, S.A.
+
+西班牙
+
+SMBC Nikko Securities America, Inc.
+
+Sumitomo Mitsui Financial Group
+
+日本
+
+Societe Generale, New York Branch
+
+Societe Generale S.A.
+
+法國
+
+TD Securities (USA) LLC
+
+The Toronto-Dominion Bank
+
+加拿大
+
+UBS Securities LLC.
+
+UBS Group AG
+
+瑞士
+
+Wells Fargo Securities, LLC
+
+Wells Fargo & Company
+
+美國
+
+資料來源：
+
+
+
+
+
+近期變動： 值得注意的近期變動包括 SMBC 日興證券美國公司（SMBC Nikko Securities America, Inc.）的加入 ，以及 Amherst Pierpont Securities LLC 更名為 Santander US Capital Markets LLC 。此外，Citadel Securities 決定不尋求一級交易商資格，理由是監管要求相對於收益遞減 ，這突顯了成為一級交易商所需承擔的成本與義務。
+
+交易商多元性： 一級交易商的組成多元，包括大型美國銀行控股公司（BHCs）、外國銀行機構（FBOs）以及非銀行機構（如 Cantor Fitzgerald, Jefferies）。需要注意的是，不同類型的交易商在數據可得性及適用的監管框架（例如補充槓桿率 SLR 的應用 ）方面可能存在差異。
+
+IV. 風險因子分析
+
+A. 國債基差交易曝險
+
+交易機制： 現金-期貨基差交易是指同時買入美國國債（通常透過回購市場融資）並賣出相應的國債期貨合約，以捕捉淨基差（即經融資成本調整後的價格差異）。此交易高度依賴回購市場融資，且通常是隔夜滾動 。
+
+槓桿的角色： 由於基差利潤微薄，交易者通常需要運用高槓桿（對沖基金槓桿率常達 50:1 或更高 ）來放大回報，這也同時放大了潛在風險 。
+
+內含風險： 基差交易所涉及的具體風險包括：
+
+融資/展期風險 (Funding/Rollover Risk)： 每日依賴回購市場進行短期融資，使交易者暴露於利率上升或無法順利展期融資的風險 。
+
+流動性風險 (Margin Calls)： 市場波動可能觸發期貨部位的保證金追繳；若現金與期貨價格脫鉤，抵押品價值可能不足以應付保證金要求，迫使交易者追加現金或強制平倉 。
+
+交易對手信用風險 (Counterparty Credit Risk)： 回購或期貨交易的對手方違約風險 。
+
+市場風險 (Market Risk)： 在合約到期前，基差意外擴大或反轉的風險 。
+
+交易商的參與及限制：
+
+中介角色： 交易商為對沖基金及其他市場參與者提供中介服務，協助其進行國債現貨買賣及期貨交易 。
+
+回購融資： 交易商是回購市場的主要對手方，為對沖基金等槓桿參與者提供融資（通常以購入的國債作為抵押品）。一級交易商是回購市場中國債抵押品供應的核心守門人 。
+
+自身庫存避險： 交易商亦利用期貨對沖自身持有的國債庫存風險，特別是在標售後購入的長天期附息債券 。
+
+資產負債表限制： 交易商中介和吸收資金流（尤其在壓力時期）的能力受到資產負債表限制，特別是補充槓桿率（SLR）等監管資本規定 。放寬 SLR 限制可增加交易商的國債交易活動 。危機後的監管改革增加了資產負債表成本，導致交易商減少部位持有並加速庫存去化 。
+
+擔保回購 (Sponsored Repo)： 交易商在集中清算的回購市場（如 FICC DVP）擔任擔保人，為對沖基金等非清算會員擔保交易，使自身暴露於交易對手違約風險 。
+
+市場影響與系統性擔憂：
+
+正常時期： 基差交易透過連結現貨與期貨市場，有助於提升市場效率和流動性 。
+
+壓力放大效應： 大規模、快速的槓桿基差交易平倉（例如因保證金追繳或融資壓力）可能超出交易商的吸收能力，引發國債拋售、加劇價格扭曲並放大市場壓力，2020 年 3 月的情況可能就是例證 。據估計，2020 年 3 月對沖基金及其他槓桿投資者拋售的國債規模介於 350 億至 1730 億美元之間 。
+
+監管審查： 由於潛在的金融穩定風險，此交易已引起監管機構（如 IAWG 、FSB 、CFTC ）的高度關注 。
+
+交易商曝險評估（定性）： 根據固定收益業務規模、在國債及期貨市場的造市角色以及回購市場活動，評估哪些交易商可能有較高的曝險。擁有大型交易業務的交易商（如 JPM, Citi, BofA, GS, MS）可能直接或透過中介/融資方式更深度地參與其中。
+
+深層分析與關聯：
+
+監管資本限制（尤其是 SLR）直接成為交易商在壓力時期吸收基差交易平倉的瓶頸，將市場中介功能轉變為潛在的系統性風險放大器。這是因為 (1) 基差交易高度槓桿化 ；(2) 交易商中介這些交易並提供回購融資 ；(3) 壓力時期（如波動性急升）的保證金追繳迫使平倉 ；(4) 交易商必須將這些平倉部位納入自身資產負債表 ；(5) SLR 等監管規定限制了交易商相對於資本的資產負債表規模 ；(6) 因此，當限制生效時，交易商無法吸收資金流，導致拋售和更廣泛的市場混亂 。
+
+透過基差交易，國債現貨、期貨及回購市場緊密相連，意味著一個市場的壓力（如回購融資壓力）能迅速傳導至其他市場。由於交易商處於核心中介地位，他們成為了主要的傳導渠道。這是因為 (1) 基差交易連結了現貨、期貨和回購市場 ；(2) 交易商是這三個市場的核心中介 ；(3) 其中一個領域的衝擊（如回購利率飆升 ）會迫使去槓桿；(4) 去槓桿涉及跨市場的同步交易（賣出現貨、買入期貨），均由交易商中介 ；(5) 交易商因吸收這些資金流而承受的資產負債表壓力，可能導致他們減少在其他市場（國債二級市場、回購中介 ）的流動性供應，從而擴散初始衝擊。
+
+雖然基差交易在正常時期有助於市場運作，但其對交易商中介能力的依賴創造了一種順週期的脆弱性——在市場壓力最大、最需要流動性的時候，中介能力反而會萎縮。這是因為 (1) 交易商為基差交易提供必要的中介服務 ；(2) 市場壓力會增加波動性 和交易商資產負債表的使用率 ；(3) 在資本限制下，更高的資產負債表使用率會降低交易商提供進一步中介/流動性的意願和能力 ；(4) 這種能力的下降恰恰發生在槓桿參與者因壓力需要平倉的時候 ，從而加劇了壓力 。
+
+B. 債券市場波動性影響
+
+MOVE 指數分析： ICE 美銀 MOVE 指數是衡量美國國債市場隱含波動率的關鍵指標 。其計算基於不同期限（2年、5年、10年、30年）國債的場外期權價格 。近期趨勢顯示其波動範圍巨大，從 2021 年春季的 50 以下飆升至 2023 年 3 月銀行業危機時的近 200 ，並在 2024/2025 年維持相對高位 。MOVE 指數常被視為股市波動率（VIX）和更廣泛市場壓力的領先指標 。
+
+近期波動性質： 當前的市場壓力與 2008 年全球金融危機不同，更多地表現為「久期危機」（duration crisis），即利率不確定性導致的資產負債期限錯配，而非「信用危機」（credit crisis）。高 MOVE 指數反映了對利率路徑的顯著不確定性 。
+
+對交易商的影響：
+
+交易收入： 波動性增加可能提升交易收入（尤其在 FICC 和股票業務），因為客戶交易活動增加且買賣價差擴大 。然而，極端或意外的波動也可能導致交易虧損。
+
+庫存風險： 交易商為造市而持有固定收益證券庫存 。高波動性增加了庫存價值下跌（按市價計值虧損）的風險，並使避險成本更高/更困難 。當庫存風險高時，交易商可能不願提供市場流動性，尤其對流動性較差的證券（如老債 ）。
+
+資產負債表與資本： 波動性影響資產和衍生性商品的估值，可能增加風險加權資產（RWA）並對資本比率造成壓力，尤其是在發生虧損時 。波動性導致的衍生性商品（包括基差交易或避險使用的期貨）保證金要求提高，需要交易商（或其客戶，進而使交易商承擔風險）提供更多抵押品 。
+
+交易商敏感性評估： 根據全球市場/FICC/股票交易業務的規模以及交易資產/負債帳簿的大小（可從財務報告中獲取）來評估哪些交易商更為敏感。較大的交易業務意味著受波動性影響（無論正面或負面）的潛力更大。（例如 BofA ；Citi ；GS ；JPM ；MS ）。
+
+深層分析與關聯：
+
+加劇的債券市場波動性（高 MOVE 指數）直接對交易商的資產負債表容量構成壓力，不僅透過潛在的交易虧損，還透過增加與市場風險和交易對手信用風險（CVA）相關的 RWA，以及提高衍生性商品避險的抵押品要求。這是因為 (1) 波動性增加了衍生性商品的潛在未來曝險，提高了 CVA 費用和相關 RWA ；(2) 波動性提高了用於避險或客戶交易的期貨及其他衍生性商品的保證金要求 ；(3) 更高的 RWA 和抵押品要求消耗了交易商的資本和流動性 ；(4) 這降低了其從事其他活動（包括造市和吸收壓力資金流）的能力 。
+
+「久期危機」（利率波動）與「信用危機」（違約風險） 的區別意味著對交易商的主要影響不同。高 MOVE 指數主要壓力在於交易帳簿、避險成本以及對利率敏感部位（如基差交易）的融資。而信用危機則更直接地衝擊貸款帳簿和 CDS 曝險。然而，由久期引發的嚴重波動可能觸發流動性/融資壓力，進而導致信用事件或交易對手倒閉。這是因為 (1) 高 MOVE 指數反映利率不確定性 ；(2) 這直接影響債券/衍生性商品的估值和避險成本 ；(3) 對利率敏感的槓桿部位（基差交易）面臨保證金/融資壓力 ；(4) 由此壓力導致的強制去槓桿可能引發拋售 ，並可能將交易對手推向違約邊緣，從而將久期壓力與潛在的信用事件聯繫起來。
+
+雖然適度的波動性可以提升交易商的交易收入，但極端的波動性（MOVE 指數急劇飆升）可能會因為資本限制和庫存風險規避，導致交易商防禦性地縮減風險承擔，從而降低整體市場流動性，其負面影響可能超過短期的收入增長。這是因為 (1) 波動性增加了交易機會和價差 ；(2) 交易商是主要的流動性提供者 ；(3) 極端波動性顯著增加了庫存風險和避險成本 ；(4) 具約束力的資本/槓桿限制了風險吸收能力 ；(5) 面對高風險和約束限制，交易商會減少造市活動 ，儘管價差可能擴大，但整體市場流動性會下降。
+
+C. 衍生性商品曝險 – CDS 保護賣方
+
+CDS 機制： 信用違約交換（CDS）是一種合約，保護賣方定期收取費用，以換取在參考實體發生信用事件（如違約、破產、重組）時向保護買方提供補償 。結算方式可以是實物交割或現金結算 。
+
+交易商角色： 交易商是 CDS 市場的核心參與者，擔任造市商（報出買賣價差），且通常是重要的信用保護淨賣方，實質上承擔了類似於槓桿化持有債券的信用風險 。大型交易商透過賣出保護提供流動性，尤其是在市場壓力時期 。有研究指出，銀行在購買保護時可能因其資訊優勢而獲得較好價格，交易商則可將此資訊變現 。
+
+保護賣方的風險：
+
+信用風險： 若參考實體發生信用事件，賣方需支付賠償（面值減去回收價值，或實物交割時支付面值），這是直接的虧損風險 。
+
+交易對手風險（避險部位）： 賣方通常透過購買反向保護來對沖其曝險。若其避險交易的對手方違約，賣方將面臨風險 。
+
+市場風險/價差風險： 即使沒有違約，若 CDS 利差在到期前大幅擴闊，賣方也會面臨按市價計值的虧損。
+
+跳躍至違約風險 (Jump-to-Default Risk)： 信用事件發生時，曝險可能急劇且突然地增加，可能超過已繳納的抵押品 。
+
+相關性/錯誤方向風險 (Correlation/Wrong-Way Risk)： 如果保護賣方自身的信用狀況與參考實體的違約風險呈正相關，風險將被放大 。
+
+市場結構與系統性擔憂：
+
+市場集中度： CDS 市場高度集中於少數大型交易商（G14 約佔 90% ）。
+
+相互關聯性： 交易商之間頻繁交易以管理部位 。
+
+系統性風險： 主要保護賣方的違約可能因交易對手曝險和市場的相互關聯性而引發連鎖倒閉，潛在的抵押品不足問題會加劇此風險 。AIG 和雷曼兄弟是說明此風險重要性的關鍵案例 。
+
+交易商曝險評估（定性）： 根據衍生性商品交易（FICC）業務規模和市場評論，評估哪些交易商可能是 CDS 市場的主要參與者。擁有大型全球衍生性商品業務的銀行（如 JPM, Citi, BofA, GS, MS, Barclays, DB, UBS, BNP, SG）通常是主導者。公開數據難以量化淨賣方部位。
+
+深層分析與關聯：
+
+作為 CDS 保護淨賣方的交易商，實質上是在集中儲存信用風險。考慮到市場的高度集中性，若多家大型賣方同時面臨壓力，這將成為系統性弱點。這是因為 (1) 交易商是主要的 CDS 保護賣方 ；(2) 賣出保護在經濟上類似於槓桿化的長倉信用部位 ；(3) 市場集中於少數大型交易商 ；(4) 如果系統性衝擊導致廣泛的信用惡化或使主要交易商承壓，他們履行 CDS 合約支付義務的能力將受到質疑，引發交易對手風險擔憂和潛在的傳染效應 。
+
+場外（OTC）CDS 市場的不透明性以及潛在的抵押品不足 ，使得評估真實的交易對手曝險變得困難，從而在危機期間信任蒸發時，增加了不確定性和市場混亂的可能性。這是因為 (1) CDS 是雙邊 OTC 合約 ；(2) 全額抵押，特別是所有交易對手的初始保證金，並非總是存在或充足，尤其在歷史上 ；(3) 缺乏透明度使得市場參與者和監管機構難以衡量交易對手風險的真實程度和分佈 ；(4) 在危機期間（如 2008 年），這種不確定性助長了恐慌和市場凍結，因為交易對手不願進行交易 。
+
+雖然交易商透過賣出 CDS 保護提供流動性 ，但這種流動性供應是以將顯著的、可能相關的尾部風險集中到其資產負債表為代價的，這直接將市場流動性供應與系統性風險聯繫起來。這是因為 (1) 交易商賣出保護，吸收了買方的風險 ；(2) 這為那些希望避險或做空信用風險的參與者提供了流動性 ；(3) 然而，這將參考實體的信用風險集中到了交易商的資產負債表上 ；(4) 如果風險同時在許多參考實體上爆發（系統性信用事件），集中的虧損可能損害主要交易商，威脅金融穩定 。
+
+V. 財務健康與資本適足性評估
+
+比較分析： 利用最新的可用季度數據（2025 年第一季或 2024 年第四季），分析一級交易商母公司的關鍵財務指標，重點關注：
+
+規模： 總資產（反映系統重要性）。
+
+槓桿： 一級資本槓桿率（Tier 1 Leverage Ratio）或補充槓桿率（SLR）（若前者不可用/相關性較低）。較低的比率表示較高的槓桿。
+
+風險基礎資本： 普通股權益第一類資本（CET1）比率（標準法）。較低的比率表示相對於 RWA 的損失緩衝較小。
+
+風險狀況： 標準法風險加權資產（RWA）。較高的 RWA 表示風險較高的資產組合或需要更多資本支持的較大表外曝險。
+
+數據表：表 2：主要一級交易商母公司關鍵財務指標 (截至最新季度)
+
+一級交易商
+
+母公司控股公司
+
+報告季度
+
+總資產 (十億美元)
+
+標準法 RWA (十億美元)
+
+CET1 比率 (%)
+
+Tier 1 槓桿率 / SLR (%)
+
+資料來源
+
+BofA Securities, Inc.
+
+Bank of America Corp.
+
+2025 Q1
+
+3,350
+
+~1,705
+
+11.8
+
+6.8
+
+
+
+Citigroup Global Markets Inc.
+
+Citigroup Inc.
+
+2025 Q1
+
+2,572
+
+1,159
+
+13.4
+
+5.8 (SLR)
+
+
+
+Goldman Sachs & Co. LLC
+
+The Goldman Sachs Group, Inc.
+
+2025 Q1
+
+1,766
+
+696
+
+14.8
+
+5.5 (SLR)
+
+
+
+J.P. Morgan Securities LLC
+
+JPMorgan Chase & Co.
+
+2025 Q1
+
+4,400
+
+1,800
+
+15.4
+
+6.0 (SLR)
+
+
+
+Morgan Stanley & Co. LLC
+
+Morgan Stanley
+
+2025 Q1
+
+1,300
+
+503
+
+15.3
+
+6.9
+
+
+
+Wells Fargo Securities, LLC
+
+Wells Fargo & Company
+
+2025 Q1
+
+1,950
+
+1,223
+
+11.1
+
+8.1
+
+
+
+Barclays Capital Inc.
+
+Barclays PLC
+
+2024 FY
+
+~1,903
+
+~449
+
+13.6
+
+5.0 (UK)
+
+
+
+Deutsche Bank Securities Inc.
+
+Deutsche Bank AG
+
+2024 FY
+
+~1,491
+
+~384
+
+13.8
+
+4.6
+
+
+
+UBS Securities LLC.
+
+UBS Group AG
+
+2024 FY
+
+1,565
+
+499
+
+14.3
+
+4.7 (CET1 Lev)
+
+
+
+RBC Capital Markets, LLC
+
+Royal Bank of Canada
+
+2025 Q1
+
+~1,600
+
+~517
+
+13.2
+
+4.4
+
+
+
+TD Securities (USA) LLC
+
+The Toronto-Dominion Bank
+
+2025 Q1
+
+~1,529
+
+~474
+
+13.1
+
+4.2
+
+
+
+Bank of Montreal, Chicago Branch
+
+Bank of Montreal
+
+2025 Q1
+
+~1,072
+
+~317
+
+13.6
+
+4.4
+
+
+
+BNP Paribas Securities Corp.
+
+BNP Paribas S.A.
+
+2024 FY
+
+~2,908
+
+N/A
+
+12.9
+
+N/A
+
+
+
+Societe Generale, New York Branch
+
+Societe Generale S.A.
+
+2024 FY
+
+~1,691
+
+~419
+
+13.3
+
+4.3
+
+
+
+Santander US Capital Markets LLC
+
+Banco Santander, S.A.
+
+2024 FY
+
+~1,975
+
+~671
+
+12.8
+
+N/A
+
+
+
+Nomura Securities International, Inc.
+
+Nomura Holdings, Inc.
+
+2024 Q3 (Dec '23)
+
+~403
+
+~123
+
+16.2
+
+N/A
+
+
+
+Jefferies LLC
+
+Jefferies Financial Group Inc.
+
+2025 Q1 (Feb '25)
+
+70
+
+N/A
+
+N/A
+
+N/A (6.8x Assets/Equity)
+
+
+
+Cantor Fitzgerald & Co.
+
+Cantor Fitzgerald, L.P.
+
+2023 FY (Dec '23)
+
+13 (CF&Co)
+
+N/A
+
+N/A
+
+N/A
+
+
+
+Bank of Nova Scotia, New York Agency
+
+The Bank of Nova Scotia
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+Daiwa Capital Markets America Inc.
+
+Daiwa Securities Group Inc.
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+HSBC Securities (USA) Inc.
+
+HSBC Holdings plc
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+Mizuho Securities USA LLC
+
+Mizuho Financial Group, Inc.
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+NatWest Markets Securities Inc.
+
+NatWest Group plc
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+SMBC Nikko Securities America, Inc.
+
+Sumitomo Mitsui Financial Group
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+ASL Capital Markets Inc.
+
+
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+N/A
+
+註：N/A 表示數據在提供的資料中不可用或不適用。貨幣轉換使用近似匯率 (例如 1 GBP = 1.25 USD, 1 EUR = 1.075 USD, 1 CAD = 0.73 USD, 1 JPY = 0.0067 USD)。數據可能基於母公司合併報表。SLR = 補充槓桿率。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+評估： 評估每家交易商相對於同業和監管最低要求（若適用/已知）的狀況。將這些指標與先前分析的風險聯繫起來：
+
+槓桿與基差交易： 槓桿率較高（Tier 1 槓桿率/SLR 較低）的交易商，在吸收基差交易平倉時，面臨觸及監管限制或引發市場擔憂的空間較小 。
+
+資本緩衝與波動性/CDS： CET1 比率較低的交易商，其吸收固定收益庫存波動或 CDS 保護賣方潛在賠付的緩衝較小 。
+
+RWA 與整體風險： 高 RWA（特別是市場風險或交易對手信用風險部分，若可得）表明基線風險狀況較高，需要更多資本。
+
+深層分析與關聯：
+
+高槓桿（低 Tier 1 槓桿率/SLR）與大型交易帳簿（由高 RWA 或相對於傳統銀行同業較大的總資產體現）的組合，顯示出對來自基差交易或市場波動衝擊的高度脆弱性。這是因為 (1) 高槓桿意味著每單位資產/曝險對應的資本較少；(2) 大型交易帳簿直接暴露於市場波動，且常涉及基差交易等槓桿交易的融資/中介 ；(3) 這些領域的衝擊（基差擴大、波動性飆升）可能導致虧損或需要更多資本/抵押品 ；(4) 高槓桿提供的緩衝較少，增加了倒閉風險或迫使去槓桿 。
+
+不同的監管制度（如美國 BHCs vs. FBOs）和商業模式（如全能銀行 vs. 投資銀行 vs. 非銀行機構）影響著報告指標和實際風險狀況，使得直接比較變得複雜。例如，SLR 對美國 BHCs 是一個關鍵約束 ，但對其他機構可能約束力較小。這是因為 (1) 美國 BHCs 受到 SLR 和壓力測試（SCB）等特定美國法規的約束，直接影響其槓桿和資本要求 ；(2) FBOs 在遵守母國規定的同時，還需滿足其美國業務的美國要求，可能導致不同的約束限制；(3) 非銀行交易商（Cantor, Jefferies）則受制於完全不同的監管和資本結構；(4) 因此，跨不同類型機構比較原始的 CET1 或槓桿率時，需要仔細考慮適用的監管框架和業務組合。
+
+雖然高資本比率提供了緩衝，但 RWA 的構成也很重要。一家 CET1 比率很高，但其 RWA 主要偏向於市場風險和衍生性商品交易對手信用風險的交易商，相較於一家 CET1 比率略低但 RWA 更多來自傳統貸款的銀行，可能仍然更容易受到本報告分析的特定衝擊（波動性、CDS 違約）的影響。（詳細的 RWA 構成通常非公開）。這是因為 (1) CET1 比率衡量的是資本相對於總 RWA；(2) RWA 反映了各種風險：信用、市場、操作、CVA ；(3) 本報告分析的風險（基差交易平倉、波動性、CDS 事件）主要影響市場風險 RWA、CVA RWA 和交易對手信用風險 RWA ；(4) 一家在這些特定 RWA 上權重較高的銀行，對這些領域的衝擊更為敏感，即使其整體 CET1 比率與以標準貸款信用風險 RWA 為主的銀行相比看似穩健。
+
+VI. 風險排序方法與結果
+
+框架說明： 本節描述將第四節和第五節的發現整合為綜合風險評分/排序的方法。
+
+考量因素：
+
+基差交易曝險的定性評估（基於 FICC 規模、回購角色推斷為高/中/低）。
+
+波動性敏感度（基於 FICC/股票交易規模、交易資產推斷為高/中/低）。
+
+CDS 賣方曝險的定性評估（基於衍生性商品規模、市場角色推斷為高/中/低）。
+
+槓桿水平（Tier 1 槓桿率/SLR - 比率越低 = 風險評分越高）。
+
+資本適足性（CET1 比率 - 比率越低 = 風險評分越高）。
+
+絕對規模（總資產 - 規模越大 = 系統重要性越高，可能評分越高）。
+
+權重邏輯： 概念性地解釋因素權重。例如，槓桿率和資本適足性作為直接衡量韌性的指標可能獲得較高權重。曝險因素根據推斷的重要性貢獻評分。規模作為潛在放大器。承認由於數據可得性（尤其對非上市公司和特定交易曝險）而存在的限制。
+
+風險排序表：表 3：一級交易商風險排序 (1=風險最高, 10=風險最低)
+
+風險排序
+
+一級交易商名稱
+
+母公司控股公司
+
+綜合風險評級
+
+主要風險因素
+
+1
+
+Deutsche Bank Securities Inc.
+
+Deutsche Bank AG
+
+高
+
+槓桿率最低 (4.6%)，CET1 相對較低 (13.8%)，大型全球市場業務 (高波動性/基差交易敏感性)，推斷 CDS 曝險高
+
+2
+
+Barclays Capital Inc.
+
+Barclays PLC
+
+高
+
+槓桿率較低 (5.0% UK)，CET1 相對較低 (13.6%)，大型全球市場業務 (高波動性/基差交易敏感性)，推斷 CDS 曝險高
+
+3
+
+Societe Generale, New York Branch
+
+Societe Generale S.A.
+
+高
+
+槓桿率低 (4.3%)，CET1 相對較低 (13.3%)，大型全球市場業務 (高波動性/基差交易敏感性)，推斷 CDS 曝險高
+
+4
+
+Goldman Sachs & Co. LLC
+
+The Goldman Sachs Group, Inc.
+
+中-高
+
+SLR 較低 (5.5%)，極大型全球市場業務 (極高波動性/基差交易敏感性)，推斷 CDS 曝險高，資本尚可 (CET1 14.8%)
+
+5
+
+Citigroup Global Markets Inc.
+
+Citigroup Inc.
+
+中-高
+
+SLR 較低 (5.8%)，大型全球市場業務 (高波動性/基差交易敏感性)，推斷 CDS 曝險高，資本尚可 (CET1 13.4%)
+
+6
+
+UBS Securities LLC.
+
+UBS Group AG
+
+中
+
+CET1 槓桿率最低 (4.7%)，大型全球市場業務 (整合瑞信後規模擴大)，推斷 CDS 曝險高，CET1 尚可 (14.3%)
+
+7
+
+Morgan Stanley & Co. LLC
+
+Morgan Stanley
+
+中
+
+槓桿率尚可 (6.9%)，極大型全球市場業務 (極高波動性/基差交易敏感性)，推斷 CDS 曝險高，資本充足 (CET1 15.3%)
+
+8
+
+J.P. Morgan Securities LLC
+
+JPMorgan Chase & Co.
+
+中
+
+SLR 尚可 (6.0%)，極大型全球市場業務 (極高波動性/基差交易敏感性)，推斷 CDS 曝險高，資本充足 (CET1 15.4%)
+
+9
+
+BNP Paribas Securities Corp.
+
+BNP Paribas S.A.
+
+中-低
+
+數據不完整 (槓桿率 N/A)，CET1 較低 (12.9%)，大型全球市場業務，推斷 CDS 曝險高，規模巨大
+
+10
+
+BofA Securities, Inc.
+
+Bank of America Corp.
+
+中-低
+
+槓桿率尚可 (6.8%)，CET1 較低 (11.8%)，極大型全球市場業務 (極高波動性/基差交易敏感性)，推斷 CDS 曝險高
+
+11
+
+Wells Fargo Securities, LLC
+
+Wells Fargo & Company
+
+中-低
+
+槓桿率高 (8.1%)，CET1 最低 (11.1%)，市場業務規模相對較小，但仍在擴張
+
+12
+
+Nomura Securities International, Inc.
+
+Nomura Holdings, Inc.
+
+中-低
+
+數據不完整 (槓桿率 N/A)，CET1 高 (16.2%)，市場業務規模大，推斷基差交易/CDS 曝險中等
+
+13
+
+Bank of Montreal, Chicago Branch
+
+Bank of Montreal
+
+低
+
+槓桿率低 (4.4%)，CET1 尚可 (13.6%)，市場業務規模中等
+
+14
+
+RBC Capital Markets, LLC
+
+Royal Bank of Canada
+
+低
+
+槓桿率低 (4.4%)，CET1 尚可 (13.2%)，市場業務規模大
+
+15
+
+TD Securities (USA) LLC
+
+The Toronto-Dominion Bank
+
+低
+
+槓桿率最低 (4.2%)，CET1 尚可 (13.1%)，市場業務規模中等
+
+16
+
+Santander US Capital Markets LLC
+
+Banco Santander, S.A.
+
+低
+
+數據不完整 (槓桿率 N/A)，CET1 較低 (12.8%)，市場業務規模相對較小
+
+17
+
+Jefferies LLC
+
+Jefferies Financial Group Inc.
+
+低
+
+非銀行，資本結構不同，槓桿指標不可比，市場業務規模中等
+
+18-25
+
+其他交易商 (ASL, BNS, Cantor, Daiwa, HSBC, Mizuho, NatWest, SMBC)
+
+N/A
+
+N/A
+
+數據不足，無法可靠排序
+
+註：此排序基於公開數據和定性推斷，涉及主觀判斷，尤其在曝險評估方面。風險評級僅為相對比較。N/A 表示數據不足或不適用。
+
+
+
+
+
+
+
+
+
+高風險交易商討論：
+
+德意志銀行證券 (Deutsche Bank Securities Inc.)： 在本次評估中風險最高，主要由於其報告的槓桿率 (4.6%) 在可比較機構中最低，且 CET1 比率 (13.8%) 相對較低。結合其龐大的全球市場業務規模，使其對市場波動和潛在的基差交易相關壓力高度敏感。作為主要的全球衍生性商品交易商，推斷其 CDS 賣方曝險也較高。儘管近年來有所改善，但歷史上的風險管理問題和較低的盈利能力基礎也增加了脆弱性。
+
+巴克萊資本 (Barclays Capital Inc.)： 風險次高，其英國槓桿率 (5.0%) 和 CET1 比率 (13.6%) 均處於較低水平。與德意志銀行類似，巴克萊擁有大規模的全球市場業務，使其對波動性和基差交易風險敏感。其在衍生性商品市場的活躍度也意味著較高的潛在 CDS 賣方曝險。
+
+法國興業銀行紐約分行 (Societe Generale, New York Branch)： 風險排名第三，槓桿率 (4.3%) 在樣本中最低之一，CET1 比率 (13.3%) 也相對較低。其全球市場業務，特別是在股票衍生性商品領域的領先地位，使其高度暴露於市場波動風險。推斷其在基差交易和 CDS 市場也有相當程度的參與。
+
+VII. 結論
+
+發現綜述： 本報告發現，美國一級交易商在當前市場環境下面臨多重風險。國債基差交易雖然在正常時期有助於市場效率，但其高槓桿特性以及對交易商中介能力的依賴，在市場壓力下可能成為風險放大器。債券市場波動加劇（如 MOVE 指數所示）直接影響交易商的交易收入、庫存風險和資本狀況。此外，作為 CDS 市場的主要保護賣方，交易商集中承擔了顯著的信用風險和交易對手風險。槓桿率和資本緩衝是決定交易商吸收這些衝擊能力的關鍵因素。
+
+最高風險交易商： 基於本報告的方法論和分析，德意志銀行證券、巴克萊資本和法國興業銀行紐約分行被識別為風險狀況相對較高的機構。這主要是由於它們較低的槓桿率和/或資本比率，結合其龐大的、對波動性敏感的全球市場業務以及推斷的基差交易和 CDS 曝險。高盛和花旗集團由於其極大的市場業務規模和相對較低的補充槓桿率，風險也處於較高水平。
+
+影響： 這些發現對金融穩定具有重要意義。交易商在壓力時期的中介能力受限可能加劇市場波動。與一級交易商進行交易的機構需要加強交易對手風險管理，即使是官方指定的一級交易商也不能免除審慎的盡職調查 。監管機構應持續監測基差交易中的槓桿水平、交易商在波動加劇時的承壓能力以及 CDS 市場的集中度和潛在風險。
+
+VIII. 附錄
+
+A. 詳細財務數據： (擴展表 2，若有更多可用數據)
+
+B. 完整一級交易商名單： (複製表 1)
+
+C. 術語解釋：
+
+一級交易商 (Primary Dealer): 由紐約聯邦儲備銀行指定，有義務參與公開市場操作和國債標售，並向聯儲提供市場資訊的金融機構 。
+
+國債基差交易 (Treasury Basis Trade): 同時買入國債現貨（通常透過回購融資）並賣出相應國債期貨，以賺取兩者之間價差（基差）的交易策略 。
+
+MOVE 指數 (MOVE Index): ICE 美銀波動率指數，衡量美國國債市場隱含波動率的指標 。
+
+信用違約交換 (Credit Default Swap, CDS): 一種信用衍生性商品，保護賣方向買方收取費用，承諾在參考實體發生信用事件時進行賠付 。
+
+風險加權資產 (Risk-Weighted Assets, RWA): 根據資產風險程度進行加權計算的總資產，用於計算風險基礎資本充足率 。
+
+普通股權益第一類資本比率 (Common Equity Tier 1 (CET1) Ratio): 最高質量的資本（普通股權益）與風險加權資產的比率，衡量銀行吸收損失能力的核心指標 。
+
+一級資本槓桿率 (Tier 1 Leverage Ratio): 一級資本與總曝險（通常基於平均總資產）的比率，衡量銀行槓桿水平的指標，不考慮風險權重 。
+
+補充槓桿率 (Supplementary Leverage Ratio, SLR): 美國對大型銀行控股公司施加的更嚴格槓桿率要求，分母包括表外曝險 。
+
+D. 資料來源與限制： 主要資料來源包括紐約聯邦儲備銀行公告、各公司財務報告（收益發布、補充文件、年度報告）、國際清算銀行（BIS）報告、商品期貨交易委員會（CFTC）報告以及學術研究。本報告的主要限制在於難以精確量化特定交易策略（如基差交易、CDS 淨賣方部位）的曝險規模，且部分非上市公司或外國銀行子公司的詳細財務數據（尤其是槓桿率和 RWA 構成）可得性有限。因此，部分評估依賴於基於業務規模和市場角色的定性推斷。風險排序結果反映了基於現有公開資訊的相對比較，而非絕對風險水平。
+
+引用的著作
+
+1. Primary Dealers - Federal Reserve Bank of New York - FEDERAL ..., https://www.newyorkfed.org/markets/primarydealers 2. www.brookings.edu, https://www.brookings.edu/wp-content/uploads/2025/03/4_Kashyap-et-al.pdf 3. What's the MOVE Index and Why It Might Matter? | Charles Schwab, https://www.schwab.com/learn/story/whats-move-index-and-why-it-might-matter 4. A duration 'crisis' for markets - ICE, https://www.ice.com/insights/fixed-income-data/a-duration-crisis-for-markets 5. www.cftc.gov, https://www.cftc.gov/media/11671/mrac121024_TreasuryCashFuturesBasisTradeReport/download 6. Central Banks should backstop hedge funds arbitraging the basis trade, new Brookings Paper suggests - The DESK - The leading source of information for bond traders, https://www.fi-desk.com/central-banks-should-backstop-hedge-funds-arbitraging-the-basis-trade-new-brookings-paper-suggests/ 7. Evidence That Relaxing Dealers' Risk Constraints Can Make the Treasury Market More Liquid - Federal Reserve Bank of Boston, https://www.bostonfed.org/publications/current-policy-perspectives/2025/relaxing-dealers-risk-constraints-can-make-treasury-market-liquid.aspx 8. www.newyorkfed.org, https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr299.pdf 9. www.bis.org, https://www.bis.org/publ/work1138.pdf 10. Primary Dealers List - SEC.gov, https://www.sec.gov/comments/s7-08-07/s70807-115b.pdf 11. www.financialresearch.gov, https://www.financialresearch.gov/briefs/files/OFRBr_2020_01_Basis-Trades.pdf 12. The Treasury Basis Trade: Opportunity in Uncertainty - Commonfund, https://www.commonfund.org/blog/the-treasury-basis-trade-opportunity-in-uncertainty 13. US Economics Analyst The Impact of Uncertainty on Investment, Hiring, and Consumer Spending (Rindels Abecasis Mericle) - Goldman Sachs, https://www.goldmansachs.com/pdfs/insights/goldman-sachs-research/the-impact-of-uncertainty-on-investment-hiring-and-consumer-spending/report.pdf 14. Market Know-How 2Q 2025 - Goldman Sachs Asset Management, https://am.gs.com/en-lu/advisors/insights/article/market-know-how 15. Fixed Income Weekly - Goldman Sachs Asset Management, https://am.gs.com/cms-assets/gsam-app/documents/insights/en/2025/gfi-weekly-041125.pdf 16. Margin leverage and vulnerabilities in US Treasury futures, https://www.bis.org/publ/qtrpdf/r_qt2309w.htm 17. Regulators weigh basis trade investigation amid record bets - Hedgeweek, https://www.hedgeweek.com/regulators-weigh-basis-trade-investigation-amid-record-bets/ 18. Acting Comptroller of the Currency Michael J. Hsu Remarks at the BIS International Data Hub 10th Anniversary Conference, October, https://www.occ.gov/news-issuances/speeches/2023/pub-speech-2023-111.pdf 19. www.iosco.org, https://www.iosco.org/library/pubdocs/pdf/ioscopd385.pdf 20. Counterparty Risk and Counterparty Choice in the Credit Default Swap Market - NYU Stern, https://w4.stern.nyu.edu/finance/docs/pdfs/Seminars/1803/1803w-du.pdf 21. SMBC Nikko, first addition to the primary dealer list since 2022 - The DESK, https://www.fi-desk.com/smbc-nikko-first-addition-to-the-primary-dealer-list-since-2022/ 22. Financial stability risks from basis trades in the US Treasury and euro area government bond markets - European Central Bank, https://www.ecb.europa.eu/press/financial-stability-publications/fsr/focus/2024/html/ecb.fsrbox202405_03~09cad3d18d.en.html 23. 1 February 28, 2025 Secretariat to the Financial Stability Board Bank for International Settlements Centralbahnplatz 2 CH-4002 B - Committee on Capital Markets Regulation, https://capmktsreg.org/comment-letter-to-financial-stability-board-on-nbfi-leverage-consultation/ 24. MOVE Index: Key Indicator for Bond Market Volatility | EBC Financial Group, https://www.ebc.com/forex/move-index-key-indicator-for-bond-market-volatility 25. ICE BofAML U.S. Bond Market Option Volatility Estimate Index Ideas — TVC:MOVE, https://www.tradingview.com/symbols/TVC-MOVE/ideas/ 26. Making Sense of Recent Market Volatility | Charles Schwab, https://www.schwab.com/learn/story/making-sense-recent-market-volatility 27. Bank of America: EPS Beats, Revenue Up - Nasdaq, https://www.nasdaq.com/articles/bank-america-eps-beats-revenue 28. Bank of America Q1 2025 slides: EPS jumps 18% as revenue grows across segments, https://in.investing.com/news/company-news/bank-of-america-q1-2025-slides-eps-jumps-18-as-revenue-grows-across-segments-93CH-4775447 29. Citigroup Inc. (C) Q1 2025 Earnings Call Transcript | Seeking Alpha, https://seekingalpha.com/article/4775360-citigroup-inc-c-q1-2025-earnings-call-transcript?source=feed_all_articles 30. Goldman Sachs reports 15% profit growth in Q1 2025 - Private Banker International, https://www.privatebankerinternational.com/news/goldman-sachs-growth-net-earnings/ 31. www.goldmansachs.com, https://www.goldmansachs.com/pressroom/press-releases/current/pdfs/2025-q1-results.pdf 32. www.jpmorganchase.com, https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/1st-quarter/d88c408a-bbc9-4b06-b263-373f5b10b145.pdf 33. Morgan Stanley First Quarter 2025 Earnings Results, https://www.morganstanley.com/about-us-ir/shareholder/1q2025.pdf 34. Earnings call transcript: Bank of America beats Q1 2025 forecasts By Investing.com, https://in.investing.com/news/transcripts/earnings-call-transcript-bank-of-america-beats-q1-2025-forecasts-93CH-4775422 35. 8-K - Bank of America Investor Relations, https://investor.bankofamerica.com/regulatory-and-other-filings/all-sec-filings/content/0000070858-25-000187/0000070858-25-000187.pdf 36. ISDA - Federal Reserve Board, https://www.federalreserve.gov/SECRS/2024/February/20240220/R-1813/R-1813_011724_156753_496678267479_1.pdf 37. ISDA-SIFMA-Comment-Letter-January-16-2024-Basel-III-Endgame.pdf, https://www.sifma.org/wp-content/uploads/2024/01/ISDA-SIFMA-Comment-Letter-January-16-2024-Basel-III-Endgame.pdf 38. Credit default swap - Wikipedia, https://en.wikipedia.org/wiki/Credit_default_swap 39. Credit Default Swaps, https://www.princeton.edu/~markus/teaching/Eco467/10Lecture/CDS%20Presentation%20with%20References.pdf 40. www.richmondfed.org, https://www.richmondfed.org/-/media/richmondfedorg/publications/research/economic_quarterly/2020/q3/sultanum.pdf 41. Credit Default Swaps: What Happens in a Credit Event? - Investopedia, https://www.investopedia.com/articles/bonds/09/what-happens-to-single-name-cds.asp 42. Bank Private Information in CDS Markets, https://afajof.org/management/viewp.php?n=39284 43. Bank of America Q1 2025 net income rises 10.5% to $7.4bn, https://www.banking-gateway.com/news/bank-of-america-q1-2025-net-income-rises-10-5-to-7-4bn/ 44. Quarterly Trends for Consolidated U.S. Banking Organizations Fourth Quarter 2024 - Federal Reserve Bank of New York, https://www.newyorkfed.org/medialibrary/media/research/banking_research/QuarterlyTrends2024Q4.pdf?sc_lang=en&hash=FE306FCDE9963E3B587CA5B1F6A42B08 45. www.wellsfargo.com, https://www.wellsfargo.com/assets/pdf/about/investor-relations/earnings/first-quarter-2025-earnings-supplement.pdf 46. Fourth Quarter 2024 Pillar 3 Disclosures - Goldman Sachs, https://www.goldmansachs.com/investor-relations/financials/other-information/2024/4q-pillar3-2024.pdf 47. Citigroup Q1 Earnings Top Estimates on Y/Y NII Rise, Dip in Expenses | Nasdaq, https://www.nasdaq.com/articles/citigroup-q1-earnings-top-estimates-y-y-nii-rise-dip-expenses

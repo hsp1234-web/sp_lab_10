@@ -1,0 +1,2042 @@
+在 Google Colab 中實作與回測動態多資產台灣市場策略
+
+I. 緒論
+
+目的
+
+本報告旨在提供一份全面性的指南與 Python 實作方法，針對使用者指定的「台股多空選股期權策略」，於 Google Colab 環境中進行量化研究與回測。報告的核心目標是將策略的各個組成部分——包含市場週期判斷、週期性股票篩選、期貨與選擇權策略應用、動態資產配置及風險管理——轉換為可執行的程式碼，並進行嚴謹的歷史回測與績效評估。本報告著重於實務操作，提供可在 Colab 中運行的程式碼範例與詳細說明，以利使用者理解、複製與擴展此策略研究。
+
+策略概觀
+
+此策略的核心思想是根據對市場整體週期的判斷（牛市、熊市、盤整市），動態調整投資組合。週期判斷結合了技術指標（如移動平均線排列、成交量）與總體經濟指標（如 GDP 增長率、M1B 年增率、景氣對策信號）。在不同的市場週期下，採用不同的股票篩選標準：牛市偏重成長與動能，熊市偏重防禦與價值，盤整市則尋找區間操作或特定題材的機會。此外，策略整合了衍生性金融商品（台指期貨與選擇權），根據市場週期應用不同的交易策略（如買進買權、賣出賣權、期貨多空、價差策略、掩護性買權等）以增強回報或進行避險。最終，透過動態資產配置調整股票與衍生品部位比例，並實施風險管理措施（如停損、部位控制、Beta 對沖）。
+
+環境說明
+
+本研究的實作環境設定為 Google Colab，程式語言為 Python。選擇 Colab 的主要優勢在於其免費使用的特性、預裝多數常用科學計算與數據分析函式庫（如 Pandas, NumPy），以及雲端執行的便利性，無需在本機進行複雜的環境設定。然而，Colab 環境也存在挑戰，特別是在安裝某些具有 C 語言底層依賴的函式庫（例如 TA-Lib）時，需要特定的安裝步驟與指令，且可能因 Colab 運行環境（如 Python 版本）更新而需要調整 。本報告將詳細說明在 Colab 中建立穩定執行環境的步驟，包含解決 TA-Lib 等函式庫的安裝問題 。
+
+報告結構
+
+本報告將遵循使用者要求的模組化結構，依序探討以下主題：
+
+環境設定： 在 Google Colab 中安裝所有必要的 Python 函式庫。
+
+數據獲取與準備： 涵蓋台股股價、財務數據、總體經濟指標及衍生性商品數據的來源、獲取方法與處理流程。
+
+市場週期識別模組： 實作結合技術與總經指標的市場狀態判斷邏輯。
+
+股票篩選模組： 根據不同市場週期建立並實作相應的選股條件。
+
+衍生性商品策略模組： 模擬期貨與選擇權的交易邏輯。
+
+動態資產配置與風險管理模組： 實作部位調整與風險控制機制。
+
+回測引擎實作： 整合各模組，建立回測框架。
+
+績效評估與視覺化： 計算關鍵指標並繪製圖表。
+
+結論與建議： 總結研究發現、討論限制並提出未來研究方向。
+
+附錄： 提供完整的 Python 程式碼。
+
+II. 設定 Google Colab 環境
+
+目標
+
+此階段的目標是確保 Google Colab 筆記本具備執行本報告所述策略所需的所有 Python 函式庫。由於部分金融計算函式庫（特別是 TA-Lib）在 Colab 上的安裝並非直接使用 pip install 即可完成，本節將提供詳細且經過驗證的安裝指令。
+
+核心函式庫及其用途
+
+數據處理與數值計算:
+
+pandas: 提供高效能、易於使用的資料結構（如 DataFrame）與資料分析工具，是處理時間序列、股票數據、財務報表的基石 。
+
+numpy: Python 科學計算的基礎函式庫，提供多維陣列物件、線性代數、傅立葉轉換等功能，許多其他函式庫（包括 Pandas）都建構於其上 。
+
+數據獲取:
+
+yfinance: 常見的免費函式庫，用於從 Yahoo Finance 下載股票歷史數據，但在台灣市場數據的完整性與穩定性上可能有限制 。
+
+FinMind: 針對台灣市場的 API，提供股票價格、基本面、籌碼面、期權等數據，但需注意其更新頻率與是否為即時數據 。可能需要註冊取得 API Token。
+
+tejapi: TEJ 台灣經濟新報提供的官方 API 函式庫，數據涵蓋範圍廣泛且品質較高，但通常需要付費訂閱或申請試用 。
+
+requests: 用於直接向政府開放資料平台（如 DGBAS、CBC）或其他提供 REST API 的數據源發送 HTTP 請求以獲取數據 。
+
+技術分析:
+
+TA-Lib: 廣泛使用的技術分析函式庫，提供超過 150 種指標（如 MA, RSI, MACD, Bollinger Bands 等）的計算功能 。在 Colab 中的安裝較為特殊，因其底層依賴 C 函式庫。
+
+安裝挑戰與解決方案: Google Colab 的運行環境是 Linux 虛擬機。直接使用 pip install TA-Lib 通常會失敗，因為缺少底層的 C 函式庫。解決方案是先透過 curl 或 wget 下載預編譯的 libta-lib 函式庫，解壓縮到系統路徑 (/usr/lib/x86_64-linux-gnu/ 或 /usr/local/lib/)，然後再安裝 Python 的 TA-Lib wrapper 。具體指令可能因 Colab 更新 Python 版本而需調整，以下提供適用於 Python 3.11 (截至研究資料時間點 Colab 常見版本) 的指令 。
+
+pandas_ta: 作為 TA-Lib 的替代方案之一，純 Python 實現，安裝較為簡單 (pip install pandas_ta)，也提供大量技術指標，可直接應用於 Pandas DataFrame 。
+
+stockstats: 另一個整合 Pandas 的技術分析函式庫，提供便捷的語法糖來計算指標 。
+
+回測框架:
+
+vectorbt: 一個高效能的回測與量化分析函式庫，基於 numpy 和 numba 進行加速，特別擅長處理多參數、多資產的組合測試，視覺化功能強大 。其設計哲學與傳統事件驅動框架不同，更側重向量化計算。免費版本功能已相當豐富，Pro 版本提供更多進階功能 。考量其效能與參數優化能力，本報告將主要使用 vectorbt 作為回測框架。
+
+backtrader: 功能非常豐富的事件驅動回測框架，文件詳盡，社群活躍 。對於模擬複雜的訂單類型（如括號單 ）、逐筆事件處理、與特定券商 API 對接（如 IB ）有較好支援。雖然本報告主要使用 vectorbt，但 backtrader 仍是值得考慮的優秀替代方案。
+
+zipline-reloaded: Zipline 的社群維護版本，Zipline 原為 Quantopian 使用的回測引擎，功能強大，但安裝與設定可能較為複雜 。
+
+Backtesting.py: 以易用性著稱的函式庫，語法相對簡潔，支援多種回測模式與視覺化 。
+
+績效分析與視覺化:
+
+matplotlib: Python 基礎繪圖函式庫，用於產生靜態圖表 。
+
+plotly: 提供互動式圖表的函式庫，vectorbt 的繪圖功能主要基於 Plotly 。
+
+quantstats: 常用於產生詳細的量化策略績效報告，可輸出 HTML 格式，包含大量風險與回報指標，可作為 pyfolio 的現代替代品 。
+
+pyfolio: 原由 Quantopian 開發，提供全面的投資組合績效與風險分析視覺化工具，與 zipline 和 backtrader 整合性較好 。但 Quantopian 已停止營運，其維護狀態可能不如 quantstats 活躍。
+
+Colab 環境安裝指令
+
+以下指令區塊整合了上述函式庫的安裝，特別處理了 TA-Lib 在 Colab (Python 3.11 環境) 的安裝：
+
+# 更新 apt 套件列表
+!sudo apt-get update
+
+# 安裝 TA-Lib 的 C 函式庫依賴
+!wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+!tar -xzvf ta-lib-0.4.0-src.tar.gz
+%cd ta-lib/
+!./configure --prefix=/usr
+!make
+!sudo make install
+%cd..
+!rm -r ta-lib ta-lib-0.4.0-src.tar.gz
+
+# 安裝 Python 函式庫
+!pip install TA-Lib
+!pip install pandas numpy requests yfinance FinMind tejapi vectorbt quantstats pandas_ta stockstats matplotlib plotly --upgrade
+
+# (可選) 如果需要使用 zipline-reloaded 或 backtesting.py
+#!pip install zipline-reloaded backtesting
+
+# (可選) 如果需要使用 pyfolio
+#!pip install pyfolio-reloaded # 或使用 quantstats 作為替代
+
+
+
+注意：上述 TA-Lib 安裝方法是基於從源碼編譯，相較於 中提到的下載預編譯 conda 包的方法，編譯法可能更具通用性，但耗時較長。如果 Colab 環境更新導致編譯失敗，可嘗試 中針對特定 Python 版本的 conda 包方法。
+
+環境驗證
+
+執行以下程式碼以確認核心函式庫已成功導入：
+
+import pandas as pd
+import numpy as np
+import requests
+import yfinance as yf
+# import finmind # 需確認 FinMind 是否提供安裝包或僅為 API
+# import tejapi # 需確認 TEJ API 金鑰設定後是否能 import
+import talib
+import vectorbt as vbt
+import quantstats as qs
+import pandas_ta as ta
+# import stockstats # stockstats 可能需要額外處理才能直接 import
+import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+
+print("Pandas version:", pd.__version__)
+print("NumPy version:", np.__version__)
+print("TA-Lib version:", talib.__version__)
+print("VectorBT version:", vbt.__version__)
+print("QuantStats version:", qs.__version__)
+print("Pandas TA version:", ta.version)
+print("Environment setup complete.")
+
+
+此階段的準備工作確保了後續模組開發與回測所需工具的可用性。特別是 TA-Lib 的成功安裝，對於實現策略中的技術指標計算至關重要。選擇 vectorbt 作為主要回測框架，是基於其在處理多參數、多資產組合時的效能優勢，這對於探索不同市場週期下的多樣化選股與衍生品策略組合可能特別有益。
+
+III. 數據獲取與準備
+
+目標
+
+本階段的核心目標是系統性地獲取執行「台股多空選股期權策略」所需的各類金融數據，涵蓋台灣股票的價量資料、公司基本面數據、總體經濟指標以及台指期貨與選擇權的歷史交易數據。獲取數據後，將進行必要的清洗、整理與格式化，使其符合後續在 Python (特別是 Pandas 和 VectorBT) 中進行分析與回測的要求。
+
+A. 台灣市場數據來源探討
+
+獲取全面且可靠的數據是量化研究的基石。針對台灣市場，存在多種數據來源，各有優劣，需根據策略需求、預算及對數據品質的要求進行選擇。
+
+股票價量數據 (OHLCV) 與基本面數據 (營收、EPS、ROE 等):
+
+FinMind API: 提供免費額度，涵蓋每日股價、歷史 Tick 資料、月營收、綜合損益表、資產負債表、現金流量表、股利政策等 。數據來源相對廣泛，適合初步研究。但需注意其並非即時數據，且更新頻率可能滯後 。基本面數據（如 EPS、ROE、淨利率）可能需要從財務報表中自行計算。使用範例通常涉及設定 API Token 並呼叫其提供的函數或 RESTful API 端點 。
+
+TEJ API (台灣經濟新報): 台灣本土主要的金融資訊供應商，數據品質與完整性被認為較高 。提供詳細的股價價量資料庫 (TWN/APRCD)、財務報表資料庫 (TWN/AIM1A) 及股利政策 (TWN/AMT1) 等 。支援 Python (tejapi 函式庫)、R、.NET 等多種語言接入 。通常為付費服務，但提供試用方案 。對於需要高質量、長期且涵蓋廣泛基本面數據的研究，TEJ 是重要選項。
+
+yfinance: 廣泛使用的免費 Python 套件，透過爬取 Yahoo Finance 網頁獲取數據 。對於台股，數據可能不夠完整或存在延遲，且頻繁抓取可能導致 IP 被暫時封鎖 。適合快速獲取價量數據，但基本面數據相對有限。
+
+台灣證券交易所 (TWSE) / 櫃檯買賣中心 (TPEx) 開放資料平台: 提供官方的個股日成交資訊等數據，可透過 API 或下載 CSV 檔案獲取 。數據權威性高，但歷史數據的獲取可能較為繁瑣，且直接透過 API 頻繁查詢歷史記錄易被鎖 IP 。每日更新的日成交資訊較易取得 。
+
+富果 (Fugle) API: 被部分來源提及為優質的台股數據來源 ，可能提供更友善的 API 介面，但具體數據涵蓋範圍與費用需進一步確認。
+
+總體經濟指標 (GDP, M1B, 景氣燈號):
+
+行政院主計總處 (DGBAS): 台灣官方統計數據的主要來源，提供國民所得統計（包含 GDP）等數據 。其「總體統計資料庫」提供 API 查詢服務，可透過指定「功能代碼」（如 A018102050 為年 GDP 支出面數據）及時間區間獲取 JSON 格式的數據 。
+
+中央銀行 (CBC): 提供貨幣總計數 (包含 M1B)、匯率、利率等金融統計數據 。同樣提供 API 查詢服務，可透過指定「項目代號」（如 EF19M01 為月 M1B 變動因素分析）獲取 JSON 數據 。M1B 年增率常被視為台股的領先指標之一 。
+
+國家發展委員會 (NDC): 發布「景氣對策信號」（景氣燈號）及相關領先、同時、落後指標 。數據可於其官方網站「景氣指標查詢系統」查詢與視覺化 ，或透過「政府資料開放平台」(data.gov.tw) 下載相關數據集（如 CSV 或 ZIP 檔案）。目前似乎未提供直接查詢景氣燈號分數與燈號歷史序列的官方 API，下載檔案或爬取網頁可能是主要方式 。
+
+衍生性商品數據 (台指期貨與選擇權 OHLCV, Volume, OI, IV):
+
+數據獲取難度: 相較於股票與總經數據，公開、免費且包含完整歷史（特別是選擇權鏈、未平倉量 OI、隱含波動率 IV）的衍生性商品數據來源較為稀缺。
+
+FinMind API: 提供期貨與選擇權的每日交易數據 ，但根據 的分析，其提供的資料可能不包含未平倉量 (OI) 與隱含波動率 (IV)。
+
+TEJ API: 是否涵蓋期貨選擇權數據（尤其是 OI, IV）需透過試用或查閱其詳細資料庫清單確認，現有分析未明確指出 。
+
+Touchance API: 明確提及提供台灣期貨、選擇權的即時行情與歷史數據 API ，但可能與其交易平台或特定券商（凱基、統一、富邦、元富）綁定 。
+
+期貨交易所 (TAIFEX): 官方網站可能提供部分歷史交易資料，但通常需要自行整理或爬取，API 支援可能有限。
+
+券商 API: 部分券商（如元富證券 ）可能提供 API 供客戶串接交易數據，但通常有開戶與權限申請要求。
+
+結論: 對於基礎的期貨/選擇權日 K 線數據，FinMind 或許能滿足需求。但若需詳細的選擇權鏈、OI、IV 數據進行策略回測，則可能需要尋求 TEJ、Touchance 等付費或特定平台/券商的解決方案，或接受使用簡化數據（如僅用期貨價格）進行回測的限制。
+
+數據來源比較表:
+
+數據來源
+
+涵蓋數據類型 (重點)
+
+費用
+
+更新頻率
+
+存取方式
+
+主要限制
+
+FinMind API
+
+股價 (日/Tick), 基本面 (報表/營收), 期權 (日)
+
+免費/付費
+
+非即時 (日/月)
+
+Python Lib/API
+
+非即時, 選擇權細節 (OI/IV) 可能缺乏
+
+TEJ API
+
+股價 (日/分), 基本面 (詳盡), 總經, 信用風險 (可能含期權, 需確認)
+
+付費 (有試用)
+
+即時/日/月/季
+
+Python Lib/API
+
+主要為付費服務
+
+yfinance
+
+股價 (日/分)
+
+免費
+
+近即時/日
+
+Python Lib
+
+台股數據可能不全, 易被阻擋
+
+TWSE/TPEx Open Data
+
+股價 (日成交資訊)
+
+免費
+
+每日
+
+API/下載
+
+API 頻繁查詢歷史易被擋, 歷史數據獲取較繁瑣
+
+DGBAS API (主計總處)
+
+總經 (GDP, 國民所得等)
+
+免費
+
+季/年
+
+API (JSON)
+
+需理解功能代碼與資料維度結構
+
+CBC API (中央銀行)
+
+總經 (M1B, 匯率, 利率等)
+
+免費
+
+月/日
+
+API (JSON)
+
+需使用項目代碼
+
+NDC (國發會) - data.gov.tw
+
+景氣燈號/指標 (檔案)
+
+免費
+
+月
+
+下載 (CSV/ZIP)
+
+非 API, 需下載處理檔案
+
+NDC (國發會) - 官網
+
+景氣燈號/指標 (網頁查詢/月刊)
+
+免費
+
+月
+
+網頁查詢/下載 PDF
+
+無直接 API, 可能需爬蟲
+
+Touchance API
+
+期貨/選擇權 (即時/歷史)
+
+未知 (可能付費)
+
+即時/歷史
+
+Python API
+
+可能需綁定平台或券商
+
+此表根據提供的研究資料彙整，具體涵蓋範圍與限制建議查閱各來源官方文件或進行試用。
+
+B. 數據清洗與準備 (使用 Pandas)
+
+獲取原始數據後，必須進行清洗與轉換，才能用於後續分析與回測。此過程主要利用 pandas 函式庫。
+
+處理缺失值: 金融時間序列數據常有缺失值（例如，假日、停牌、數據源問題）。處理方法需視數據類型與策略敏感度而定：
+
+價格數據 (OHLCV): 對於短暫缺失，可使用前值填充 (.fillna(method='ffill')) 或後值填充 (.fillna(method='bfill'))。對於較長缺失，可能需考慮插值 (.interpolate()) 或直接剔除該標的。
+
+基本面/總經數據: 由於更新頻率較低（月/季/年），通常使用前值填充 (.fillna(method='ffill'))，代表使用最近一次已知的數據。
+
+數據類型轉換: 確保數值欄位（如開高低收、成交量、EPS）為浮點數或整數型態，日期欄位轉換為 datetime 物件，並設為 DataFrame 的索引，便於時間序列操作 。
+
+時間對齊與重採樣: 策略可能涉及不同頻率的數據（如日 K 線、月營收、季 EPS）。需將所有數據對齊到回測的基礎頻率（通常是日頻）。
+
+低頻轉高頻: 對於月/季/年數據，通常使用前值填充 (ffill) 到日頻，模擬資訊延遲效應（即當天只能用到上個月/季已公布的數據）。
+
+高頻轉低頻: 如需計算週/月指標，可使用 .resample() 方法（例如 .resample('W').last() 取週末值，.resample('M').sum() 計算月總量）。
+
+欄位標準化: 將從不同來源獲取的數據欄位名稱統一，例如統一使用 'open', 'high', 'low', 'close', 'volume' 作為 K 線數據的欄位名，以符合回測框架（如 VectorBT）的要求 。
+
+計算衍生指標: 部分策略所需的指標（如漲跌幅、相對強度）可能需要從原始數據計算得出 。
+
+格式化輸出: 最終將處理好的數據儲存為適合回測框架讀取的格式（如 CSV、HDF5 或直接傳遞 Pandas DataFrame）。
+
+# 程式碼範例：基本數據清洗與處理 (概念性)
+import pandas as pd
+
+# 假設 stock_df 是從 API 獲取的原始股價 DataFrame
+# stock_df =... # (獲取數據的程式碼)
+
+# 確保日期是 datetime 物件並設為索引
+stock_df['date'] = pd.to_datetime(stock_df['date'])
+stock_df = stock_df.set_index('date')
+
+# 欄位重命名 (假設原始欄位名為中文)
+column_mapping = {
+    '開盤價': 'open', '最高價': 'high', '最低價': 'low',
+    '收盤價': 'close', '成交股數': 'volume'
+    #... 其他欄位
+}
+stock_df = stock_df.rename(columns=column_mapping)
+
+# 轉換數值欄位類型 (處理可能的字串或錯誤)
+numeric_cols = ['open', 'high', 'low', 'close', 'volume']
+for col in numeric_cols:
+    stock_df[col] = pd.to_numeric(stock_df[col], errors='coerce') # errors='coerce' 會將無法轉換的值設為 NaN
+
+# 處理缺失值 (例如，價格使用前值填充)
+stock_df[numeric_cols] = stock_df[numeric_cols].fillna(method='ffill')
+
+# 假設 fundamental_df 是季度財報數據 DataFrame
+# fundamental_df =... # (獲取數據的程式碼)
+# fundamental_df['report_date'] = pd.to_datetime(fundamental_df['report_date'])
+# fundamental_df = fundamental_df.set_index('report_date')
+
+# 將季度數據填充到日頻 (假設 stock_df 的索引是日頻)
+# merged_df = pd.merge_asof(stock_df, fundamental_df, left_index=True, right_index=True, direction='backward')
+# 或者使用 resample 和 ffill
+# daily_fundamental = fundamental_df.resample('D').ffill()
+# merged_df = pd.concat([stock_df, daily_fundamental], axis=1).ffill() # 需注意合併方式
+
+# 顯示處理後的數據資訊
+# print(merged_df.info())
+# print(merged_df.head())
+
+
+數據準備階段的嚴謹性直接影響後續分析與回測的可靠性。必須意識到，免費數據源往往伴隨著數據質量或完整性的妥協 ，而高質量的數據（尤其是基本面和衍生品）通常需要商業授權 。此外，不同頻率數據的對齊方式，特別是如何處理資訊發布的滯後性，是避免前視偏差 (lookahead bias) 的關鍵考量。
+
+IV. 市場週期識別模組
+
+目標
+
+此模組旨在根據使用者定義的技術指標與總體經濟指標，自動化地將市場狀態劃分為「牛市」、「熊市」或「盤整市」。這個判斷結果將作為後續股票篩選、衍生品策略選擇及資產配置的基礎。
+
+技術指標應用
+
+技術指標主要用於捕捉市場的趨勢與動能。
+
+移動平均線 (Moving Averages, MA):
+
+概念: MA 是透過計算過去一段時間內的平均價格來平滑價格波動，以識別趨勢方向 。常用的有簡單移動平均線 (SMA) 和指數移動平均線 (EMA)，EMA 對近期價格賦予更高權重，反應更靈敏 。
+
+週期判斷邏輯:
+
+均線排列: 觀察短期、中期、長期均線的相對位置。
+
+多頭排列 (Golden Cross Arrangement): 短期均線在中期均線之上，中期均線在長期均線之上 (例如 20MA > 60MA > 240MA)。這通常表示市場處於上升趨勢（牛市）。
+
+空頭排列 (Death Cross Arrangement): 短期均線在中期均線之下，中期均線在長期均線之下 (例如 20MA < 60MA < 240MA)。這通常表示市場處於下降趨勢（熊市）。
+
+糾纏/平行: 均線之間距離接近、頻繁交叉或大致平行，可能表示市場處於盤整狀態。
+
+均線交叉:
+
+黃金交叉 (Golden Cross): 短期均線由下往上穿越長期均線（如 50MA 穿越 200MA），被視為買入或牛市開啟的信號 。
+
+死亡交叉 (Death Cross): 短期均線由上往下穿越長期均線，被視為賣出或熊市開啟的信號 。
+
+實作 (以 TAIEX 為例): 使用 TA-Lib 或 pandas_ta 計算加權指數 (TAIEX) 的多條 SMA (例如 5日、20日、60日、120日、240日) 。
+import pandas_ta as ta
+import pandas as pd
+
+# 假設 taiex_df 包含 TAIEX 的 'close' 價格數據，且索引為日期
+# taiex_df =... # (獲取 TAIEX 數據)
+
+# 計算移動平均線
+taiex_df.ta.sma(length=20, append=True) # 計算 SMA_20
+taiex_df.ta.sma(length=60, append=True) # 計算 SMA_60
+taiex_df.ta.sma(length=240, append=True) # 計算 SMA_240
+
+# 判斷多頭排列條件 (範例)
+is_bull_arrangement = (taiex_df > taiex_df) & (taiex_df > taiex_df)
+
+# 判斷空頭排列條件 (範例)
+is_bear_arrangement = (taiex_df < taiex_df) & (taiex_df < taiex_df)
+
+# 判斷黃金交叉 (50MA 穿越 200MA) - 需要更多歷史數據
+# taiex_df.ta.sma(length=50, append=True)
+# taiex_df.ta.sma(length=200, append=True)
+# golden_cross = (taiex_df.shift(1) < taiex_df.shift(1)) & (taiex_df > taiex_df)
+
+
+成交量變化:
+
+概念: 成交量可以確認趨勢的強度。價漲量增通常確認上升趨勢，價跌量增確認下降趨勢。價漲量縮或價跌量縮可能預示趨勢反轉或盤整。
+
+週期判斷邏輯: 可計算成交量的移動平均線，觀察近期成交量相對於平均成交量的變化。牛市通常伴隨成交量放大，熊市末期可能出現恐慌性拋售的大量，盤整市成交量可能萎縮。
+
+實作: 計算 TAIEX 成交量的移動平均 (如 20 日均量)，比較當日成交量與均量的關係。
+
+總體經濟指標應用
+
+總體經濟指標提供更宏觀的經濟背景，有助於判斷市場週期的基本面支撐。
+
+GDP 增長率:
+
+概念: 反映整體經濟活動的擴張或收縮。通常使用年增率 (YoY) 或季增年率 (SAAR)。
+
+週期判斷邏輯: 持續高於歷史平均或預期的增長率支持牛市判斷；負增長或顯著低於預期的增長率支持熊市判斷；增長率在歷史均值附近徘徊可能對應盤整市。
+
+實作: 獲取 DGBAS 的 GDP 數據 (如 Section III 所述)，計算年增率，設定閾值 (例如，YoY > 3% 為牛市信號，YoY < 0% 為熊市信號)。
+
+M1B 年增率:
+
+概念: M1B (狹義貨幣供給額) 在台灣被視為股市資金動能的重要領先指標 。高 M1B 增長通常意味著市場流動性充裕，有利於股市上漲。
+
+週期判斷邏輯: 高 M1B 年增率 (例如 > 10% 或高於某閾值) 支持牛市；低迷或負 M1B 年增率支持熊市或盤整。需注意 M1B 對經濟環境的反應可能存在遞延 。
+
+實作: 獲取 CBC 的 M1B 數據 (如 Section III 所述)，計算年增率，設定閾值。
+
+景氣對策信號 (燈號):
+
+概念: 由國發會編制，綜合多項指標判斷當前景氣狀況，以燈號顏色與分數呈現 。紅燈 (38-45分) 代表熱絡，黃紅燈 (32-37分) 代表趨熱，綠燈 (23-31分) 代表穩定，黃藍燈 (17-22分) 代表趨緩，藍燈 (9-16分) 代表低迷 。
+
+週期判斷邏輯:
+
+牛市: 紅燈、黃紅燈。
+
+熊市: 藍燈、黃藍燈。
+
+盤整市: 綠燈 (或根據策略定義，綠燈也可歸為溫和牛市)。
+
+實作: 獲取 NDC 的景氣對策信號歷史數據 (如 Section III 所述，可能需下載檔案或爬蟲)，將燈號或分數映射到對應的市場週期狀態。
+
+整合判斷邏輯
+
+結合技術面與總經面的信號來判斷市場週期，可以提高判斷的穩健性。
+
+方法一：規則基礎系統 (Rule-Based System):
+
+邏輯: 設定明確的條件組合。例如：
+
+牛市條件: (TAIEX 均線多頭排列) 且 (M1B 年增率 > 閾值 X) 且 (景氣燈號為紅/黃紅/綠)。
+
+熊市條件: (TAIEX 均線空頭排列) 且 (M1B 年增率 < 閾值 Y) 且 (景氣燈號為藍/黃藍)。
+
+盤整市條件: 不滿足牛市或熊市條件的情況，或 (均線糾纏 且 景氣燈號為綠)。
+
+實作: 在 Pandas DataFrame 中創建布林欄位代表每個條件是否滿足，然後使用邏輯運算符 (&, |, ~) 組合條件，最終輸出一列代表市場狀態 ('Bull', 'Bear', 'Sideways')。
+
+# 假設 df 已包含所有計算好的指標和信號
+# df['is_bull_arrangement'] =...
+# df['is_bear_arrangement'] =...
+# df['m1b_yoy_growth'] =...
+# df['gdp_yoy_growth'] =... # (可選)
+# df['business_signal_score'] =... # 或燈號 'business_signal_light'
+
+# 定義閾值
+m1b_bull_threshold = 10.0 # 假設 M1B 年增率 > 10% 為牛市信號
+m1b_bear_threshold = 2.0  # 假設 M1B 年增率 < 2% 為熊市信號
+green_light_score_min = 23
+green_light_score_max = 31
+yellow_red_score_min = 32
+blue_light_score_max = 16
+
+# 組合規則
+bull_condition = (df['is_bull_arrangement']) & \
+                 (df['m1b_yoy_growth'] > m1b_bull_threshold) & \
+                 (df['business_signal_score'] >= green_light_score_min) # 包含綠燈及以上
+
+bear_condition = (df['is_bear_arrangement']) & \
+                 (df['m1b_yoy_growth'] < m1b_bear_threshold) & \
+                 (df['business_signal_score'] <= blue_light_score_max) # 僅藍燈
+
+# 分配市場狀態
+df['market_cycle'] = 'Sideways' # 預設為盤整
+df.loc[bull_condition, 'market_cycle'] = 'Bull'
+df.loc[bear_condition, 'market_cycle'] = 'Bear'
+
+# 輸出結果
+# print(df].tail())
+
+
+方法二：評分系統 (Scoring System):
+
+邏輯: 為每個指標的狀態（例如，多頭排列、M1B 高增長、紅燈）設定分數，加總分數後根據總分範圍劃分市場週期。例如，總分 > A 為牛市，< B 為熊市，介於 A 和 B 之間為盤整。
+
+優點: 相較於嚴格的 AND/OR 規則，更具彈性，允許部分指標的弱勢被其他指標的強勢所彌補。
+
+實作: 類似規則基礎系統，但將布林條件轉換為分數，然後加總判斷。
+
+方法三：機器學習分類模型 (Advanced):
+
+邏輯: 使用歷史數據訓練一個分類模型（如 SVM、隨機森林、梯度提升樹 ），輸入為各項技術與總經指標值，輸出為市場週期類別。需要先定義歷史上的牛/熊/盤整階段作為訓練標籤。
+
+優點: 可能捕捉到更複雜的非線性關係。
+
+缺點: 需要大量標註數據，模型可能過擬合，解釋性較差。對於本報告，建議優先採用規則基礎或評分系統。
+
+模組輸出
+
+此模組的最終輸出應為一個時間序列（例如 Pandas Series），其索引為日期，值為對應日期的市場週期狀態（'Bull', 'Bear', 'Sideways'）。這個序列將被後續的股票篩選、衍生品策略和資產配置模組所使用。
+
+整合技術與總經指標的挑戰在於處理不同頻率和報告滯後的問題。技術指標（如 MA）是每日更新的，而總經指標（GDP、M1B、景氣燈號）是月度或季度發布，且通常有數週甚至數月的延遲。在回測中，必須確保在某個時間點 T 做決策時，所使用的總經數據是在 T 或之前實際可取得的數據，通常意味著需要使用前一個月或前一季的數據，並透過 ffill 填充到每日。這種時間差可能導致策略反應滯後於純粹的技術指標策略。如何權衡技術指標的即時性與總經指標的宏觀指導性，是設計週期判斷規則時的關鍵考量。
+
+V. 股票篩選模組
+
+目標
+
+本模組旨在根據前一階段判斷出的市場週期（牛市、熊市、盤整市），應用不同的篩選標準，從台股市場中選出符合當前策略偏好的股票池。篩選過程將結合基本面與技術面數據。
+
+輸入
+
+當前市場週期狀態 (來自模組 IV)。
+
+個股歷史價量數據 (來自模組 III)。
+
+個股基本面數據（營收、EPS、淨利率、ROE、P/E、P/B、股息殖利率、Beta 等，來自模組 III 或經計算得出）。
+
+實作架構
+
+建議使用 Pandas DataFrame 進行操作。將所有股票的相關數據（價量、基本面、技術指標）合併到一個大的 DataFrame 中，其中索引為日期，欄位包含股票代碼及各項指標。然後根據當前的市場週期狀態，應用對應的布林遮罩 (boolean masking) 進行篩選。
+
+import pandas as pd
+import pandas_ta as ta # 或其他技術指標庫
+
+# 假設 all_stock_data 是一個 MultiIndex DataFrame
+# 索引層級 0: date (日期)
+# 索引層級 1: stock_id (股票代碼)
+# 欄位包含: open, high, low, close, volume, revenue_yoy, eps_yoy, roe, pe, pb, dividend_yield, beta, rsi_14,...
+# all_stock_data =... # (從模組 III 加載或合併數據)
+
+# 假設 market_cycle_series 是一個包含每日市場週期的 Series
+# market_cycle_series =... # (來自模組 IV 的輸出)
+
+def screen_stocks(current_date, market_cycle, stock_data):
+    """
+    根據指定日期和市場週期篩選股票。
+
+    Args:
+        current_date (datetime): 當前回測日期。
+        market_cycle (str): 當前市場週期 ('Bull', 'Bear', 'Sideways')。
+        stock_data (pd.DataFrame): 包含所有股票當日數據的 DataFrame。
+                                     (假設已處理好，索引為 stock_id)
+
+    Returns:
+        list: 符合條件的股票代碼列表。
+    """
+    if market_cycle == 'Bull':
+        # 牛市篩選條件
+        screened = stock_data[
+            (stock_data['revenue_yoy'] > 15) &        # 營收年增 > 15% (範例)
+            (stock_data['eps_yoy'] > 10) &            # EPS 年增 > 10% (範例)
+            (stock_data['roe'] > 10) &                # ROE > 10% (範例)
+            (stock_data['rsi_14'] > 60)               # RSI > 60 (動能強勢, 範例)
+            # & (stock_data['momentum_6m'] > 0.2)    # 6個月報酬 > 20% (需預先計算)
+        ]
+    elif market_cycle == 'Bear':
+        # 熊市篩選條件
+        screened = stock_data[
+            (stock_data['beta'] < 0.8) &              # Beta < 0.8 (低風險, 範例)
+            (stock_data['dividend_yield'] > 4) &      # 股息殖利率 > 4% (範例)
+            (stock_data['pe'] < 15) & (stock_data['pe'] > 0) & # P/E < 15 且 > 0 (低估值, 範例)
+            (stock_data['pb'] < 1.5) & (stock_data['pb'] > 0) &  # P/B < 1.5 且 > 0 (低估值, 範例)
+            (stock_data['debt_ratio'] < 0.6)          # 負債比 < 60% (財務穩健, 需預先計算)
+        ]
+    elif market_cycle == 'Sideways':
+        # 盤整市篩選條件
+        screened = stock_data[
+            (stock_data['dividend_yield'] > 3) | # 高股息 (範例)
+            (stock_data['is_range_bound'] == True) &  # 股價區間震盪 (需預先計算布林帶寬度或ATR等指標判斷)
+            (stock_data['cash_flow_stable'] == True) # 現金流穩定 (需預先計算 FCF 變異性等指標)
+            # & (stock_data['theme'] == 'SpecificTheme') # 特定題材 (需外部數據)
+        ]
+    else:
+        screened = pd.DataFrame() # 未知週期不選股
+
+    return screened.index.tolist()
+
+# --- 回測循環中的應用 ---
+# for current_date in backtest_dates:
+#     # 1. 獲取當日市場週期
+#     current_cycle = market_cycle_series.loc[current_date]
+#
+#     # 2. 獲取當日所有股票的數據 (需要確保數據是 point-in-time)
+#     #    注意：基本面數據通常有滯後，需使用最近已公布的數據
+#     try:
+#         # 假設 all_stock_data 的第一層索引是日期
+#         point_in_time_data = all_stock_data.loc[current_date]
+#         # 可能需要額外處理，確保使用的是 T-1 或更早可得的基本面數據
+#     except KeyError:
+#         continue # 當日無數據則跳過
+#
+#     # 3. 執行篩選
+#     selected_stocks = screen_stocks(current_date, current_cycle, point_in_time_data)
+#
+#     # 4. 根據 selected_stocks 進行交易決策...
+
+
+篩選標準詳解 (根據使用者查詢 Query Pt 3)
+
+牛市 (Bull Market): 目標是找到具有強勁增長潛力與市場動能的股票。
+
+高成長 (High Growth):
+
+營收年增率 (Revenue Growth YoY): revenue_yoy > X% (例如 15%)。衡量公司營收擴張速度。
+
+每股盈餘年增率 (EPS Growth YoY): eps_yoy > Y% (例如 10%)。衡量公司獲利增長速度。
+
+數據來源: 需從 FinMind 或 TEJ 等來源獲取歷史營收與 EPS 數據，並計算年增率。注意財報公布的滯後性。
+
+高動能 (High Momentum):
+
+相對強弱指數 (RSI): rsi_14 > Z (例如 60 或 70)。衡量近期價格動能，高於 70 常被視為超買，但在強勁牛市中可能持續維持高位 。
+
+價格報酬率: price_return_3m > A% 或 price_return_6m > B%。衡量過去一段時間的股價表現。
+
+數據來源: 價量數據，使用 TA-Lib 或 pandas_ta 計算 RSI 。報酬率可直接用 Pandas 計算。
+
+高盈利能力 (High Profitability):
+
+股東權益報酬率 (ROE): roe > C% (例如 10% 或 15%)。衡量公司為股東創造獲利的能力。
+
+淨利率 (Net Margin): net_margin > D%。衡量公司營收轉換為淨利潤的效率。
+
+數據來源: 需從財報數據計算。
+
+熊市 (Bear Market): 目標是尋找相對抗跌、具備防禦性或價值被低估的股票。
+
+低 Beta (Low Beta):
+
+beta < E (例如 0.8 或 1)。Beta 值衡量股票相對於市場（如 TAIEX）的系統性風險，低 Beta 股票波動通常較小 。
+
+數據來源: 需要計算個股報酬率與 TAIEX 報酬率的協方差及 TAIEX 報酬率的方差。可使用 vectorbt 的 portfolio.beta() 或 empyrical/quantstats 提供的函數計算滾動 Beta。
+
+高股息殖利率 (High Dividend Yield):
+
+dividend_yield > F% (例如 4% 或 5%)。在熊市中，穩定的股息收入可提供部分回報緩衝。
+
+數據來源: FinMind 或 TEJ 可能提供歷史股利數據，需計算殖利率 (年現金股利 / 股價)。
+
+低估值 (Low Valuation):
+
+本益比 (P/E Ratio): 0 < pe < G (例如 15)。低 P/E 可能表示股價相對其盈利能力被低估。需排除負 P/E（虧損公司）。
+
+股價淨值比 (P/B Ratio): 0 < pb < H (例如 1.5)。低 P/B 可能表示股價相對其帳面價值被低估。需排除負 P/B。
+
+數據來源: 股價數據及財報數據（EPS 計算 P/E，每股淨值計算 P/B）。
+
+財務穩健 (Financial Stability):
+
+負債權益比 (Debt-to-Equity Ratio): debt_ratio < I (例如 0.6 或 1)。衡量公司槓桿水平，低負債比通常意味著較低的財務風險。
+
+流動比率 (Current Ratio): current_ratio > J (例如 1.5 或 2)。衡量短期償債能力。
+
+數據來源: 需從資產負債表數據計算。
+
+盤整市 (Sideways Market): 目標是尋找股價波動相對穩定、可預測性較高，或能提供穩定現金流的股票。
+
+區間震盪特性 (Range-Bound Price):
+
+可利用布林帶 (Bollinger Bands) ，篩選帶寬較窄或股價在帶內穩定波動的股票。
+
+可計算歷史波動率 (Historical Volatility)，篩選波動率較低的股票。
+
+數據來源: 價量數據，使用 TA-Lib 或 pandas_ta 計算。
+
+現金流穩定 (Stable Cash Flow):
+
+篩選過去數期自由現金流 (Free Cash Flow, FCF) 持續為正且變異數較小的公司。
+
+數據來源: 需從現金流量表數據計算。
+
+高股息 (High Dividend):
+
+同熊市標準，dividend_yield > K%。在盤整市中，股息也是重要的回報來源。
+
+特定題材 (Specific Themes):
+
+此標準較為主觀，需要外部數據源或人工標註來識別與特定題材（如 AI、綠能、升息受益股等）相關的股票。在自動化篩選中較難實現，除非有結構化的題材分類數據。
+
+股票篩選標準彙總表
+
+市場週期
+
+篩選準則類別
+
+具體指標 (範例)
+
+說明
+
+牛市
+
+成長性
+
+營收年增 > 15%, EPS 年增 > 10%
+
+公司業務與獲利高速擴張
+
+
+
+動能
+
+RSI(14) > 60, 6 個月報酬 > 20%
+
+近期股價表現強勢
+
+
+
+盈利能力
+
+ROE > 15%, 淨利率 > 8%
+
+公司賺錢效率高
+
+熊市
+
+風險/Beta
+
+Beta < 0.8
+
+相對市場波動較小，具防禦性
+
+
+
+股息
+
+股息殖利率 > 4%
+
+提供穩定現金流
+
+
+
+估值
+
+0 < P/E < 15, 0 < P/B < 1.5
+
+股價可能被低估
+
+
+
+財務穩定性
+
+負債權益比 < 0.6, 流動比率 > 1.5
+
+公司財務風險較低
+
+盤整市
+
+價格行為
+
+股價於布林帶內波動, 歷史波動率低
+
+股價走勢相對穩定
+
+
+
+現金流
+
+近 N 期 FCF > 0 且標準差低
+
+公司營運現金流穩定
+
+
+
+股息/題材
+
+股息殖利率 > 3% 或 屬於特定防禦/利基題材
+
+提供穩定收益或具備獨立行情潛力
+
+註：表中閾值均為範例，實際應用中應根據歷史數據回測、市場狀況及個人風險偏好進行調整。
+
+實現有效的股票篩選，關鍵挑戰在於基本面數據的「即時性」與「可得性」。財報數據有顯著的發布滯後，回測時必須使用當時已知的數據，避免用到未來的資訊。例如，在 5 月份進行回測時，通常只能使用到第一季的財報數據（假設 4 月底公布）。若直接使用最新的（例如第二季）財報數據進行篩選，將導致嚴重的前視偏差。此外，定義「高」或「低」的閾值也需要考量。固定閾值可能在不同市場環境或行業間失效，更進階的方法可能需要與行業均值或歷史分位數進行比較，這增加了篩選邏輯的複雜度。免費數據源可能無法提供足夠精確或及時的點對點基本面數據，這可能限制了基於複雜基本面篩選策略的有效性。
+
+VI. 衍生性商品策略模組
+
+目標
+
+本模組旨在根據不同的市場週期，模擬執行使用者指定的台指期貨 (TAIFEX Futures) 與台指選擇權 (TAIFEX Options) 交易策略。由於標準的回測框架和免費數據源在處理選擇權方面的限制，本模組將著重於策略邏輯的模擬，並明確指出其簡化之處。
+
+挑戰與限制
+
+數據可得性: 如 Section III 所述，獲取全面且免費的歷史選擇權數據（包含完整的選擇權鏈、價量、未平倉量 OI、隱含波動率 IV）極具挑戰性 。FinMind 提供每日數據，但可能缺少 OI 和 IV 。若無可靠數據，精確模擬依賴 IV 或 OI 的策略（如波動率交易、特定價差策略）將非常困難。
+
+回測框架支援: 標準的開源回測框架（如 VectorBT 免費版、Backtrader）主要針對股票或期貨設計，對選擇權的複雜性（非線性損益、到期日、履約價、保證金計算、希臘字母 Delta/Gamma/Theta/Vega 風險）通常缺乏內建的精確支持 。VectorBT Pro 版本可能提供更進階的功能 ，但不在本報告預設範圍內。
+
+保證金與交易成本: 選擇權（尤其是賣方策略）和期貨涉及複雜的保證金計算，這對部位規模和風險管理至關重要。標準回測框架可能難以精確模擬交易所的 SPAN 保證金或其他複雜規則。交易成本（手續費、交易稅）也需要納入考量。
+
+模擬方法：簡化與聚焦邏輯
+
+鑑於上述挑戰，本報告將採用簡化方法模擬衍生品策略，重點在於：
+
+觸發條件: 根據市場週期（來自模組 IV）和指數（TAIEX）的價格行為觸發策略。
+
+策略選擇: 執行與市場週期相對應的策略類型（牛市做多、熊市做空、盤整中性）。
+
+損益估算: 主要基於進出場時的衍生品價格（權利金或期貨價格）變動來估算損益，而非精確模擬所有細節。
+
+到期處理: 實作簡單的到期前平倉或展期邏輯。
+
+期貨策略模擬 (TAIEX Futures)
+
+標的: 通常使用近月份的台指期貨合約，或模擬連續近月合約。
+
+牛市: 建立期貨多頭部位。
+
+進場時機: 市場週期轉為牛市，或出現技術性買入信號（如指數突破關鍵阻力）。
+
+出場時機: 市場週期轉變，或觸發停損/停利。
+
+熊市: 建立期貨空頭部位。
+
+進場時機: 市場週期轉為熊市，或出現技術性賣出信號（如指數跌破關鍵支撐）。
+
+出場時機: 市場週期轉變，或觸發停損/停利。
+
+盤整市: 通常不持有期貨方向性部位，或進行區間交易（若策略支持）。
+
+實作 (VectorBT 概念):
+# 假設 taiex_futures_price 是台指期貨價格 Series
+# 假設 market_cycle_series 是市場週期 Series
+
+# 牛市做多信號
+futures_long_entries = (market_cycle_series == 'Bull') & (market_cycle_series.shift(1)!= 'Bull')
+futures_long_exits = (market_cycle_series!= 'Bull') & (market_cycle_series.shift(1) == 'Bull')
+
+# 熊市做空信號
+futures_short_entries = (market_cycle_series == 'Bear') & (market_cycle_series.shift(1)!= 'Bear')
+futures_short_exits = (market_cycle_series!= 'Bear') & (market_cycle_series.shift(1) == 'Bear')
+
+# 使用 from_signals 模擬期貨交易 (簡化，未考慮合約展期、保證金)
+# futures_pf = vbt.Portfolio.from_signals(
+#     close=taiex_futures_price,
+#     long_entries=futures_long_entries,
+#     long_exits=futures_long_exits,
+#     short_entries=futures_short_entries,
+#     short_exits=futures_short_exits,
+#     #... 其他參數如 fees, slippage
+# )
+
+
+選擇權策略模擬 (TAIEX Options - 簡化)
+
+假設已有選擇權歷史價格數據 (options_chain_df，包含日期、標的價格、履約價、到期日、類型 C/P、選擇權價格)。
+
+牛市策略 (預期上漲):
+
+買進買權 (Long Call):
+
+選約: 選擇輕微價外 (OTM) 或價平 (ATM) 的買權，剩餘天數 (DTE) 適中 (例如 30-60 天)。
+
+進場: 市場週期轉為牛市。
+
+出場: 達到獲利目標、觸發停損、接近到期或市場週期轉變。
+
+損益模擬: (出場權利金 - 進場權利金) * 契約乘數。
+
+賣出賣權 (Short Put / Naked Put):
+
+選約: 選擇價外 (OTM) 的賣權，DTE 適中。
+
+進場: 市場週期轉為牛市，預期指數不會大跌。
+
+出場: 權利金衰減至目標值、觸發停損 (指數跌破履約價過多)、接近到期或市場週期轉變。
+
+損益模擬: (進場權利金 - 出場權利金) * 契約乘數。注意：風險無限，需嚴格風控，保證金要求高，模擬困難。
+
+牛市價差 (Bull Call Spread / Put Credit Spread): 涉及買賣不同履約價的選擇權，風險有限。模擬需同時追蹤兩口合約的價格。
+
+熊市策略 (預期下跌):
+
+買進賣權 (Long Put):
+
+選約: OTM 或 ATM 賣權，DTE 適中。
+
+進場: 市場週期轉為熊市。
+
+出場: 同 Long Call。
+
+損益模擬: (出場權利金 - 進場權利金) * 契約乘數。
+
+賣出買權 (Short Call / Naked Call):
+
+選約: OTM 買權，DTE 適中。
+
+進場: 市場週期轉為熊市，預期指數不會大漲。
+
+出場: 同 Short Put。
+
+損益模擬: (進場權利金 - 出場權利金) * 契約乘數。注意：風險無限，需嚴格風控，保證金要求高，模擬困難。
+
+熊市價差 (Bear Put Spread / Call Credit Spread): 風險有限。模擬需追蹤兩口合約。
+
+盤整市策略 (預期區間震盪或波動率變化):
+
+掩護性買權 (Covered Call):
+
+前提: 持有現貨股票（或此處用期貨多頭模擬）。
+
+策略: 賣出價外 (OTM) 買權以收取權利金。
+
+損益模擬: 結合期貨損益與賣出買權的權利金收入/損失。
+
+賣出跨式/勒式 (Short Straddle/Strangle):
+
+策略: 同時賣出相同到期日的買權和賣權（跨式：履約價相同；勒式：履約價不同，通常均為 OTM）。預期標的物價格在區間內波動，賺取時間價值。
+
+選約: ATM (跨式) 或 OTM (勒式)，DTE 適中。
+
+進場: 市場週期轉為盤整，預期波動率下降或持平。
+
+出場: 權利金衰減至目標、指數突破區間觸發停損、接近到期。
+
+損益模擬: (進場總權利金 - 出場總權利金) * 契約乘數。注意：風險可能極大（尤其是跨式），保證金要求高。
+
+鐵兀鷹 (Iron Condor):
+
+策略: 結合一個 OTM 賣權空頭價差和一個 OTM 買權空頭價差，形成風險和獲利均有限的中性策略。
+
+模擬: 需要追蹤四口不同履約價的合約價格。
+
+時間價差 (Calendar Spread):
+
+策略: 買進遠月選擇權，同時賣出同履約價的近月選擇權。利用時間價值衰減速度不同獲利。
+
+模擬: 需同時追蹤近月和遠月合約價格。
+
+實作考量:
+
+選擇權選取邏輯: 需要實作函數，根據當前指數價格、目標 DTE 和策略類型（ATM, OTM）從 options_chain_df 中篩選出合適的合約。
+
+部位管理: 需要追蹤持有的選擇權部位（履約價、到期日、類型、成本、數量）。
+
+損益計算: 在出場或到期時，根據對應合約的價格計算損益。
+
+VectorBT 整合: 由於 vectorbt 對選擇權支援有限，可能需要使用 Portfolio.from_order_func 或在外部計算選擇權策略的近似損益，再將其作為一個「自定義資產」的回報序列輸入到 vectorbt 中進行組合分析。或者，僅模擬觸發信號，而不進行精確的損益回測。
+
+# 程式碼範例：選擇權策略模擬概念 (高度簡化)
+
+def select_option(current_date, underlying_price, options_chain_df, target_dte, option_type, moneyness='ATM'):
+    """
+    簡化選擇權合約的函數 (僅為示意)
+    實際需要更複雜的邏輯來處理到期日匹配、流動性等
+    """
+    # 篩選符合條件的選擇權...
+    #... (省略複雜的篩選邏輯)
+    # 返回選中的合約代碼或價格信息
+    # return selected_option_info
+
+# --- 在回測框架的回調函數或主循環中 ---
+# if market_cycle == 'Bull':
+#     # 模擬買進買權
+#     selected_call = select_option(current_date, current_taiex_price, options_data_today,
+#                                  target_dte=45, option_type='C', moneyness='ATM')
+#     if selected_call:
+#         entry_price = selected_call['price']
+#         # 記錄買入部位...
+#         # portfolio.buy(option_symbol, size=..., price=entry_price) # 假設框架支持
+
+# elif market_cycle == 'Bear':
+#     # 模擬買進賣權
+#     selected_put = select_option(current_date, current_taiex_price, options_data_today,
+#                                 target_dte=45, option_type='P', moneyness='ATM')
+#     if selected_put:
+#         entry_price = selected_put['price']
+#         # 記錄買入部位...
+
+# elif market_cycle == 'Sideways':
+#     # 模擬賣出勒式 (Short Strangle)
+#     selected_otm_call = select_option(current_date, current_taiex_price, options_data_today,
+#                                      target_dte=30, option_type='C', moneyness='OTM')
+#     selected_otm_put = select_option(current_date, current_taiex_price, options_data_today,
+#                                     target_dte=30, option_type='P', moneyness='OTM')
+#     if selected_otm_call and selected_otm_put:
+#         entry_premium = selected_otm_call['price'] + selected_otm_put['price']
+#         # 記錄賣出部位... (需要處理保證金和風險)
+
+# --- 處理部位出場/到期 ---
+# for position in open_options_positions:
+#     if should_exit(position, current_date, current_taiex_price):
+#         exit_price = get_option_price(position.symbol, current_date) # 獲取當前價格
+#         calculate_pnl(position, exit_price)
+#         # portfolio.sell(position.symbol, size=..., price=exit_price) # 平倉
+
+
+總結而言，在標準開源框架下對複雜選擇權策略進行高保真回測是困難的。主要障礙在於數據的缺乏以及框架本身對選擇權特性的支持不足。因此，本模組的實作將不可避免地帶有簡化色彩，側重於策略邏輯的條件觸發與方向性損益估算，使用者應充分理解這些模擬與實際交易間的差距。若需進行更精確的選擇權回測，則需尋求專業的選擇權分析平台或自行開發更複雜的回測引擎。
+
+VII. 動態資產配置與風險管理模組
+
+目標
+
+本模組旨在根據市場週期動態調整股票與衍生性商品之間的資金分配比例，並實施必要的風險管理措施，包括部位規模控制、停損機制以及投資組合 Beta 管理。
+
+動態資產配置
+
+邏輯: 核心思想是根據市場週期判斷（來自模組 IV）調整資產類別的風險曝險。
+
+牛市: 增加股票部位權重，減少現金或低風險資產權重，衍生品部位以順勢（做多）為主。例如：70% 股票，30% 牛市衍生品策略。
+
+熊市: 減少股票部位權重（特別是高 Beta 股票），增加現金或防禦性資產權重，衍生品部位以避險或做空為主。例如：30% 防禦型股票，50% 熊市衍生品策略，20% 現金。
+
+盤整市: 權重分配可能較為均衡，或根據盤整策略的需求調整。例如：50% 區間型股票，50% 中性衍生品策略。
+
+實作: 在回測循環中，定期（例如每月或每次市場週期信號變化時）檢查當前市場週期，並根據預設的目標權重進行再平衡 (Rebalancing)。
+
+VectorBT:
+
+可以使用 Portfolio.from_signals 中的 size 和 size_type='targetpercent' 參數來設定目標權重。信號的產生需要結合市場週期狀態。例如，當週期為牛市時，產生買入信號，目標權重為 70%；當週期轉為熊市時，產生賣出信號（或新的買入信號），目標權重變為 30%。
+
+更靈活的方式是使用 Portfolio.from_order_func ，在回調函數中讀取當前市場週期、計算目標權重，並生成相應的調整訂單。VectorBT Pro 的 Portfolio Optimization 功能提供了更系統化的動態權重調整方法 ，但基礎版需要自行實現邏輯。
+
+vectorbt 支援 group_by 功能，可以將股票和衍生品分為不同組別，並透過 cash_sharing=True 實現組間的資金流動 。
+
+Backtrader:
+
+可以使用 order_target_percent 或 order_target_value 方法在 Strategy 的 next 函數中根據市場週期信號調整各資產的目標曝險比例 。
+
+可以設計一個自定義的 Timer 或在 next 中定期觸發再平衡邏輯。
+
+# VectorBT 概念 (使用 from_order_func 處理動態權重)
+from numba import njit
+import vectorbt as vbt
+
+# @njit # (Numba 可能不支持複雜的外部數據訪問，需簡化或傳遞參數)
+# def dynamic_rebalance_func_nb(c):
+#     # c.i: 當前時間索引
+#     # c.col: 當前資產欄位索引
+#     # c.group: 當前組別索引 (如果使用 group_by)
+#     # c.target_portfolio_value: 總目標價值
+#     # c.market_cycle[c.i]: 獲取當日市場週期 (需傳入)
+#     # c.target_weights: 包含各資產目標權重的數組 (需傳入或計算)
+
+#     current_cycle = c.market_cycle[c.i]
+#     asset_group = c.asset_map[c.col] # 假設有資產分組信息
+
+#     if current_cycle == 'Bull':
+#         if asset_group == 'Stock': target_pct = 0.7 / c.num_stock_assets # 均分權重
+#         elif asset_group == 'Derivative': target_pct = 0.3 / c.num_deriv_assets
+#         else: target_pct = 0.0
+#     elif current_cycle == 'Bear':
+#         if asset_group == 'Stock': target_pct = 0.3 / c.num_stock_assets
+#         elif asset_group == 'Derivative': target_pct = 0.5 / c.num_deriv_assets
+#         else: target_pct = 0.0 # 還有 20% 現金
+#     else: # Sideways
+#         if asset_group == 'Stock': target_pct = 0.5 / c.num_stock_assets
+#         elif asset_group == 'Derivative': target_pct = 0.5 / c.num_deriv_assets
+#         else: target_pct = 0.0
+
+#     # 判斷是否需要再平衡 (例如每月第一個交易日)
+#     if c.needs_rebalance[c.i]:
+#         return vbt.pf_enums.Order(
+#             size=target_pct,
+#             size_type=vbt.pf_enums.SizeType.TargetPercent,
+#             #... 其他訂單參數
+#         )
+#     return vbt.pf_enums.Order() # 不下單
+
+# --- 準備參數並調用 from_order_func ---
+# pf = vbt.Portfolio.from_order_func(
+#     close_prices, # 包含所有資產價格的 DataFrame
+#     order_func_nb=dynamic_rebalance_func_nb,
+#     # 傳遞市場週期序列、目標權重計算邏輯、再平衡觸發信號等
+#     # pre_segment_func_nb, # 可能需要預處理函數
+#     # segment_prep_func_nb, # 可能需要分段準備函數
+#     #... 其他 from_order_func 參數
+#     group_by=asset_groups, # 按資產類別分組
+#     cash_sharing=True
+# )
+
+
+部位規模控制 (Position Sizing)
+
+邏輯: 決定單筆交易投入多少資金或購買多少單位。常見方法包括：
+
+固定單位/金額: 每次交易固定數量的股票或合約，或固定金額。
+
+固定比例 (Fixed Fractional): 每次交易投入總資產固定百分比的資金。例如，每次交易投入總資產的 2%。
+
+波動率調整 (Volatility Targeting): 根據資產的歷史波動率調整部位大小，波動率高的資產分配較小部位，波動率低的分配較大部位，以使每筆交易承擔相似的風險。
+
+實作:
+
+VectorBT:
+
+from_signals 中的 size 參數可以接受數值（固定單位）、np.inf（全部資金，需配合 size_type）、或是一個與價格數據同形狀的陣列來指定每個信號的部位大小。
+
+size_type 參數可設為 SizeType.Amount (單位), SizeType.Percent (總資產百分比), SizeType.Value (目標市值) 等 。
+
+波動率調整等複雜邏輯通常需要在 from_order_func 中自行計算目標 size。
+
+Backtrader:
+
+使用內建的 Sizers，如 bt.sizers.FixedSize (固定單位), bt.sizers.PercentSizer (現金百分比), bt.sizers.AllInSizer (全部現金) 。
+
+可以透過 cerebro.addsizer() 添加預設 Sizer，或 cerebro.addsizer_byidx() 為特定策略指定 Sizer 。
+
+可以繼承 bt.Sizer 創建自定義 Sizer，在 _getsizing 方法中實現複雜邏輯（如波動率調整），可以訪問 self.broker.getvalue() (總資產) 和 self.strategy (策略內部狀態) 。
+
+風險管理措施
+
+停損 (Stop-Loss):
+
+邏輯: 為每筆交易設定預定的最大可承受虧損水平。當價格觸及停損價位時，自動平倉。可以是固定價位、百分比、或基於波動率（如 ATR）的動態停損。
+
+實作:
+
+VectorBT: Portfolio.from_signals 提供 sl_stop (百分比停損)、sl_trail (追蹤停損) 等參數 。from_order_func 中可以檢查 c.position_pnl (當前部位損益) 並觸發平倉訂單。
+
+Backtrader:
+
+在 Strategy 的 next 方法中檢查 self.position 的損益，並使用 self.close() 或 self.sell() / self.buy() 下達平倉單。
+
+使用 sell() 或 buy() 方法時，設定 exectype=bt.Order.Stop 或 exectype=bt.Order.StopLimit 來創建停損單 。
+
+使用 buy_bracket() 或 sell_bracket() 方法，可以在進場時同時設定停損單和停利單 。
+
+使用 exectype=bt.Order.StopTrail 或 exectype=bt.Order.StopTrailLimit 實現追蹤停損 。
+
+投資組合 Beta 對沖:
+
+邏輯: 管理投資組合整體的市場風險（系統性風險）。如果策略目標是市場中性或低 Beta，但實際持倉的 Beta 過高，則可以透過做空指數期貨（如台指期貨）來對沖掉部分市場風險。
+
+計算 Beta:
+
+VectorBT: 使用 portfolio.beta(benchmark_rets=...) 方法計算投資組合相對於基準（TAIEX 指數報酬率）的 Beta 值 。
+
+Backtrader: 需要在回測結束後，利用 Pyfolio Analyzer 或將報酬率導出後使用 quantstats 或 empyrical 計算 Beta。在回測過程中動態計算 Beta 需要自定義 Analyzer 或在 next 中手動計算滾動 Beta。
+
+對沖計算:
+
+對沖所需期貨口數 = (目標 Beta - 當前組合 Beta) * 組合總市值 / (期貨合約價值 * 期貨 Beta)
+
+期貨 Beta 通常假設為 1。期貨合約價值 = 期貨指數點位 * 每點價值。
+
+實作:
+
+在回測循環中定期（如每日或每週）計算投資組合的滾動 Beta。
+
+如果計算出的 Beta 超出預設的目標範圍（例如，目標 Beta 為 0.5，但計算出為 0.9），則計算所需的期貨空頭口數。
+
+透過回測框架下達做空期貨的訂單。當 Beta 回到目標範圍內或過低時，平倉期貨對沖部位。
+
+這部分邏輯通常需要在 Strategy.next (Backtrader) 或 Portfolio.from_order_func (VectorBT) 中自定義實現，因為它涉及到組合層面的狀態監控和動態調整。
+
+# VectorBT Beta 計算範例
+# 假設 pf 是已運行的 Portfolio 對象
+# 假設 taiex_returns 是 TAIEX 指數的日報酬率 Series
+
+# portfolio_beta = pf.beta(benchmark_rets=taiex_returns)
+# print(f"Portfolio Beta: {portfolio_beta.mean()}") # 如果有多列，取平均或其他聚合值
+
+# --- 概念性對沖邏輯 (在 from_order_func 或類似回調中) ---
+# current_beta = calculate_rolling_beta(c.portfolio_returns, c.benchmark_returns, window=60)
+# target_beta = 0.5
+# beta_threshold = 0.1 # 允許的誤差範圍
+# portfolio_value = c.current_portfolio_value
+# futures_contract_value = c.current_futures_price * futures_multiplier
+
+# if abs(current_beta - target_beta) > beta_threshold:
+#     beta_diff = target_beta - current_beta
+#     hedge_ratio = beta_diff # 假設期貨 Beta 為 1
+#     target_futures_value = hedge_ratio * portfolio_value
+#     required_futures_contracts = target_futures_value / futures_contract_value
+
+    # 計算需要調整的期貨口數 (對比當前持倉)
+    # adjustment_size = required_futures_contracts - c.current_futures_position
+
+    # if adjustment_size!= 0:
+        # return futures_order(size=adjustment_size,...) # 下達期貨調整訂單
+
+
+動態資產配置與風險管理是策略能否長期穩健運行的關鍵。其實作複雜度較高，因為它不僅依賴於單一的進出場信號，還需要監控整個投資組合的狀態（價值、構成、風險指標），並根據宏觀的市場週期判斷和微觀的風險控制規則進行動態調整。這要求回測框架能夠提供足夠的靈活性來訪問組合狀態並執行條件性的、目標導向的訂單（如 order_target_percent 或計算對沖口數）。Beta 對沖的實施尤其需要精確的 Beta 計算和對期貨合約細節的理解。
+
+VIII. 回測引擎實作
+
+目標
+
+整合前述所有模組——數據處理、市場週期判斷、股票篩選、衍生品策略模擬、動態配置與風險管理——構建成一個可在 Google Colab 中運行的完整回測流程。本節將基於選擇的 vectorbt 框架，概述其整合結構與執行方式。
+
+框架選擇：VectorBT
+
+選擇 vectorbt 作為主要框架，主要基於以下考量：
+
+效能: vectorbt 利用 numpy 進行向量化計算，並透過 numba 加速 Python 循環，使其在處理大規模數據、多資產組合、多參數掃描時具有顯著的速度優勢 。這對於需要根據市場週期在眾多股票中進行篩選，並可能測試不同參數組合的策略而言，至關重要。
+
+整合性: vectorbt 與 pandas 緊密整合，數據輸入輸出流暢。其提供的指標計算（如 MA, RSI 等）和信號處理功能（如交叉信號）可以直接應用於 DataFrame 。
+
+參數優化: vectorbt 的架構天然支持對策略參數（如 MA 週期、篩選閾值）進行組合測試，能夠高效地評估大量參數組合的表現 。
+
+視覺化: 內建基於 plotly 的互動式繪圖功能，方便分析回測結果 。
+
+雖然 backtrader 功能也非常強大且靈活 ，其事件驅動模型可能在模擬某些複雜的逐筆交互邏輯（如特定訂單類型、日內操作）時更為直觀。但考量到本策略涉及多資產篩選與潛在的參數探索需求，vectorbt 的向量化效能優勢在本場景下更為突出。
+
+VectorBT 回測流程結構
+
+使用 vectorbt 實現本策略的回測，大致遵循以下步驟：
+
+數據準備:
+
+加載所有必需的數據（來自 Section III），包括 TAIEX 指數（用於週期判斷和 Beta 計算）、個股價量、個股基本面數據（處理好時間滯後）、期貨價格、選擇權價格（簡化）。
+
+將數據整理成 vectorbt 易於處理的格式，通常是寬格式的 Pandas DataFrame，其中索引為日期，欄位為不同的股票代碼或指標。對於多維度數據（如基本面），可能需要使用 MultiIndex 欄位。
+
+信號生成:
+
+市場週期信號: 根據 Section IV 的邏輯，計算每日的市場週期狀態 ('Bull', 'Bear', 'Sideways')，生成一個與價格數據索引對齊的 Pandas Series。
+
+股票篩選信號:
+
+這一步較為複雜，因為篩選條件依賴於市場週期。一種方法是：
+
+預先計算所有可能用到的篩選指標（RSI, Beta, P/E, 成長率等），並將它們與股票價格數據對齊。
+
+根據每日的市場週期狀態，應用 Section V 中的相應篩選規則，生成一個布林型的 DataFrame (screened_stocks_mask)，標識當天哪些股票符合篩選條件。
+
+交易進出場信號:
+
+股票: 結合 screened_stocks_mask 和可能的額外入場/出場條件（例如，技術指標信號、均值回歸信號等）生成股票的 entries 和 exits 信號 DataFrame。
+
+期貨: 根據市場週期信號生成期貨的 long_entries, long_exits, short_entries, short_exits 信號 Series (如 Section VI 所示)。
+
+選擇權 (簡化): 根據市場週期和指數價格，生成觸發特定選擇權策略（買 Call, 賣 Put 等）的信號。由於 vectorbt 不直接處理選擇權，這可能需要轉換為對某個「代理資產」（代表該選擇權策略）的買賣信號，或者在 from_order_func 中處理。
+
+動態權重/部位大小信號:
+
+根據 Section VII 的動態配置邏輯，生成目標權重 (target_percent) 或目標部位大小 (size) 的信號。這同樣依賴於市場週期。例如，生成一個 DataFrame，其中包含每個資產在每個時間點的目標百分比。
+
+組合模擬 (Portfolio Simulation):
+
+選擇模擬函數:
+
+如果策略相對簡單，且進出場、部位大小可以預先生成為信號陣列，可以使用 vbt.Portfolio.from_signals 。需要將股票、期貨、選擇權（代理資產）的價格和信號合併傳入。動態權重可以透過 size 和 size_type='targetpercent' 參數實現，但需要確保信號在正確的時間觸發再平衡。
+
+如果策略包含複雜的狀態依賴邏輯（如 Beta 對沖、複雜的選擇權模擬、更精確的再平衡控制），則需要使用 vbt.Portfolio.from_order_func 。這需要在 Numba JIT 編譯的函數中編寫逐時間步的決策邏輯，訪問當前狀態（如市場週期、持倉、現金、Beta）並返回訂單指令。
+
+設置參數: 在調用模擬函數時，傳入必要的參數：
+
+close: 收盤價數據 (包含所有資產)。
+
+entries, exits (或 long_entries, short_entries 等): 進出場信號。
+
+size, size_type: 部位大小及類型。
+
+init_cash: 初始資金。
+
+fees: 交易費用 (百分比)。
+
+slippage: 滑點 (百分比)。
+
+freq: 數據頻率 ('D' 代表日)。
+
+sl_stop, tp_stop, sl_trail: 停損停利參數 (若使用 from_signals)。
+
+group_by: 用於將資產分組（如股票 vs 衍生品），以便進行組級別的分析或資金共享 (cash_sharing=True) 。
+
+call_seq (for from_signals): 控制信號執行的順序（如先處理出場再處理進場）。
+
+order_func_nb (for from_order_func): 核心的訂單生成邏輯函數。
+
+其他相關參數。
+
+結果提取與分析:
+
+模擬函數返回一個 Portfolio 對象 (pf)。
+
+使用 pf 對象的方法提取績效指標和繪圖 (詳見 Section IX)。
+
+處理交易成本
+
+在模擬設置中明確包含交易成本對於獲得實際的績效評估至關重要。
+
+手續費 (Fees):
+
+vectorbt 允許在 Portfolio 模擬函數中設定 fees 參數，通常為一個百分比值（例如 fees=0.001 代表 0.1%）。這會應用於每筆交易的價值。
+
+滑點 (Slippage):
+
+交易執行價格與預期價格之間的差異。vectorbt 允許設定 slippage 參數，通常也是一個百分比值（例如 slippage=0.0005 代表 0.05%）。滑點會使買入價略高，賣出價略低。
+
+交易稅 (Taxes):
+
+台灣股票交易有證券交易稅（賣出時課徵）。vectorbt 本身沒有內建的稅收參數，但可以透過調整 fees 或在事後分析中扣除來近似模擬。對於頻繁交易的策略，稅收影響不可忽視。
+
+程式碼結構範例 (VectorBT - 簡化流程)
+
+import vectorbt as vbt
+import pandas as pd
+import numpy as np
+# 假設已完成 Section II-VII 的函數/類定義和數據準備
+# from data_preparation import load_all_data
+# from market_cycle import get_market_cycle_signal
+# from stock_screener import generate_screening_mask
+# from derivatives_logic import generate_derivative_signals
+# from allocation_risk import generate_target_weights, calculate_portfolio_beta
+
+# 1. 加載數據
+# all_prices, benchmark_returns, market_cycle_signal, screening_indicators, derivative_prices = load_all_data()
+# (注意：此處為示意，實際數據加載和準備會更複雜)
+
+# --- 假設已生成以下信號 (與 all_prices 的索引和欄位對齊) ---
+# market_cycle_signal: Series, 值為 'Bull', 'Bear', 'Sideways'
+# stock_screening_mask: DataFrame (bool), True 表示股票當日被選中
+# stock_entry_signals: DataFrame (bool), 股票入場信號
+# stock_exit_signals: DataFrame (bool), 股票出場信號
+# futures_long_entry: Series (bool), 期貨做多入場
+# futures_long_exit: Series (bool), 期貨做多出場
+# futures_short_entry: Series (bool), 期貨做空入場
+# futures_short_exit: Series (bool), 期貨做空出場
+# option_strategy_returns: Series, 簡化選擇權策略的每日回報 (作為代理資產)
+# target_portfolio_weights: DataFrame, 每個資產的目標權重 (%)
+
+# --- 整合價格數據 ---
+# combined_prices = pd.concat([stock_prices, futures_price, option_strategy_proxy_price], axis=1)
+# asset_groups = * num_stocks + ['Futures'] + ['Options'] # 資產分組
+
+# --- 整合信號與權重 (使用 from_signals 可能需要轉換權重為 size 信號) ---
+# 這裡僅為示意，實際整合動態權重到 from_signals 可能需要複雜的信號生成
+# 或者，更適合使用 from_order_func
+
+# --- 執行回測 (使用 from_signals 的簡化示例，未完全體現動態權重) ---
+# 假設 entry_signals 和 exit_signals 已根據篩選和週期生成
+# pf = vbt.Portfolio.from_signals(
+#     close=combined_prices,
+#     entries=entry_signals, # 需要整合股票和衍生品信號
+#     exits=exit_signals,   # 需要整合股票和衍生品信號
+#     # size=..., # 這裡需要根據 target_portfolio_weights 動態生成 size
+#     # size_type=vbt.pf_enums.SizeType.TargetPercent, # 或 Amount
+#     init_cash=1_000_000, # 初始資金 (範例)
+#     fees=0.001425, # 股票手續費 (範例)
+#     slippage=0.0005, # 滑點 (範例)
+#     freq='D',
+#     group_by=asset_groups,
+#     cash_sharing=True,
+#     # sl_stop=0.10, # 停損 10% (範例)
+#     # tp_stop=0.20, # 停利 20% (範例)
+# )
+
+# --- 執行回測 (使用 from_order_func 的框架) ---
+# 需要定義 order_func_nb, pre_segment_func_nb 等回調函數
+# pf = vbt.Portfolio.from_order_func(
+#      close=combined_prices,
+#      order_func_nb=your_complex_order_logic_nb,
+#      init_cash=1_000_000,
+#      fees=0.001425,
+#      slippage=0.0005,
+#      freq='D',
+#      group_by=asset_groups,
+#      cash_sharing=True,
+#      # 傳遞額外參數給 order_func_nb
+#      # segment_meta=dict(market_cycle=market_cycle_signal,...)
+# )
+
+
+# 2. 績效分析與視覺化 (見 Section IX)
+# results = pf.stats()
+# print(results)
+# pf.plot().show()
+# beta = pf.beta(benchmark_rets=benchmark_returns)
+# print(f"Portfolio Beta: {beta}")
+
+
+
+整合各模組進入回測引擎是關鍵步驟，它將靜態的邏輯轉化為動態的模擬。vectorbt 的挑戰在於其向量化的核心設計，雖然帶來效能，但在處理高度依賴路徑或投資組合狀態的複雜邏輯（如動態 Beta 對沖、複雜選擇權互動）時，可能需要藉助 from_order_func，這就要求使用者具備一定的 numba 知識，並且需要仔細設計回調函數的結構與參數傳遞，以避免引入偏差。確保數據在傳遞給模擬函數前已經過正確的 point-in-time 處理（特別是基本面和總經數據的滯後）是保證回測有效性的前提。
+
+IX. 績效評估與視覺化
+
+目標
+
+在執行回測後，本階段旨在全面評估策略的歷史表現，計算關鍵績效指標 (KPIs)，並透過視覺化圖表直觀展示策略的風險與回報特性。評估應包含與市場基準（如 TAIEX 加權指數）的比較。
+
+關鍵績效指標 (KPIs)
+
+以下是評估交易策略常用的核心指標：
+
+總回報率 (Total Return / Cumulative Return): 回測期間的總體盈利百分比。
+
+計算: (最終資產價值 / 初始資產價值) - 1
+
+年化回報率 (Annualized Return): 將總回報率轉換為年平均回報率，便於跨期比較。
+
+計算: (1 + 總回報率) ^ (交易日數 / 252) - 1 (假設一年約 252 個交易日)
+
+年化波動率 (Annualized Volatility): 衡量策略回報率的年化標準差，代表風險水平。
+
+計算: 日回報率標準差 * sqrt(252)
+
+夏普比率 (Sharpe Ratio): 衡量每單位總風險（波動率）所獲得的超額回報（相對於無風險利率）。越高越好。
+
+計算: (年化回報率 - 無風險利率) / 年化波動率
+
+注意: 需設定合理的無風險利率（如台灣短期公債殖利率）。
+
+索提諾比率 (Sortino Ratio): 類似夏普比率，但僅考慮下行風險（負回報的波動率）。對於非對稱回報分布的策略更具參考價值。
+
+計算: (年化回報率 - 無風險利率) / 年化下行波動率
+
+最大回撤 (Maximum Drawdown, MDD): 衡量策略在歷史上從最高點回落到最低點的最大損失百分比，是重要的風險指標。
+
+計算: 歷史資產淨值曲線中，max((峰值 - 谷值) / 峰值)
+
+卡瑪比率 (Calmar Ratio): 年化回報率與最大回撤的比值，衡量風險調整後的回報，特別關注尾部風險。
+
+計算: 年化回報率 / abs(最大回撤)
+
+Beta (β): 衡量策略相對於市場基準（TAIEX）的系統性風險。
+
+計算: Cov(策略日回報率, 基準日回報率) / Var(基準日回報率)
+
+Alpha (α): 衡量策略相對於其承擔的市場風險（Beta）所產生的超額回報。
+
+計算: 策略年化回報率 - 無風險利率 - Beta * (基準年化回報率 - 無風險利率) (基於 CAPM 模型)
+
+勝率 (Win Rate): 獲利交易次數佔總交易次數的比例。
+
+盈虧比 (Profit Factor): 總盈利金額除以總虧損金額。大於 1 表示策略整體盈利。
+
+實作績效計算
+
+VectorBT: Portfolio 對象提供了直接計算上述大部分指標的方法 。
+# 假設 pf 是 vectorbt 的 Portfolio 對象
+# 假設 benchmark_returns 是 TAIEX 的日回報率 Series
+
+total_return = pf.total_return()
+annualized_return = pf.annualized_return()
+annualized_volatility = pf.annualized_volatility()
+sharpe_ratio = pf.sharpe_ratio(benchmark_rets=0.01/252) # 假設年化無風險利率 1%
+sortino_ratio = pf.sortino_ratio(benchmark_rets=0.01/252)
+max_drawdown = pf.max_drawdown()
+calmar_ratio = pf.calmar_ratio()
+beta = pf.beta(benchmark_rets=benchmark_returns)
+# Alpha 需要自行根據 CAPM 公式計算
+# alpha = annualized_return - (0.01) - beta * (benchmark_annual_return - 0.01)
+
+# 交易分析 (如果 pf 是從 from_signals 或 from_orders 產生)
+trades = pf.trades
+if not trades.empty:
+    win_rate = trades.win_rate()
+    profit_factor = trades.profit_factor()
+else:
+    win_rate = np.nan
+    profit_factor = np.nan
+
+# 使用 quantstats 生成報告
+qs.reports.html(pf.returns(), benchmark=benchmark_returns, output='strategy_report.html', title='Strategy Performance')
+
+
+Backtrader:
+
+使用內建的 Analyzers 在 cerebro.run() 期間計算指標 。需要在添加策略後添加 Analyzer 實例：
+# cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe', riskfreerate=0.01)
+# cerebro.addanalyzer(bt.analyzers.DrawDown, _name='drawdown')
+# cerebro.addanalyzer(bt.analyzers.Returns, _name='returns')
+# cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='tradeanalyzer')
+# cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio') # 用於 PyFolio 整合
+
+# results = cerebro.run()
+# strat = results # 獲取策略實例
+
+# sharpe = strat.analyzers.sharpe.get_analysis()
+# drawdown = strat.analyzers.drawdown.get_analysis()
+# returns_dict = strat.analyzers.returns.get_analysis()
+# trade_analysis = strat.analyzers.tradeanalyzer.get_analysis()
+# pyfolio_analysis = strat.analyzers.pyfolio.get_analysis() # 獲取 pyfolio 格式數據
+
+# # 使用 quantstats 處理回報序列
+# returns_series = pd.Series(returns_dict)
+# qs.reports.html(returns_series, benchmark=benchmark_returns, output='strategy_report.html')
+
+
+將回報序列導出後，使用 quantstats 或 pyfolio 進行分析 。
+
+視覺化分析
+
+圖表能提供比單一數字更直觀的洞察。
+
+權益曲線 (Equity Curve): 繪製投資組合價值隨時間的變化，並與基準指數（TAIEX）的表現疊加比較 。觀察曲線的平滑度、增長趨勢和回撤情況。
+
+回撤圖 (Drawdown Plot / Underwater Plot): 顯示權益曲線從前期高點回落的百分比 。幫助識別策略歷史上的最大風險暴露時期和幅度。
+
+滾動指標圖 (Rolling Metrics):
+
+滾動波動率: 觀察策略風險水平隨時間的變化。
+
+滾動夏普比率: 評估策略風險調整後回報在不同時期的穩定性 。
+
+滾動 Beta: 觀察策略與市場的相關性是否隨時間變化 。
+
+回報分布圖 (Returns Distribution): 繪製日/月回報率的直方圖或核密度估計 (KDE) 圖 。觀察回報是否呈現常態分布，是否存在肥尾（極端事件）。
+
+資產配置圖 (Asset Allocation): 如果實作了動態配置，繪製股票、衍生品、現金等資產類別佔總資產價值的比例隨時間變化的堆疊面積圖。
+
+交易分析圖: 繪製每筆交易的盈虧分佈圖、持倉時間圖等 。
+
+實作 (VectorBT): vectorbt 的 Portfolio 對象內建了豐富的繪圖方法 。
+# 假設 pf 是 vectorbt 的 Portfolio 對象
+# 假設 benchmark_returns 是 TAIEX 的日回報率 Series
+
+# 繪製權益曲線與基準比較
+pf.plot(benchmark_rets=benchmark_returns).show()
+
+# 繪製回撤圖
+pf.plot_drawdowns().show()
+
+# 繪製滾動夏普 (需要先計算滾動夏普序列)
+# rolling_sharpe = pf.rolling_sharpe_ratio(window=126, benchmark_rets=0.01/252) # 半年滾動
+# rolling_sharpe.vbt.plot(title='Rolling Sharpe Ratio (6-Month)').show()
+
+# 繪製滾動 Beta
+# rolling_beta = pf.rolling_beta(window=126, benchmark_rets=benchmark_returns)
+# rolling_beta.vbt.plot(title='Rolling Beta (6-Month)').show()
+
+# 繪製日回報直方圖
+pf.returns().vbt.hist().show()
+
+# 繪製資產價值圖 (如果 group_by 設定了分組)
+# pf.plot_asset_value().show()
+
+# 繪製交易盈虧圖
+# pf.trades.plot_pnl().show()
+
+
+績效評估彙總表
+
+指標
+
+策略表現
+
+基準 (TAIEX)
+
+說明
+
+年化回報率 (%)
+
+
+
+
+
+平均每年獲得的回報率
+
+年化波動率 (%)
+
+
+
+
+
+回報的年化標準差，衡量風險
+
+夏普比率
+
+
+
+
+
+每單位總風險的超額回報 (假設無風險利率 X%)
+
+索提諾比率
+
+
+
+
+
+每單位下行風險的超額回報
+
+最大回撤 (%)
+
+
+
+
+
+歷史最大資金回落幅度
+
+卡瑪比率
+
+
+
+
+
+年化回報與最大回撤的比值
+
+Beta (β)
+
+
+
+
+
+相對於 TAIEX 的系統性風險
+
+Alpha (α) (%)
+
+
+
+
+
+經風險調整後的超額回報 (相對於 CAPM)
+
+勝率 (%)
+
+
+
+N/A
+
+獲利交易佔總交易比例
+
+盈虧比
+
+
+
+N/A
+
+總盈利 / 總虧損
+
+註：請填入回測計算出的實際數值。基準的波動率、夏普等指標也應計算以供比較。
+
+績效評估不僅是看最終的總回報。高回報若伴隨著巨大的波動和回撤，可能並不適合所有投資者 。夏普比率、索提諾比率、卡瑪比率等風險調整後指標提供了更全面的視角。Beta 和 Alpha 則揭示了策略回報的來源：是來自承擔市場風險 (Beta)，還是來自策略本身的選股或擇時能力 (Alpha)。同時，必須警惕回測中的潛在偏差，如前視偏差（使用了未來數據）、過度擬合（策略參數過度優化以適應歷史數據 ）、生存者偏差（僅使用存活下來的股票數據 ）以及交易成本的低估。因此，解讀回測結果時應保持審慎，並將其視為策略潛力的初步驗證，而非未來表現的保證 。
+
+X. 結論與建議
+
+研究總結
+
+本報告詳細闡述了在 Google Colab 環境下，使用 Python 實作與回測一個針對台灣市場的動態多空選股期權策略的完整流程。研究涵蓋了從環境設定、多源數據（股票價量、基本面、總體經濟、衍生品）獲取與準備、基於技術與總經指標的市場週期判斷、依週期變化的股票篩選邏輯、期貨與選擇權策略的簡化模擬、動態資產配置與風險管理（部位控制、停損、Beta 對沖），到最終整合各模組建立 vectorbt 回測引擎，並進行全面的績效評估與視覺化分析。報告提供了各階段的實作指引、程式碼範例以及關鍵考量因素的討論。回測結果（應參考 Section IX 的彙總表）顯示了該策略在歷史數據上的[總結性描述，例如：展現出一定的風險調整後回報潛力，但在特定市場環境下可能面臨較大回撤，或相較於買入持有基準表現如何]。
+
+限制討論
+
+儘管本報告力求全面，但在實作與回測過程中仍存在若干限制：
+
+數據限制:
+
+衍生品數據: 免費、高質量的歷史選擇權數據（特別是包含完整選擇權鏈、OI、IV 的數據）極難取得 ，導致選擇權策略的模擬被大幅簡化，未能精確反映真實交易中的定價、保證金和風險動態。
+
+基本面數據: 依賴的免費數據源（如 FinMind）可能存在更新滯後或數據缺漏 ，且實現嚴格的 point-in-time 基本面數據篩選（避免前視偏差）需要複雜的數據工程。
+
+數據質量: 所有數據源都可能存在質量問題（錯誤值、缺失值），數據清洗的效果直接影響回測準確性。
+
+模型假設:
+
+選擇權模擬: 採用了高度簡化的模型，忽略了波動率微笑/偏斜、複雜的保證金計算、早期履約風險等實際因素。
+
+交易成本: 僅模擬了基本的手續費和滑點，未考慮交易稅的確切影響（尤其是對高頻交易部分）或大額交易的市場衝擊成本 。
+
+成交撮合: 回測引擎通常假設訂單能以特定價格（如下一根 K 線的開盤價或觸及的停損價）完全成交，忽略了真實市場的流動性限制和部分成交的可能性。
+
+回測環境:
+
+歷史數據的局限性: 回測結果僅代表策略在過去特定數據上的表現，不能保證未來績效 。市場結構、監管環境、投資者行為都可能發生變化。
+
+過度擬合風險: 在設計策略規則、選擇參數或優化過程中，可能無意中使策略過度適應歷史數據的噪聲或特定模式，導致樣本外表現不佳 。
+
+策略邏輯: 本報告基於使用者查詢中提供的策略框架進行實作。若原始策略文件的具體細節（如特定指標參數、閾值設定、規則權重）不明確，則實作中可能包含基於合理假設的詮釋。
+
+改進與未來研究建議
+
+基於上述限制與發現，提出以下改進方向與未來研究建議：
+
+數據增強:
+
+探索或投入商業數據源（如 TEJ , Touchance 或其他專業數據商），以獲取更完整、及時、高質量的基本面數據和選擇權數據（含 OI, IV, Greeks），從而實現更逼真的回測。
+
+建立更完善的 point-in-time 數據庫，精確處理財報和總經數據的發布滯後問題。
+
+模型細化:
+
+選擇權模型: 若需深入研究選擇權策略，應考慮使用專門的選擇權分析庫或平台，或在回測框架中整合更複雜的選擇權定價模型（如 Black-Scholes 或二叉樹）與保證金計算邏輯。
+
+市場週期模型: 探索使用機器學習方法 或更動態的閾值來判斷市場週期，以提高適應性。
+
+股票篩選: 引入行業相對比較、因子模型（如 Fama-French）或機器學習排序模型，以提升選股效果。
+
+風險管理:
+
+研究更先進的部位規模調整技術，如基於風險平價 (Risk Parity) 或波動率目標 (Volatility Targeting) 的配置。
+
+細化 Beta 對沖邏輯，考慮對沖的頻率、對沖工具的選擇（如不同到期日的期貨）以及對沖成本。
+
+框架與穩健性:
+
+參數優化: 利用 vectorbt 的參數掃描功能或 backtrader 的優化器，系統性地尋找更優的策略參數組合。
+
+穩健性檢驗: 進行步進分析 (Walk-Forward Analysis) 來評估策略參數在不同時間段的穩定性，減少過度擬合風險。執行蒙地卡羅模擬，對輸入數據或策略參數進行擾動，測試策略的敏感性。
+
+跨框架驗證: 嘗試在不同的回測框架（如 backtrader）中重新實現策略的核心邏輯，以交叉驗證結果。
+
+最終思考
+
+量化交易策略的開發是一個迭代且嚴謹的過程。本報告提供了一個將複雜策略概念轉化為可執行 Python 代碼並進行初步回測的框架。然而，從模擬走向實盤交易需要克服數據、模型、成本和心理等多方面的挑戰。回測結果應被視為策略潛力的指示，而非確定的預測。持續的學習、對細節的關注、對風險的敬畏以及對模型局限性的清醒認識，是量化交易者不斷追求的目標。
+
+XI. 附錄
+
+完整 Python 程式碼
+
+(此處應包含一個或多個 Colab Notebook 的連結，或直接嵌入經過整理、模塊化的完整 Python 程式碼。程式碼應包含詳細註釋，解釋各部分邏輯、數據來源假設、使用的函式庫及參數設定。)
+
+範例結構:
+
+# -*- coding: utf-8 -*-
+"""
+台股多空選股期權策略回測實作 (Google Colab)
+"""
+
+# %% [markdown]
+# # 0. 環境設定與函式庫導入
+
+# %%
+# --- 環境安裝指令 (同 Section II) ---
+#!sudo apt-get update
+#!wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+#... (省略完整安裝指令)...
+#!pip install TA-Lib vectorbt quantstats pandas_ta requests FinMind tejapi --upgrade
+
+# %%
+# --- 函式庫導入 ---
+import pandas as pd
+import numpy as np
+import requests
+import talib
+import vectorbt as vbt
+import quantstats as qs
+import pandas_ta as ta
+from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings('ignore')
+
+# --- 全局設定 (範例) ---
+vbt.settings.set_theme('dark')
+vbt.settings.plotting['layout']['width'] = 1000
+vbt.settings.plotting['layout']['height'] = 600
+START_DATE = "2018-01-01"
+END_DATE = "2023-12-31"
+INITIAL_CASH = 1_000_000
+BENCHMARK_SYMBOL = "^TWII" # TAIEX 加權指數 (yfinance 代碼)
+RISK_FREE_RATE = 0.01 # 年化無風險利率假設
+
+# %% [markdown]
+# # 1. 數據獲取與準備 (對應 Section III)
+
+# %%
+# --- 函數：獲取股票數據 (使用 yfinance 或 FinMind) ---
+def get_stock_data(tickers, start_date, end_date):
+    #... 實作代碼...
+    # 返回包含 OHLCV 的 DataFrame
+    pass
+
+# --- 函數：獲取 TAIEX 數據 ---
+def get_benchmark_data(symbol, start_date, end_date):
+    #... 實作代碼...
+    pass
+
+# --- 函數：獲取基本面數據 (使用 FinMind 或 TEJ API) ---
+# 注意：需要處理 API Key 和 point-in-time 問題
+def get_fundamental_data(tickers, start_date, end_date):
+    #... 實作代碼...
+    pass
+
+# --- 函數：獲取總經數據 (DGBAS, CBC, NDC API/下載) ---
+def get_macro_data(start_date, end_date):
+    #... 實作代碼 (獲取 GDP, M1B, 景氣燈號)...
+    pass
+
+# --- 函數：獲取衍生品數據 (簡化，可能僅期貨價格) ---
+def get_derivative_data(start_date, end_date):
+    #... 實作代碼...
+    pass
+
+# --- 數據整合與清洗 ---
+#... 調用上述函數，合併數據，處理缺失值，對齊時間...
+# all_prices_df =...
+# benchmark_rets =...
+# fundamental_pit_df =... # Point-in-time 基本面數據
+# macro_pit_df =... # Point-in-time 總經數據
+
+# %% [markdown]
+# # 2. 市場週期識別模組 (對應 Section IV)
+
+# %%
+def calculate_market_cycle(taiex_df, macro_pit_df):
+    """根據技術和宏觀指標計算市場週期"""
+    #... 實作 MA 排列、交叉、M1B 增長、景氣燈號判斷邏輯...
+    # 返回每日市場週期的 Series ('Bull', 'Bear', 'Sideways')
+    pass
+
+# market_cycle_signal = calculate_market_cycle(taiex_data, macro_pit_data)
+
+# %% [markdown]
+# # 3. 股票篩選模組 (對應 Section V)
+
+# %%
+def screen_stocks_by_cycle(current_date, market_cycle, stock_pit_data):
+    """根據週期篩選股票"""
+    # stock_pit_data 包含當日可用的價量、基本面、技術指標數據
+    #... 實作 Section V 中的篩選邏輯...
+    # 返回符合條件的股票列表 list
+    pass
+
+# %% [markdown]
+# # 4. 衍生性商品策略模組 (對應 Section VI - 簡化)
+
+# %%
+def generate_derivative_signals(market_cycle_signal, derivative_prices):
+    """生成簡化的期貨/選擇權交易信號"""
+    #... 實作 Section VI 中的簡化邏輯...
+    # 返回 entries, exits 等信號 DataFrame/Series
+    pass
+
+# %% [markdown]
+# # 5. 動態資產配置與風險管理模組 (對應 Section VII)
+
+# %%
+def calculate_target_weights(market_cycle_signal):
+    """根據市場週期計算目標資產權重"""
+    #... 實作 Section VII 的動態配置邏輯...
+    # 返回目標權重 DataFrame
+    pass
+
+def calculate_beta_and_hedge(portfolio_returns, benchmark_returns):
+    """計算 Beta 並生成對沖信號 (概念性)"""
+    #... 實作 Beta 計算和對沖邏輯...
+    # 返回期貨對沖訂單信號
+    pass
+
+# %% [markdown]
+# # 6. 回測引擎實作 (對應 Section VIII - 使用 VectorBT)
+
+# %%
+# --- 準備 VectorBT 輸入 ---
+# 整合所有資產價格、信號、目標權重等
+# combined_prices =...
+# entry_signals =...
+# exit_signals =...
+# target_weights_signals =... # 可能需要轉換為 size 信號
+
+# --- 選擇模擬方式 (from_signals 或 from_order_func) ---
+
+# 示例：使用 from_signals (可能需要簡化動態權重邏輯)
+# pf = vbt.Portfolio.from_signals(
+#     close=combined_prices,
+#     entries=...,
+#     exits=...,
+#     size=..., # 根據權重計算
+#     size_type=vbt.pf_enums.SizeType.TargetPercent,
+#     init_cash=INITIAL_CASH,
+#     fees=...,
+#     slippage=...,
+#     freq='D',
+#     # group_by=...,
+#     # cash_sharing=True,
+#     # sl_stop=...
+# )
+
+# 示例：使用 from_order_func (更靈活但更複雜)
+# @njit
+# def order_logic_nb(c):
+#     # 訪問 c.market_cycle, c.target_weights 等傳入參數
+#     # 執行篩選、配置、風險管理邏輯
+#     # 返回訂單指令
+#     pass
+#
+# pf = vbt.Portfolio.from_order_func(...)
+
+# %% [markdown]
+# # 7. 績效評估與視覺化 (對應 Section IX)
+
+# %%
+# --- 計算 KPI ---
+# if pf: # 確保回測成功執行
+#     stats = pf.stats(benchmark_rets=benchmark_rets, risk_free=RISK_FREE_RATE)
+#     print(stats)
+#
+#     # 使用 quantstats 生成報告
+#     qs.reports.html(pf.returns(), benchmark=benchmark_rets, output='report.html', title='Strategy Performance', rf=RISK_FREE_RATE)
+# else:
+#     print("Backtest did not run successfully.")
+
+# %%
+# --- 繪製圖表 ---
+# if pf:
+#     # 權益曲線
+#     pf.plot(benchmark_rets=benchmark_rets).show()
+#     # 回撤圖
+#     pf.plot_drawdowns().show()
+#     # 其他圖表...
+# else:
+#     print("Cannot plot results, backtest did not run.")
+
+# %% [markdown]
+# # 8. 結論 (對應 Section X)
+# *(在此處加入文字結論)*
+
+
+
+詳細函式庫安裝說明
+
+(重複 Section II 中的安裝指令區塊，確保使用者在附錄中也能找到清晰的安裝步驟)
+
+# 更新 apt 套件列表
+!sudo apt-get update
+
+# 安裝 TA-Lib 的 C 函式庫依賴
+!wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+!tar -xzvf ta-lib-0.4.0-src.tar.gz
+%cd ta-lib/
+!./configure --prefix=/usr
+!make
+!sudo make install
+%cd..
+!rm -r ta-lib ta-lib-0.4.0-src.tar.gz
+
+# 安裝 Python 函式庫
+!pip install TA-Lib
+!pip install pandas numpy requests yfinance FinMind tejapi vectorbt quantstats pandas_ta stockstats matplotlib plotly --upgrade
+
+# (可選) 其他函式庫安裝...
+
+
+數據來源 API 文件連結 (可選)
+
+FinMind API: https://finmindtrade.com/document/#/ (假設連結)
+
+TEJ API: https://api.tej.com.tw/ (假設連結)
+
+DGBAS API (總體統計資料庫):(https://nstatdb.dgbas.gov.tw/dgbasall/download/API%E8%AA%AA%E6%98%8E%E6%96%87%E4%BB%B6.pdf)
+
+CBC API (中央銀行統計資料庫):(https://cpx.cbc.gov.tw/Data/ExportToAPIInfo)
+
+政府資料開放平台 (景氣燈號相關): https://data.gov.tw/
+
+(請注意，附錄中的程式碼應力求完整且可執行，但可能需要使用者自行獲取 API 金鑰或處理特定數據源的細節。)# 在 Google Colab 中實作與回測動態多資產台灣市場策略
+
+I. 緒論
+
+目的
+
+本報告旨在提供一份全面性的指南與 Python 實作方法，針對使用者指定的「台股多空選股期權策略」，於 Google Colab 環境中進行量化研究與回測。報告的核心目標是將策略的各個組成部分——包含市場週期判斷、週期性股票篩選、期貨與選擇權策略應用、動態資產配置及風險管理——轉換為可執行的程式碼，並進行嚴謹的歷史回測與績效評估。本報告著重於實務操作，提供可在 Colab 中運行的程式碼範例與詳細說明，以利使用者理解、複製與擴展此策略研究。
+
+策略概觀
+
+此策略的核心思想是根據對市場整體週期的判斷（牛市、熊市、盤整市），動態調整投資組合。週期判斷結合了技術指標（如移動平均線排列、成交量）與總體經濟指標（如 GDP 增長率、M1B 年增率、景氣對策信號）。在不同的市場週期下，採用不同的股票篩選標準：牛市偏重成長與動能，熊市偏重防禦與價值，盤整市則尋找區間操作或特定題材的機會。此外，策略整合了衍生性金融商品（台指期貨與選擇權），根據市場週期應用不同的交易策略（如買進買權、賣出賣權、期貨多空、價差策略、掩護性買權等）以增強回報或進行避險。最終，透過動態資產配置調整股票與衍生品部位比例，並實施風險管理措施（如停損、部位控制、Beta 對沖）。
+
+環境說明
+
+本研究的實作環境設定為 Google Colab，程式語言為 Python。選擇 Colab 的主要優勢在於其免費使用的特性、預裝多數常用科學計算與數據分析函式庫（如 Pandas, NumPy），以及雲端執行的便利性，無需在本機進行複雜的環境設定。然而，Colab 環境也存在挑戰，特別是在安裝某些具有 C 語言底層依賴的函式庫（例如 TA-Lib）時，需要特定的安裝步驟與指令，且可能因 Colab 運行環境（如 Python 版本）更新而需要調整 。本報告將詳細說明在 Colab 中建立穩定執行環境的步驟，包含解決 TA-Lib 等函式庫的安裝問題 。
+
+報告結構
+
+本報告將遵循使用者要求的模組化結構，依序探討以下主題：
+
+環境設定： 在 Google Colab 中安裝所有必要的 Python 函式庫。
+
+數據獲取與準備： 涵蓋台股股價、財務數據、總體經濟指標及衍生性商品數據的來源、獲取方法與處理流程。
+
+市場週期識別模組： 實作結合技術與總經指標的市場狀態判斷邏輯。
+
+股票篩選模組： 根據不同市場週期建立並實作相應的選股條件。
+
+衍生性商品策略模組： 模擬期貨與選擇權的交易邏輯。
+
+動態資產配置與風險管理模組： 實作部位調整與風險控制機制。
+
+回測引擎實作： 整合各模組，建立回測框架。
+
+績效評估與視覺化： 計算關鍵指標並繪製圖表。
+
+結論與建議： 總結研究發現、討論限制並提出未來研究方向。
+
+附錄： 提供完整的 Python 程式碼。
+
+II. 設定 Google Colab 環境
+
+目標
+
+此階段的目標是確保 Google Colab 筆記本具備執行本報告所述策略所需的所有 Python 函式庫。由於部分金融計算函式庫（特別是 TA-Lib）在 Colab 上的安裝並非直接使用 pip install 即可完成，本節將提供詳細且經過驗證的安裝指令。在 Colab 這樣的雲端環境中進行量化研究，雖然省去了本地環境配置的麻煩，但也意味著對底層系統的控制力較弱。當 Colab 更新其運行環境（例如升級 Python 版本或更改系統庫）時，先前有效的安裝腳本可能失效，這就需要研究者具備一定的問題排查能力，或者尋找社群提供的最新解決方案。TA-Lib 的安裝就是一個典型例子，它依賴於底層 C 函式庫，其安裝方式往往與 Colab 的 Linux 環境和 Python 版本緊密相關。
+
+核心函式庫及其用途
+
+數據處理與數值計算:
+
+pandas: 提供高效能、易於使用的資料結構（如 DataFrame）與資料分析工具，是處理時間序列、股票數據、財務報表的基石 。無論是數據清洗、對齊、或是計算指標，Pandas 都是不可或缺的工具。
+
+numpy: Python 科學計算的基礎函式庫，提供多維陣列物件、線性代數、傅立葉轉換等功能，許多其他函式庫（包括 Pandas）都建構於其上 。在量化分析中，常用於高效的數值運算。
+
+數據獲取:
+
+yfinance: 常見的免費函式庫，用於從 Yahoo Finance 下載股票歷史數據，但在台灣市場數據的完整性與穩定性上可能有限制，且可能因頻繁抓取而被暫時封鎖 IP 。對於初步探索或非核心數據獲取尚可考慮。
+
+FinMind: 針對台灣市場
+
+引用的著作
+
+1. TA-Lib on Google Colab - General - Quantra Community, https://quantra.quantinsti.com/community/t/ta-lib-on-google-colab/26392 2. python - Install Ta-Lib Library in Google Colab Current Latest: 3.11 ..., https://stackoverflow.com/questions/79371747/install-ta-lib-library-in-google-colab-current-latest-3-11-11-in-jan-2025 3. Backtesting.py – An Introductory Guide to Backtesting with Python - Interactive Brokers LLC, https://www.interactivebrokers.com/campus/ibkr-quant-news/backtesting-py-an-introductory-guide-to-backtesting-with-python 4. VectorBT - An Introductory Guide - AlgoTrading101 Blog, https://algotrading101.com/learn/vectorbt-guide/ 5. Vertex AI Vector Search Quickstart - Google Colab, https://colab.sandbox.google.com/github/GoogleCloudPlatform/generative-ai/blob/main/embeddings/vector-search-quickstart.ipynb 6. Zipline install on Colab.ipynb, https://colab.research.google.com/drive/19TfVnA1iRKpqgO7djjft3xxJe7ILxcVt?usp=sharing 7. How to use PYTHON WITH GOOGLE COLAB (Python Beginner Tutorial) - YouTube, https://www.youtube.com/watch?v=SuzwJ28mby4 8. 我常用的几个Python金融分析库，太强了~ 原创 - CSDN博客, https://blog.csdn.net/Pydatas/article/details/140450437 9. Python數據分析完全指南：自動化辦公必備！, https://www.fanruan.com/zh-tw/blog/python-data-analysis-guide 10. Python 在金融領域的應用：從數據分析到自動化投資 - iT 邦幫忙, https://ithelp.ithome.com.tw/m/articles/10318734 11. 股票API是什麼？一篇學會快速獲取台股證券情報的金融工具- TEJ台灣 ..., https://www.tejwin.com/insight/%E8%82%A1%E7%A5%A8api/ 12. Python - 透過Yahoo Finance API抓取台股歷史資料｜方格子vocus, https://vocus.cc/article/5ef832cbfd897800011d63b9 13. Python - 透過證交所開放資料API抓取台股當日交易資訊 - ARON HACK, https://aronhack.com/zh/python-download-taiwan-stock-data-from-twse/ 14. FinMind API 取得"台股、匯率、黃金"等金融相關資料– IT 空間, https://blog.jiatool.com/posts/stock_finmind/ 15. 台股一站式Python 量化交易解決方案，模組化回測系統、API串接基本面、財報與籌碼面資料｜TQuant Lab 訂閱方案優惠與折扣碼 - 量化通, https://quantpass.org/tquant-lab/ 16. 使用證卷交易所API爬取股票資訊 - HackMD, https://hackmd.io/@aaronlife/python-ex-stock-by-api 17. 一分鐘搞定台股數據：證交所OpenAPI無需爬蟲輕鬆獲取 - 方格子, https://vocus.cc/article/667ebabbfd897800016b3086 18. ta-lib - PyPI, https://pypi.org/project/ta-lib/ 19. twopirllc/pandas-ta: Technical Analysis Indicators - Pandas TA is an easy to use Python 3 Pandas Extension with 150+ Indicators - GitHub, https://github.com/twopirllc/pandas-ta 20. stockstats · PyPI, https://pypi.org/project/stockstats/ 21. vectorbt: Getting started, https://vectorbt.dev/ 22. Backtest Your Trading Strategy IN MINUTES (with VectorBT) - YouTube, https://www.youtube.com/watch?v=NhZr_Z-9O3I 23. Python Backtesting: Developed Strategies for Investors - Composer.trade, https://www.composer.trade/learn/python-backtesting 24. Introduction to Backtesting with VectorBT - Alpaca, https://alpaca.markets/learn/introduction-to-backtesting-with-vectorbt 25. polakowo/vectorbt: Find your trading edge, using the fastest engine for backtesting, algorithmic trading, and research. - GitHub, https://github.com/polakowo/vectorbt 26. Portfolio - VectorBT® PRO, https://vectorbt.pro/features/portfolio/ 27. Quickstart Guide - Backtrader, https://www.backtrader.com/docu/quickstart/quickstart/ 28. Backtrader for Backtesting (Python) - A Complete Guide - AlgoTrading101 Blog, https://algotrading101.com/learn/backtrader-for-backtesting/ 29. mementum/backtrader: Python Backtesting library for trading strategies - GitHub, https://github.com/mementum/backtrader 30. Backtesting Systematic Trading Strategies in Python: Considerations and Open Source Frameworks | QuantStart, https://www.quantstart.com/articles/backtesting-systematic-trading-strategies-in-python-considerations-and-open-source-frameworks/ 31. Bracket Orders - Backtrader, https://www.backtrader.com/docu/order-creation-execution/bracket/bracket/ 32. zipline-reloaded - PyPI, https://pypi.org/project/zipline-reloaded/ 33. zipline-reloaded 2.0.0rc1 - PyPI, https://pypi.org/project/zipline-reloaded/2.0.0rc1/ 34. 初學者的Python金融分析日記EP5 - 指數移動平均、MACD - PyInvest, https://pyecontech.com/2019/06/22/%E5%88%9D%E5%AD%B8%E8%80%85%E7%9A%84python%E9%87%91%E8%9E%8D%E5%88%86%E6%9E%90%E6%97%A5%E8%A8%98-ep5-%E7%A7%BB%E5%8B%95%E5%B9%B3%E5%9D%87%E3%80%81%E6%8C%87%E6%95%B8%E7%A7%BB%E5%8B%95%E5%B9%B3/ 35. Running simple and fast backtests in Python with vectorbt - Quant Nomad, https://quantnomad.com/running-simple-and-fast-backtests-in-python-with-vectorbt/ 36. Backtesting with Backtrader: Step-by-step - PyQuant News, https://www.pyquantnews.com/the-pyquant-newsletter/backtesting-with-backtrader-step-by-step 37. quantopian/pyfolio: Portfolio and risk analytics in Python - GitHub, https://github.com/quantopian/pyfolio 38. Portfolio Analysis with pyfolio - Code Library, https://www.quantrocket.com/codeload/quant-finance-lectures/quant_finance_lectures/Lecture33-Portfolio-Analysis-with-pyfolio.ipynb.html 39. Stock Trading Analytics and Optimization in Python with PyFolio, R's PerformanceAnalytics, and backtrader | Curtis Miller's Personal Website, https://ntguardian.wordpress.com/2017/06/28/stock-trading-analytics-and-optimization-in-python-with-pyfolio-rs-performanceanalytics-and-backtrader/ 40. API introduction - Finmid, https://docs.finmid.com/reference/api-introduction 41. What is a Stock API? A Guide to Quickly Acquiring Taiwan Stock Market Information Using Financial Tools - TEJ, https://www.tejwin.com/en/insight/stock-api/ 42. LEOHuang5555/TEJ-Tool-API - GitHub, https://github.com/LEOHuang5555/TEJ-Tool-API 43. 總體統計資料庫, https://nstatdb.dgbas.gov.tw/ 44. nstatdb.dgbas.gov.tw, https://nstatdb.dgbas.gov.tw/dgbasall/download/API%E8%AA%AA%E6%98%8E%E6%96%87%E4%BB%B6.pdf 45. 台灣金融變數是否能預測經濟成長？ 混頻模型之運用* - 中央銀行, https://www.cbc.gov.tw/dl-164251-20c0a5f6983f43d69d0ee1c13d0ba5f0.html 46. 台灣-M1B貨幣總計數| 台灣-景氣對策信號| 圖組 - MacroMicro, https://www.macromicro.me/collections/10/tw-monitoring-indicators-relative/93/m1b 47. 中央銀行統計資料庫, https://cpx.cbc.gov.tw/ 48. cpx.cbc.gov.tw, https://cpx.cbc.gov.tw/Data/ExportToAPIInfo 49. 景氣指標查詢系統: 國發會, https://index.ndc.gov.tw/ 50. 國發會-景氣指標查詢系統-景氣對策信號 - 國家發展委員會, https://index.ndc.gov.tw/n/zh_tw 51. 預告發布資料項目背景說明 - 中華民國統計資訊網, https://www.stat.gov.tw/News_NoticeCalendar_Content_temp.aspx?MetaI_D=257&year=2023&n=3717 52. 景氣對策信號(燈號及分數) - 景氣指標查詢系統- 國家發展委員會, https://index.ndc.gov.tw/n/zh_tw/data/eco 53. 查詢資料集：全部資料 - 政府資料開放平臺, https://data.gov.tw/datasets/search?qs=491 54. 【手把手系列】達錢Python 【行情&歷史數據】串接設定教學 - TOUCHANCE, https://www.touchance.com.tw/vt_post?idno=200 55. 移動平均線完整教學，均線糾結、交叉與扣抵怎麼看？多頭排列選股妙招｜MA指標、SMA指標, https://quantpass.org/sma/ 56. python计算移动平均数转载 - CSDN博客, https://blog.csdn.net/weixin_40241782/article/details/140195569 57. 移动平均线(Moving Averages)公式及买入卖出用法（含Python） - BigQuant量化交易, https://bigquant.com/wiki/doc/M1N6B41G48 58. 移動平均線MA教學：定義、分類、如何設定及使用？ - Mitrade, https://www.mitrade.com/zh/insights/others/technical-analysis/moving-average-ma-0107 59. 【技術指標Technical Indicators】均線系列的數學、本質與Python 實作 - GQ 的小豬, https://gqpigling.com/posts/quantitative-trading-tutorials/technical-indicators-ma-part1 60. 5G 及AIoT 趨勢下經濟景氣及產業發展之研究, https://ws.ndc.gov.tw/001/administrator/10/relfile/5636/38287/09cb52d6-3287-4dd4-8c41-4d382b0bac77.pdf 61. Momentum Indicators - Technical Analysis Library in Python's documentation!, https://technical-analysis-library-in-python.readthedocs.io/en/latest/ta.html 62. Python for Finance: Analyzing Stock Data with Pandas - ByteScrum Technologies, https://blog.bytescrum.com/python-for-finance-analyzing-stock-data-with-pandas 63. base - vectorbt, https://vectorbt.dev/api/portfolio/base/ 64. Introduction - Backtrader, https://www.backtrader.com/docu/ 65. Stop signals - VectorBT® PRO, https://vectorbt.pro/tutorials/stop-signals/ 66. vectorbt/vectorbt/portfolio/base.py at master · polakowo/vectorbt - GitHub, https://github.com/polakowo/vectorbt/blob/master/vectorbt/portfolio/base.py 67. Optimization - VectorBT® PRO, https://vectorbt.pro/features/optimization/ 68. Portfolio optimization - VectorBT® PRO, https://vectorbt.pro/tutorials/portfolio-optimization/ 69. Intraday backtesting with VectorBT Pro - PyQuant News, https://www.pyquantnews.com/the-pyquant-newsletter/intraday-backtesting-with-vectorbt-pro 70. vectorbt/examples/PortfolioOptimization.ipynb at master - GitHub, https://github.com/polakowo/vectorbt/blob/master/examples/PortfolioOptimization.ipynb 71. Target Orders - Backtrader, https://www.backtrader.com/docu/order_target/order_target/ 72. enums - vectorbt, https://vectorbt.dev/api/portfolio/enums/ 73. Sizers - Backtrader, https://www.backtrader.com/docu/sizers/sizers/ 74. Sizers - Reference - Backtrader, https://www.backtrader.com/docu/sizers-reference/ 75. VectorBT Pro - Tutorial Series, https://qubitquants.github.io/vbt-tuts-toc/index.html 76. Orders - Creation/Execution - Backtrader, https://www.backtrader.com/docu/order-creation-execution/order-creation-execution/ 77. Orders - General - Backtrader, https://www.backtrader.com/docu/order/ 78. Orders - StopTrail - Backtrader, https://www.backtrader.com/docu/order-creation-execution/trail/stoptrail/ 79. vectorbt/examples/BitcoinDMAC.ipynb at master - GitHub, https://github.com/polakowo/vectorbt/blob/master/examples/BitcoinDMAC.ipynb 80. Take Profit Ladders In VectorBT PRO - YouTube, https://www.youtube.com/watch?v=u4RABJMXhXc 81. Basic strategy backtesting in python with backtrader - YouTube, https://www.youtube.com/watch?v=kZ-ssp3w6Ow 82. Stock Market Analysis with Pandas Python Programming - YouTube, https://m.youtube.com/watch?v=57qAxRV577c&t=0s 83. Introduction To Backtesting Pair Trading - FasterCapital, https://fastercapital.com/topics/introduction-to-backtesting-pair-trading.html 84. Walk-Forward Analysis Demonstration with backtrader | Curtis Miller's Personal Website, https://ntguardian.wordpress.com/2017/06/19/walk-forward-analysis-demonstration-backtrader/

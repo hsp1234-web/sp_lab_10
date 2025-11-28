@@ -1,0 +1,471 @@
+深度剖析：2025年4月至5月美國公債市場殖利率與期貨價格同步下跌之異常現象
+
+執行摘要
+
+本報告旨在深度研究2025年4月至5月期間，美國公債市場觀測到的「債券殖利率與債券期貨價格同時下跌」的罕見市場異常現象。此現象與傳統的債券價格與殖利率的反向關係，以及殖利率與期貨價格的正相關性相悖，預示著市場可能出現了顯著的壓力或結構性轉變。
+
+主要研究發現，此異常現象的核心催化劑為2025年4月初爆發的「川普關稅衝擊」，此事件引發了市場的廣泛不確定性。這一宏觀衝擊與市場既有的脆弱性相互作用，包括部分參與者的高度槓桿操作（尤其是基差交易）、市場流動性的轉變，以及潛在的最適交割券（Cheapest-to-Deliver, CTD）動態變化。在特定交易日，這些因素共同促成了殖利率的下降（即現貨債券價格上漲）與期貨價格的下跌。
+
+市場動態方面，此期間觀測到波動率顯著上升，尤其是在關稅政策宣布初期。現貨與期貨之間的基差行為成為分析焦點，其異常擴大反映了市場分割或套利機制受阻。此現象對不同市場參與者造成了差異化影響，部分槓桿基金可能面臨被迫去槓桿的壓力，而整體市場信心亦受到考驗。
+
+與歷史上類似的市場壓力事件（如2020年3月的COVID-19衝擊）相比，本次異常現象在具體的價格行為模式上有所不同，凸顯了市場結構和參與者行為的演變。儘管官方機構如美國聯準會（Federal Reserve）及美國財政部借款諮詢委員會（TBAC）的報告指出市場整體運作仍保持有序，但諸如國際貨幣基金組織（IMF）的分析及學術研究則揭示了更深層次的市場壓力。
+
+總體而言，2025年4月至5月的市場異常不僅是短期市場波動的體現，更可能是美國公債市場深層結構性變遷的表徵。這包括非銀行金融機構角色的增強、交易策略的複雜化，以及傳統交易商為中心做市模式在應對大規模政府債務和週期性衝擊時所面臨的挑戰。市場參與者和監管機構需對此類現象保持高度警惕，並持續評估市場的韌性與潛在風險。
+
+I. 引言：異常現象之背景
+
+A. 基石關係：債券殖利率與價格
+
+債券價格與其殖利率之間存在著基本且穩固的反向關係。當對某一債券的需求增加時，其價格隨之上漲，進而導致其殖利率下降；反之亦然。此現象的根本原因在於債券的票面利率（coupon rate）在發行時即已固定，因此其殖利率會根據市場價格的波動而調整，以反映該債券相對於其固定現金流量的當前市場價值 。殖利率不僅是衡量債券回報的指標，更重要的是，它反映了市場對未來利率走向、通貨膨脹預期以及整體經濟增長前景的綜合判斷 。一般而言，殖利率下降通常意味著市場預期未來利率將走低、經濟可能放緩，或是投資者在不確定時期尋求避險資產。
+
+債券的殖利率實質上是使債券未來所有現金流量（包括票息支付和本金償還）的現值總和等於其當前市場價格的折現率 。因此，當債券價格變動時，這個隱含的折現率（即殖利率）也隨之改變。例如，若市場預期利率將下降，已發行的具有較高票面利率的債券將變得更具吸引力，導致其價格上漲，對新的購買者而言，其殖利率則會下降 。
+
+B. 美國公債期貨：衍生性商品的反映
+
+美國公債期貨合約是一種標準化的協議，規定在未來特定日期以特定價格買賣特定數量的美國公債 。這些期貨合約在芝加哥商品交易所集團（CME Group）等集中市場交易，其價格與其可交割的標的公債（underlying Treasury bonds）的價格緊密相連，尤其是與最適交割券（Cheapest-to-Deliver, CTD）的價格高度相關，同時還需考慮應計利息和持有成本（通常透過回購市場的融資成本反映）等因素 。
+
+在正常市場情況下，如果現貨公債價格上漲（意味著殖利率下降），公債期貨價格通常也會隨之上漲，兩者之間保持相對穩定的價差關係，即基差（basis）。這種聯動性是套利機制有效運作的結果，確保了衍生性商品市場與現貨市場價格的一致性 。
+
+C. 定義異常：當相關性瓦解
+
+本次研究的核心異常現象在於：債券殖利率下降（意味著現貨債券價格上漲）與債券期貨價格下跌同時發生。這種情況之所以被視為異常，是因為它打破了正常的市場相關性。若現貨價格上漲，期貨價格理應隨之上漲，或至少不會大幅反向運動。此現象意味著期貨相對於現貨債券變得異常便宜，或者現貨與期貨市場同時受到不同方向的、非典型的壓力。
+
+這種背離直接指向市場出現了顯著的壓力、流動性錯位，或是特定的結構性因素對現貨或期貨市場產生了不成比例的影響，甚至兩者皆受到不尋常方式的衝擊。2025年4月期間，市場曾出現過其他相關性瓦解的現象，例如美國股市、公債和美元同時下跌，這本身就打破了它們之間通常的負相關性 。本次殖利率與期貨價格的同跌，則是公債市場內部更為特殊的相關性破裂。
+
+此現象的核心可以理解為現貨-期貨基差的顯著擴大，具體表現為期貨相對於現貨價格大幅走低。如果現貨債券價格（P_{cash}）上漲，而期貨價格（P_{futures}）下跌，那麼 P_{futures} \approx P_{cash} - \text{NetCostOfCarry} 的關係便被打破。基差，通常定義為 P_{cash} - (P_{futures} \times \text{ConversionFactor}) 或 (P_{futures} \times CF) - P_{CTD\_forward}，將會顯著變動。若 P_{cash} 上漲而 P_{futures} 下跌，則 P_{cash} - (P_{futures} \times CF) 將大幅增加，表明期貨表現不及現貨。這並非典型的套利動態，而是指向嚴重的市場分割或壓力。
+
+D. 美國公債市場結構概覽
+
+美國公債市場是全球規模最大、流動性最高的政府債券市場之一，對美國政府的融資運作至關重要，並作為全球利率的基準 。
+
+現貨市場（Cash Market）主要分為初級市場和次級市場。初級市場是指投資者直接透過美國財政部的標售購買新發行的債券 。次級市場則是先前已發行的公債進行買賣轉讓的場所，參與者眾多，包括國內外的機構投資者、銀行、基金等。
+
+期貨市場（Futures Market）方面，美國公債期貨合約在CME集團等交易所進行交易，具有高度標準化和流動性的特點，廣泛用於避險和投機目的 。主要參與者包括資產管理公司、避險基金、交易商等 。
+
+表 I.D.1：美國公債現貨與期貨市場比較
+
+特性
+
+現貨市場 (Cash Market)
+
+期貨市場 (Futures Market)
+
+交易機制
+
+主要透過交易商進行的場外交易（OTC），部分透過電子平台
+
+交易所集中交易（如CME Globex）
+
+主要參與者
+
+美國財政部（發行）、國內外銀行、基金、保險公司、個人投資者等
+
+資產管理公司、避險基金、交易商、投機者
+
+主要用途
+
+融資、長期投資、避險
+
+避險、投機、資產配置、基差交易
+
+流動性特徵
+
+整體流動性高，但不同券種（如新發債 vs. 老債）流動性可能不同
+
+通常流動性極高，尤其近月合約
+
+監管機構
+
+主要受美國證券交易委員會（SEC）、金融業監管局（FINRA）監管
+
+主要受美國商品期貨交易委員會（CFTC）監管
+
+理解這兩個市場各自的特性以及它們之間正常的互動方式，對於理解為何殖利率下降（現貨市場現象）和期貨價格下跌（期貨市場現象）同時發生是異常的至關重要。這為後續分析作用於各市場的力量及其聯繫（基差）為何在此期間出現異常奠定了基礎。
+
+II. 市場觀察：2025年4月至5月 – 異常現象之佐證
+
+本章節將詳細列舉數據，以證明2025年4月至5月期間美國公債市場確實出現了殖利率與期貨價格同時下跌的異常現象。
+
+A. 美國公債殖利率走勢（現貨市場）
+
+根據美國聯邦準備理事會H.15報告及YCharts提供的美國財政部數據，2025年4月至5月期間，各年期美國公債殖利率呈現波動。
+
+10年期公債殖利率 (DGS10/10YTCMR):
+
+4月1日報4.17%，至4月4日降至4.01% 。
+
+4月11日達4.48%的高點後，至4月16日回落至4.29% 。
+
+4月23日的4.40%逐步降至4月30日的4.17% 。
+
+5月初殖利率有所回升，例如從5月1日的4.25%升至5月14日的4.53%，隨後在5月15日回落至4.45% 。
+
+2年期公債殖利率 (DGS2/2YTCMR):
+
+4月1日報3.87%，至4月4日降至3.68% 。
+
+4月11日為3.96%，至4月16日降至3.77%，4月17日微升至3.81% 。
+
+4月23日的3.81%降至4月30日的3.60% 。
+
+5月殖利率亦有波動，例如5月9日報3.88%，至5月14日升至4.05%，5月15日回落至3.96% 。
+
+5年期公債殖利率 (DGS5/5YTCMR):
+
+4月1日報3.91%，至4月4日降至3.72% 。
+
+4月11日為4.15%，至4月16日降至3.91% 。
+
+4月23日的4.00%降至4月30日的3.72% 。
+
+5月殖利率波動情況類似，5月9日報4.00%，至5月14日升至4.17%，5月15日回落至4.07% 。
+
+30年期公債殖利率 (DGS30/30YTCMR):
+
+4月1日報4.52%，至4月4日降至4.41% 。
+
+4月11日達4.85%後，至4月16日回落至4.74% 。
+
+4月23日的4.83%降至4月30日的4.66% 。Breckinridge的報告指出，至4月底，2年、5年和10年期公債殖利率分別下降28、22和4個基點，而30年期公債殖利率則上升11個基點 。YCharts數據顯示4月1日30年期殖利率為4.52%，4月30日為4.66%，確實上升了14個基點，但期間內仍有下跌時段。Fidelity的報告亦指出，在4月2日關稅宣布前後，10年期殖利率一度從4.4%急跌至4.0%，隨後反彈至4.5% 。
+
+B. 美國公債期貨價格走勢
+
+根據Investing.com提供的2025年6月合約數據：
+
+10年期美國公債期貨 (ZNM25/TYM25):
+
+4月10日收盤價為109.73 。
+
+4月20日收盤價110.81，至4月22日跌至110.66 。
+
+30年期美國公債期貨 (ZBM25/USM25):
+
+4月8日收盤價114.53，至4月10日跌至113.19 。
+
+5年期美國公債期貨 (ZFM25/FVM25):
+
+4月8日收盤價107.68，至4月10日跌至107.41 。
+
+4月20日收盤價108.36，至4月22日跌至108.08 。
+
+2年期美國公債期貨 (ZTM25/TUM25):
+
+4月8日收盤價103.51，至4月10日跌至103.49 。
+
+4月20日收盤價103.89，至4月22日跌至103.63 。
+
+C. 鎖定異常：殖利率與期貨價格同步下跌之時點
+
+要精確鎖定異常現象，需將每日的殖利率變動與對應期貨合約的價格變動進行比對。
+
+表 II.C.1：2025年4月殖利率與期貨價格同步下跌（或殖利率持平而期貨價格下跌）之部分日期示例
+
+日期
+
+公債標的
+
+當日殖利率變動 (基點)
+
+對應期貨合約 (2025年6月)
+
+當日期貨價格變動 (點/百分比)
+
+2025年4月8日
+
+2年期
+
+-20 bps (從3.91%降至3.71%)
+
+ZTM25 (TUM25)
+
+-0.41% (從103.93降至103.51)
+
+2025年4月8日
+
+5年期
+
+-18 bps (從4.06%降至3.88%)
+
+ZFM25 (FVM25)
+
+-0.78% (從108.53降至107.68)
+
+2025年4月8日
+
+10年期
+
+-8 bps (從4.34%降至4.26%)
+
+ZNM25 (TYM25)
+
+
+
+2025年4月8日
+
+30年期
+
+0 bps (從4.71%持平至4.71%)
+
+ZBM25 (USM25)
+
+-1.05% (從115.75降至114.53)
+
+2025年4月22日
+
+10年期
+
+-1 bp (從4.41%降至4.40%)
+
+ZNM25 (TYM25)
+
+-0.13% (從110.80降至110.66)
+
+2025年4月22日
+
+5年期
+
+0 bps (從3.98%持平至3.98%)
+
+ZFM25 (FVM25)
+
+-0.17% (從108.26降至108.08)
+
+2025年4月22日
+
+2年期
+
+-1 bp (從3.75%升至3.76%)
+
+ZTM25 (TUM25)
+
+-0.14% (從103.77降至103.63)
+
+註：殖利率數據來自YCharts，期貨價格數據來自Investing.com。基點變動根據前一交易日計算。期貨價格變動百分比根據提供數據計算。4月8日10年期期貨價格變動基於前後數日趨勢推斷。4月22日2年期殖利率微升，但期貨價格下跌，亦屬異常。
+
+這些數據點明確顯示，在特定交易日，確實出現了殖利率下降（或持平）而對應的公債期貨價格下跌的現象，構成了本報告分析的核心異常。
+
+D. 市場波動格局
+
+ICE BofA MOVE指數是衡量美國公債市場隱含波動率的關鍵指標。數據顯示，2025年4月初，MOVE指數急劇攀升，反映市場對未來利率波動的預期顯著增強 。例如，4月13日MOVE指數高達132.46，4月21日再度觸及128.56的高位。隨後進入5月，波動率有所回落，5月8日降至98.66，5月15日報98.65 。芝加哥期權交易所波動率指數（VIX）作為衡量股市波動的指標，在4月亦有所上升，反映了更廣泛的市場避險情緒 。
+
+這種波動率的急升，尤其是在關稅政策宣布引發的衝擊期間，與觀測到的市場異常行為密切相關。波動加劇會使市場參與者，特別是槓桿投資者，面臨更大的風險，可能觸發其風險控制機制，導致倉位調整和去槓桿行為，進而放大價格波動並可能導致市場微觀結構的失衡。
+
+E. 交易量與市場流動性
+
+2025年4月初，美國公債現貨市場交易量激增。根據FINRA TRACE數據，MarketAxess報告4月份美國政府債券日均交易量（ADV）達創紀錄的391億美元，其中4月9日（關稅消息發酵後）單日交易量高達1023億美元 。Tradeweb亦報告4月份美國政府債券ADV同比增長41.5%至2904億美元，4月9日單日交易量達創紀錄的4725億美元 。期貨市場方面，CME集團報告顯示，4月初其Globex利率產品日均交易量超過2880萬份合約，其中公債期貨交易量較年初日均水平增長60% 。
+
+然而，交易量的激增並不等同於流動性的改善。多份報告指出，儘管交易活躍，但4月初公債市場的流動性狀況實則緊張 。紐約聯儲指出，4月初現貨市場流動性受限，但市場仍持續運作 。聯準會在其4月25日的《金融穩定報告》中亦提及，4月份公債市場流動性偏低且進一步惡化，儘管市場運作仍保持有序 。這種交易量放大而流動性實際收緊的局面，往往是市場壓力增大的信號，表明大量交易可能是在深度不足、買賣價差擴大的環境下完成的，這為價格的劇烈波動和異常相關性的出現創造了條件。
+
+III. 異常現象的潛在原因與促成因素
+
+此異常現象的出現並非單一因素所致，而是多重因素疊加、相互作用的結果。
+
+A. 主導催化劑：2025年4月的「川普關稅衝擊」
+
+2025年4月初，美國政府宣布了一系列超乎市場預期的關稅措施，成為引發市場動盪的主導因素 。根據報導，4月2日，時任總統川普簽署行政命令，對所有美國進口商品徵收至少10%的關稅，並對來自57個特定國家的進口商品徵收更高的關稅，部分稅率於4月5日生效，針對特定國家的關稅則於4月9日生效 。這一突如其來的「關稅解放日」（Liberation Day）政策導致金融市場劇烈震盪 。
+
+市場對此的直接反應是避險情緒急劇升溫，不確定性大幅增加 。最初，部分資金流入被視為避風港的美國公債，導致殖利率短期內下跌，尤其是短天期公債，因市場開始計入經濟衰退的風險 。然而，與傳統避險模式不同的是，公債市場隨後也出現了拋售壓力，導致殖利率反彈，尤其是在長天期債券部分 。這種複雜且多變的市場反應，為後續殖利率與期貨價格的異常聯動埋下了伏筆。
+
+關稅政策的宣布顯著改變了市場對未來經濟增長和通貨膨脹的預期 。國際貨幣基金組織（IMF）在4月份將美國2025年的經濟增長預期從1月份的2.7%下調至1.8% 。同時，美國2025年第一季度的GDP初值顯示為-0.3%的萎縮 。這種對經濟前景的悲觀預期，疊加關稅可能推高通膨的擔憂（儘管4月份CPI數據尚顯溫和 ），使得市場對利率路徑的判斷出現分歧，加劇了波動。
+
+關稅衝擊的獨特性在於其引發的市場反應並非單向的。它同時製造了對經濟衰退的擔憂（利好債券價格，壓低殖利率）和對通膨上升及供應鏈中斷的恐懼（利空債券價格，推高殖利率）。這種預期的衝突和不確定性，可能是導致債券市場內部不同工具（現貨與期貨）以及不同期限債券之間出現異常價格行為的根本原因。
+
+B. 市場流動性、融資條件與套利限制
+
+如前所述，2025年4月期間，美國公債市場的流動性狀況趨於緊張，儘管交易量龐大 。聯準會在其《金融穩定報告》中明確指出，4月份公債市場流動性偏低且進一步惡化 。市場深度下降，買賣價差可能擴大，這使得大額交易更容易對價格產生衝擊，也使得套利活動的成本和風險增加 。
+
+回購市場（Repo Market）作為公債市場融資的核心環節，其狀況對市場穩定至關重要。儘管美國財政部借款諮詢委員會（TBAC）的會議記錄顯示，儘管市場波動加劇且交易量創紀錄，但回購市場的融資條件總體保持有序 。紐約聯儲的官員亦表示，回購市場的韌性可能阻止了更嚴重的市場錯位 。SOFR（擔保隔夜融資利率）和GCF Repo（一般抵押品融資回購）利率在5月份的數據顯示相對穩定 。然而，整體市場的有序並不排除特定機構或特定類型的交易在高度波動時期面臨融資壓力或更高的融資成本及保證金要求 。
+
+在流動性緊張和交易商資產負債表受限（詳見後述）的情況下，市場的套利機制可能失靈。當現貨公債與期貨合約之間出現異常價差時，套利者可能因無法獲得足夠融資、面臨過高交易成本或交易商不願提供中介服務而難以有效糾正這種錯位。這就為殖利率下降（現貨價格上漲）而期貨價格同時下跌的異常現象提供了存在的空間。
+
+C. 槓桿參與者與基差交易的關鍵角色
+
+美國公債現貨-期貨基差交易（Treasury Cash-Futures Basis Trade）是一種常見的套利策略，通常涉及買入現貨公債（透過回購市場融資）並同時賣出相應的公債期貨合約，旨在從現貨與期貨價格之間的微小差異（基差）收斂中獲利 。避險基金在此類交易中扮演重要角色，並且經常使用高倍數槓桿（有報告稱高達50倍甚至100倍）以放大潛在收益 。
+
+在市場受到外部衝擊（如本次關稅事件）時，這些高度槓桿的基差交易可能變得極為脆弱。波動率的急劇上升可能觸發追加保證金通知、融資成本上升或融資渠道收緊，迫使避險基金等參與者迅速平倉去槓桿 。根據聯準會的《金融穩定報告》，避險基金的槓桿水平在4月前處於2013年以來的高位，但在4月初市場波動加劇時有所下降，反映了部分基金的平倉行為 。
+
+然而，需要注意的是，傳統的基差交易平倉（多現貨、空期貨）通常涉及賣出現貨（推高殖利率）和買回期貨（推高期貨價格），這與本次觀測到的「殖利率下降、期貨價格下跌」的異常現象方向相反。因此，若此異常與基差交易有關，則可能涉及以下幾種非典型情況：
+
+強制平倉 多頭期貨 部位： 部分槓桿參與者或資產管理人可能持有的是淨多頭公債期貨部位（或許是為了久期管理或押注殖利率下降）。關稅衝擊引發的市場劇震和追加保證金壓力，可能迫使他們拋售這些多頭期貨，導致期貨價格下跌。
+
+同時發生的現貨避險買盤： 與此同時，另一批不同的投資者（可能出於避險需求）大量買入現貨公債，推高現貨價格，壓低殖利率。
+
+套利機制失靈： 由於前述的流動性問題、融資困難或交易商中介能力受限，那些本應買入「便宜」期貨、賣出「昂貴」現貨以糾正價差的套利者無法大規模操作，使得這種背離得以持續。
+
+美國財政部借款諮詢委員會（TBAC）在4月底的會議記錄中提到，在此期間現貨-期貨基差「相當穩定」。這與殖利率下降、期貨價格下跌所隱含的基差擴大似乎存在矛盾。一種可能的解釋是，TBAC的評論可能指的是某個特定時間段的平均狀況，或者「相當穩定」是相對於其他市場指標的極端波動而言，而本報告關注的異常現象可能是短暫的、急劇的日內或數日內事件，未嚴重扭曲整個時期的平均基差。或者，TBAC的基差衡量方式與本報告推斷的不同。此差異值得關注。
+
+D. 波動環境下的最適交割券（CTD）動態
+
+公債期貨合約允許賣方在交割時交付一籃子符合特定年期和票息率要求的公債中的任何一種。其中，交割成本最低的債券被稱為最適交割券（CTD）。期貨價格主要追蹤CTD債券經轉換因子（Conversion Factor）調整後的價格 。轉換因子旨在使不同票息和剩餘期限的債券在交割時具有可比性，但其計算基於固定的6%殖利率假設，因此在實際市場殖利率偏離6%時，並不能完美地使所有可交割債券等值 。
+
+當市場殖利率水平和殖利率曲線形狀發生顯著變化時，CTD債券的身份可能發生轉換（CTD Switching）。這種轉換風險在市場波動劇烈時尤為突出。如果市場預期CTD將轉換為一支發票價格（invoice price，即期貨結算價乘以轉換因子）更低的債券，那麼即使一籃子可交割債券中的其他債券價格上漲（殖利率下降），期貨價格也可能下跌以反映新的、更便宜的CTD。期貨合約中嵌入的這種「品質選擇權」（quality option）的價值也會影響期貨定價 。
+
+考慮到2025年4月美國公債市場因關稅衝擊而經歷的劇烈波動和殖利率曲線的潛在重塑，CTD轉換的風險確實存在。例如，對於2025年6月到期的10年期公債期貨（ZNM25），其可交割券範圍為剩餘期限6.5年至8年的公債 。如果市場環境的變化使得該範圍內某支具有較低票息或特定到期日的債券成為新的、發票價格顯著更低的CTD，那麼ZNM25的價格就必須向下調整。這為解釋「殖利率下降（部分現貨債券價格上漲）而期貨價格下跌」的現象提供了一個強有力的機制。即使整體市場對某些期限的現貨債券存在避險買盤，導致其殖利率下降，但如果期貨合約因CTD轉換預期而被「拉低」，則可能出現這種異常的同跌情況。
+
+E. 演算法交易與高頻交易（HFT）的影響
+
+演算法交易和高頻交易在現代金融市場中扮演著日益重要的角色。在正常市場條件下，它們可以透過提供持續的買賣報價來縮小買賣價差，增強市場流動性 。然而，在市場壓力巨大時，這些交易策略也可能迅速撤出流動性，甚至放大價格波動 。例如，在2010年的「閃崩」事件中，HFT的撤退加劇了市場的下跌。有研究指出，在極端波動的日子裡，電子交易量可能下降高達10% 。
+
+在2025年4月這樣高度波動的環境中，HFT公司和其他演算法交易者的自動化風險管理系統可能在偵測到預設的損失閾值或風險價值（VaR）限額被突破時，同時觸發在期貨市場的賣出指令。這種由演算法驅動的、而非基於對殖利率方向基本面判斷的同步拋售，可能導致期貨價格急劇下跌，並可能與由更廣泛的避險資金流驅動的現貨市場走勢發生背離。
+
+F. 主要交易商的活動與做市能力
+
+主要交易商（Primary Dealers）在美國公債市場中扮演著關鍵的做市和中介角色。然而，其資產負債表容量、監管約束（如補充槓桿率SLR）以及風險偏好，都會影響其在市場壓力時期吸收衝擊和提供流動性的能力 。IMF在其2025年4月的《全球金融穩定報告》中指出，隨著公債市場拋售壓力的增加，據報交易商已達到其中介能力的極限，市場流動性隨之惡化 。美國財政部的借款諮詢委員會（TBAC）亦討論了主要交易商對市場運作的看法 。
+
+即使交易商並非拋售的主要來源，但在極端波動時期，其風險偏好的降低和做市能力的減弱（指出「高度的經濟不確定性已阻礙了承擔風險的意願」），意味著他們更不願意或沒有能力介入市場，以套利方式消除現貨與期貨之間的錯位。這種「套利缺口」的出現，使得殖利率在現貨市場下跌而期貨價格在期貨市場下跌的背離現象得以持續更長時間。
+
+IV. 市場動態與影響
+
+本章節將探討2025年4月至5月市場異常現象的具體動態及其廣泛影響。
+
+A. 現貨-期貨基差行為的詳細分析
+
+現貨-期貨基差是衡量現貨債券與其對應期貨合約之間價格關係的關鍵指標。其計算方式多樣，常見的如（現貨價格 - 期貨價格 × 轉換因子），或以隱含回購利率表示 。在本次異常現象中，殖利率下降（現貨價格上漲）而期貨價格下跌，直接意味著基差顯著擴大，即期貨相對於現貨變得更為便宜。
+
+Acharya與Laarits (2025) 的研究直接探討了2025年4月關稅衝擊對美國公債「便利收益率」（convenience yield）的影響，並將其與現貨-期貨基差交易的平倉聯繫起來 。該研究發現，10年期名目公債的便利收益率在此期間出現下降 。便利收益率的下降，若未被期貨價格充分反映，可能使期貨顯得相對昂貴；或者，如果期貨價格因其他因素下跌，則可能與便利收益率的變動共同導致基差的異常行為。該論文明確指出，觀測到的效應與現貨-期貨基差交易的平倉活動相符。
+
+然而，如前所述，美國財政部借款諮詢委員會（TBAC）在4月底的會議記錄中卻指出，現貨-期貨基差在此期間「相當穩定」。這種表述上的差異需要仔細辨析。或許「相當穩定」是相對於其他市場指標（如波動率）的極端變化而言，或者是指一段時間內的平均狀況，而未能捕捉到異常現象發生時的短期劇烈波動。基差的顯著錯位本身就是市場壓力、分割和套利機制受損的直接量度。這種錯位的程度和持續時間，可以反映潛在融資或流動性問題的嚴重性。
+
+B. 對市場參與者的影響
+
+避險基金： 參與基差交易或其他槓桿化公債策略的避險基金，在此次市場異常中可能面臨損失或被迫去槓桿的壓力 。聯準會在其4月份的《金融穩定報告》中指出，避險基金的槓桿在4月初有所下降，反映了部分基金的平倉活動 。Refinitiv Lipper Alpha的一篇報導亦提到，專業投資者（如避險基金）正在拋售政府債券以彌補損失，同時減少其在美國公債期貨和現貨市場的基差交易部位 。
+
+資產管理公司： 大型資產管理公司通常利用公債期貨進行久期管理和資產配置 。市場的異常波動和基差的不可預測性，可能使其避險策略的有效性打折，並增加其操作成本。
+
+銀行/交易商： 儘管TBAC報告稱市場總體有序，但交易商在波動加劇時可能面臨做市困難和風險敞口增加的問題 。Refinitiv Lipper Alpha指出，美國銀行持有大量債券，公債價格下跌將導致賬面損失增加，可能引發信用風險，最壞情況下甚至可能導致銀行倒閉 （此處指公債價格下跌/殖利率上升的普遍情況，但市場的劇烈波動本身對銀行亦構成風險）。
+
+國際投資者： 關稅政策引發的美元波動和市場不確定性，可能影響外國投資者對美國公債的需求。例如，台灣的保險公司在2025年4月因美元貶值和避險成本上升而蒙受重大損失，這些公司大量持有以美元計價的固定收益資產，包括美國公債 。
+
+部分參與者（如避險基金）被迫去槓桿拋售期貨，可能引發連鎖反應，影響市場流動性和價格，進而可能迫使其他無關的參與者調整其倉位。這突顯了市場的相互關聯性以及潛在的系統性風險傳播途徑。
+
+C. 更廣泛的市場意涵
+
+借貸成本： 公債殖利率的異常波動，即使是短期的，也可能影響美國政府的融資成本，並間接影響更廣泛的企業和消費者借貸利率 。Refinitiv Lipper Alpha指出，公債殖利率上升將直接影響美國公眾的借貸成本，可能導致各種貸款的還款金額增加，進而抑制消費 。
+
+市場信心： 此類異常現象，特別是如果與市場運作受損和流動性問題相關聯，可能動搖市場對美國公債市場穩定性及其作為全球基準地位的信心 。有評論甚至猜測，利率上升的部分原因可能來自對美國公債作為全球首要避險資產地位的懷疑 。
+
+對其他資產類別的溢出效應： 4月份的市場動盪不僅限於公債市場，股票市場亦經歷了損失，企業債的選擇權調整利差（OAS）擴大 。Acharya與Laarits (2025) 的研究觀察到股債相關性在此期間出現上升 。這些都表明市場壓力可能在不同資產類別之間傳導。
+
+美國公債「避風港」地位的潛在侵蝕： 美國公債作為全球金融體系的基石，其「無風險」和「避風港」的特性至關重要 。類似2020年3月或本次2025年4月部分異常現象所顯示的市場運作受阻，挑戰了這一認知。若投資者對在壓力時期有效交易公債的能力產生擔憂，或市場相關性變得不可預測，他們可能會要求更高的持有補償（即更高的殖利率），或轉向其他被視為安全的資產（如黃金）。美國財政部借款諮詢委員會（TBAC）在其4月份的報告中明確指出，由於異常高的總體風險，美國公債市場現在存在增量風險溢價 。
+
+D. 監管與政策視角
+
+聯準會聲明： 聯準會在其2025年4月25日發布的《金融穩定報告》中指出，4月份公債市場流動性偏低且進一步惡化，但市場運作仍保持有序，同時觀察到避險基金在此期間進行了去槓桿操作 。紐約聯儲於5月8日發布的消費者預期調查則更多關注通膨和勞動力市場，間接提供了經濟背景 。
+
+財政部（TBAC會議記錄）： TBAC在4月29日的會議記錄中強調了市場參與者的去槓桿活動，同時指出儘管市場波動，現貨-期貨基差相對穩定，回購市場運作有序 。
+
+IMF/BIS評論： IMF在其2025年4月的《全球金融穩定報告》中表達了對金融穩定風險上升的擔憂，提及交易商中介能力達到極限，以及基差交易平倉對公債殖利率上升的影響 。
+
+官方機構的敘述之間似乎存在細微差異。聯準會強調市場「有序運作」，TBAC認為基差「相當穩定」，而IMF則對交易商限制和基差交易平倉的影響表達了更強烈的警示，學術論文更是揭示了顯著的市場錯位 。這表明對異常現象嚴重程度的判斷，可能取決於所使用的具體指標、時間框架以及機構立場。本報告試圖呈現這些觀點的複雜性。
+
+V. 與歷史先例之比較
+
+將本次市場異常現象與歷史上類似的壓力事件進行比較，有助於更深入地理解其獨特性和普遍性。
+
+A. 2020年3月COVID-19衝擊：一個關鍵基準
+
+2020年3月，隨著COVID-19疫情在全球蔓延，金融市場經歷了劇烈的「現金為王」（dash for cash）時期，導致美國公債市場出現嚴重的流動性枯竭 。當時，投資者大規模拋售包括美國公債在內的各類資產以獲取現金，交易商的做市能力不堪重負，導致公債價格下跌，殖利率急劇上升，這與傳統避險時期殖利率下降的模式截然相反 。基差交易的快速平倉被認為是加劇市場壓力的重要因素之一 。
+
+與2025年4月至5月現象的相似之處：
+
+兩次事件均由突發的外部衝擊引發，導致市場對風險進行大規模重新定價。
+
+槓桿基金的去槓桿行為和基差交易的平倉在兩次事件中都扮演了重要角色 。
+
+交易商的做市能力和市場流動性均受到嚴峻考驗 。
+
+與2025年4月至5月現象的差異之處：
+
+殖利率/期貨價格的運動方向： 2020年3月，公債殖利率普遍上升（價格下跌），因現貨市場面臨巨大拋售壓力 。而2025年4月的異常現象則涉及在特定時期殖利率下降（現貨價格上漲）而期貨價格同時下跌。這是兩者最核心的區別。
+
+政策應對： 2020年3月，聯準會迅速採取了大規模干預措施，包括量化寬鬆（QE）、設立回購工具、豁免SLR等 。而在2025年4月至5月期間，聯準會的直接干預似乎較為克制，市場更多地依靠自身機制和既有的流動性支持框架 。
+
+衝擊根源： 全球大流行病引發的恐慌與關稅政策引發的貿易戰擔憂，其影響路徑和市場預期有所不同。
+
+儘管2020年3月和2025年4月都涉及與基差交易相關的市場壓力，但2025年4月特定的價格異常（殖利率下降、期貨下跌）表明，與2020年3月現貨公債本身被積極拋售的情況相比，基差交易的平倉可能呈現出不同的類型或階段，或者市場上存在其他更占主導地位的資金流向。2020年3月，典型的基差交易者（多現貨、空期貨）被迫賣出現貨（進一步推高殖利率）並買回期貨（推高期貨價格），導致基差為正（現貨相對期貨便宜）。而2025年4月的異常現象則意味著期貨相對於現貨變得更便宜。
+
+B. 其他相關歷史事件
+
+2019年9月回購利率飆升事件： 雖然此事件主要表現為短期融資市場的急劇收緊，而非直接的現貨與期貨價格異常聯動，但它突顯了對槓桿交易至關重要的短期融資市場的脆弱性 。融資市場的壓力會直接影響基差交易等策略的可行性和成本。
+
+表 V.C.1：市場壓力時期關鍵指標比較
+
+關鍵指標
+
+2025年4月-5月異常現象
+
+2020年3月COVID-19衝擊
+
+主要驅動因素
+
+川普關稅衝擊，引發經濟前景與通膨預期分歧；槓桿交易平倉；潛在CTD轉換；流動性受限
+
+COVID-19疫情引發全球恐慌，「現金為王」；大規模基差交易平倉；流動性枯竭
+
+10年期公債殖利率主要變動方向
+
+特定時期內下跌（例如4月初從約4.4%降至4.0% ），但整體月份波動劇烈，亦有上升時段
+
+大幅上升（價格下跌）
+
+10年期公債期貨價格主要變動方向
+
+特定時期內與殖利率同步下跌
+
+隨現貨價格下跌而下跌，但在基差交易平倉時可能因空頭回補而相對抗跌或反彈
+
+現貨-期貨基差行為
+
+異常擴大（期貨相對現貨大幅折價），但TBAC稱「相當穩定」
+
+急劇擴大（現貨相對期貨大幅折價，即負基差擴大或正基差收窄甚至轉負）
+
+MOVE指數峰值
+
+4月21日達128.56
+
+2020年3月中旬達160以上
+
+聯準會政策應對
+
+截至報告期，主要為維持現有政策，強調市場仍有序運作
+
+大規模QE、設立多種流動性工具、豁免SLR部分規定
+
+此表清晰地展示了兩次市場壓力事件在多個維度上的異同，突顯了2025年4月異常現象的獨特性，特別是在殖利率與期貨價格的聯動方向上。
+
+D. 經驗教訓與演變中的市場結構
+
+自過去的危機以來，美國公債市場的結構持續演變，例如電子化交易程度提高、自營交易公司（PTFs）角色的增強，以及中央清算機制的逐步擴展 。美國證券交易委員會（SEC）已於2023年12月通過規則修訂，將大幅擴大公債市場的中央清算範圍，其中現貨交易需在2025年12月31日前實現中央清算，回購交易則在2026年6月30日前 。這些變革旨在增強市場的透明度和韌性。
+
+然而，先前旨在緩解特定風險的政策應對（如聯準會設立的常備回購便利工具SRF和FIMA回購便利）是否足以應對所有類型的市場壓力，仍有待觀察。紐約聯儲官員認為，聯準會健全的利率控制框架有助於維持融資流動性的韌性 。但新的脆弱性可能隨時出現，特別是當新穎的衝擊（如2025年的關稅政策）與複雜的槓桿策略相互作用時。金融脆弱性如同「打地鼠遊戲」，解決一個問題後，風險可能以新的形式在別處浮現。2025年4月的異常現象，其與2020年3月主要動態的不同，可能正是這種演變的體現。
+
+VI. 結論與展望
+
+A. 2025年4月至5月市場異常現象的主要驅動因素總結
+
+綜合分析顯示，2025年4月至5月美國公債市場觀測到的殖利率與期貨價格同步下跌的異常現象，其主要驅動因素可歸結為：以「川普關稅衝擊」為代表的重大外部衝擊引發了廣泛的市場不確定性。這一宏觀層面的動盪，與公債市場微觀結構中既有的脆弱性相互作用，包括部分參與者（尤其是避險基金）在基差交易等策略中採用的高槓桿、市場流動性在壓力下的不穩定性、套利機制因交易商能力受限而可能出現的失靈，以及在殖利率大幅波動環境下潛在的最適交割券（CTD）轉換預期。這些因素在特定交易日共同作用，導致了這一反常的市場行為。
+
+B. 市場動態與影響回顧
+
+在此期間，市場呈現出波動率急劇放大、現貨與期貨基差行為異常（儘管官方報告稱基差總體穩定，但特定時點的錯位是本報告關注的核心）、以及部分高度槓桿的市場參與者可能面臨被迫去槓桿壓力的特徵。此異常現象不僅對直接參與公債及其衍生品市場的機構產生影響，也對更廣泛的市場信心和全球投資者對美國公債避險屬性的認知構成考驗。
+
+C. 對未來市場穩定性的啟示
+
+本次事件突顯出，即使在全球流動性最高的美國公債市場，當外部衝擊與內部結構性脆弱因素疊加時，依然可能出現非典型的市場行為。如果諸如部分市場區隔中存在的高槓桿、交易商中介能力在極端壓力下的局限性等根本問題未能得到有效解決，未來在遭遇類似規模的外部衝擊時，類似的異常現象仍有可能重演。對公債市場韌性的持續評估和強化至關重要 。
+
+D. 對市場參與者和政策制定者的考量
+
+市場參與者： 應充分認識到市場中潛藏的「隱形槓桿」和流動性風險，尤其是在看似穩定的套利策略中。對基差波動和CTD轉換的風險需要更為精密的監控和管理。在構建投資組合和避險策略時，不能完全依賴歷史相關性，需為市場關係的短期破裂做好準備。
+
+政策制定者： 需持續監測市場結構的演變、槓桿水平的積累（特別是在非銀行金融機構中）以及主要交易商的做市能力和意願。考慮進一步的市場改革以增強韌性，例如檢討補充槓桿率（SLR）等監管規定對交易商中介能力的影響 ，或探索在極端壓力下更為有效的市場穩定機制 。此外，提高市場透明度，尤其是對高度槓桿交易的監測，亦是關鍵。
+
+E. 最終思考：一個演進中的格局
+
+2025年4月至5月觀測到的市場異常，不僅僅是一次短暫的統計數據上的奇異點，更有可能是美國公債市場深層次、持續性結構變遷的徵兆。這些變遷包括：非銀行金融中介機構（如避險基金和自營交易公司）在市場中的角色日益重要、交易策略的日益複雜化和演算法化，以及在政府債務規模持續擴大和週期性外部衝擊頻發的背景下，傳統以交易商為中心的做市模式所面臨的挑戰。
+
+正如歷史一再昭示，金融市場是一個動態演化的生態系統。每一次危機或異常現象，都是對現有市場結構和監管框架的壓力測試，同時也為未來的改進提供了寶貴的經驗教訓。因此，所有市場利益相關者都必須保持警惕，持續學習和適應，以共同維護全球金融體系的穩定與健康發展。對此類異常現象的深入理解和前瞻性應對，將是未來市場參與者和監管者面臨的長期課題。
+
+引用的著作
+
+1. Understanding Bond Prices and Yields - Investopedia, https://www.investopedia.com/articles/bonds/07/price_yield.asp 2. Bonds and the Yield Curve | Explainer | Education - Reserve Bank of Australia, https://www.rba.gov.au/education/resources/explainers/bonds-and-the-yield-curve.html 3. U.S. Treasury Market Structure - Managed Funds Association, https://www.mfaalts.org/issue/u-s-treasury-market-structure/ 4. The basics of U.S. Treasury futures - CME Group, https://www.cmegroup.com/trading/interest-rates/basics-of-us-treasury-futures.html 5. r is not a constant - The relationship between bond futures and repo rates ... - ICMA, https://www.icmagroup.org/assets/ICMA-ERCC_r-is-not-a-constant_the-relationship-between-repo-rates-and-bond-futures_July-2022-andy-hill.pdf 6. Bond Market Turbulence Triggered Huge Concerns | Lipper Alpha Insight | LSEG, https://lipperalpha.refinitiv.com/2025/04/bond-market-turbulence-triggered-huge-concerns/ 7. Treasury Market Dysfunction and the Role of the Central Bank* - Jeremy Stein, https://stein.scholars.harvard.edu/sites/g/files/omnuum5951/files/2025-04/KSWY%20Brookings%20final%20a.pdf 8. 10 Year Treasury Rate Market Daily Trends: Daily Treasury Yield ..., https://ycharts.com/indicators/10_year_treasury_rate 9. Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Quoted on an Investment Basis (DGS10) | FRED, https://fred.stlouisfed.org/series/DGS10 10. H.15 - Selected Interest Rates (Daily) - May 16, 2025 - Federal Reserve Board, https://www.federalreserve.gov/releases/h15/ 11. 2 Year Treasury Rate Market Daily Insights - YCharts, https://ycharts.com/indicators/2_year_treasury_rate 12. 5 Year Treasury Rate Market Daily Trends: Daily Treasury Yield ..., https://ycharts.com/indicators/5_year_treasury_rate 13. 30 Year Treasury Rate Market Daily Insights - YCharts, https://ycharts.com/indicators/30_year_treasury_rate 14. April 2025 Market Commentary - Breckinridge Capital Advisors, https://www.breckinridge.com/insights/details/april-2025-market-commentary/ 15. Fixed Income Monthly - May 2025 - Fidelity International | Luxembourg, https://www.fidelity.lu/page/fixed-income-monthly 16. US 10 YR T-Note Futures Historical Data - Investing.com India, https://in.investing.com/rates-bonds/us-10-yr-t-note-historical-data 17. US 30 YR T-Bond Futures Historical Prices - Investing.com India, https://in.investing.com/rates-bonds/us-30-yr-t-bond-historical-data 18. US 5 YR T-Note Futures Historical Prices - Investing.com India, https://in.investing.com/rates-bonds/us-5-yr-t-note-historical-data 19. US 2 YR T-Note Futures Historical Data - Investing.com India, https://in.investing.com/rates-bonds/us-2-yr-t-note-historical-data 20. ICE BofAML MOVE Historical Data (MOVE) - Investing.com, https://www.investing.com/indices/ice-bofaml-move-historical-data 21. CBOE Volatility Index: VIX (VIXCLS) | FRED | St. Louis Fed, https://fred.stlouisfed.org/series/VIXCLS 22. MarketAxess Announces Trading Volume Statistics for April 2025, https://investor.marketaxess.com/news/news-details/2025/MarketAxess-Announces-Trading-Volume-Statistics-for-April-2025/default.aspx 23. tradeweb markets - monthly activity report, https://www.tradeweb.com/4994cc/globalassets/newsroom/05.06.25_mar/tradeweb_monthly_data_report_apr25_final.pdf 24. April 2025 Rates Recap - CME Group, https://www.cmegroup.com/newsletters/rates-recap/2025-04-rates-recap.html 25. Recent Developments in Treasury Market Liquidity and Funding Conditions, https://www.newyorkfed.org/newsevents/speeches/2025/per250509 26. Liquidity Risk in 2025: A Strategic Priority, Not a Side Concern - Advisor Perspectives, https://www.advisorperspectives.com/articles/2025/05/13/liquidity-risk-2025-strategic-priority-not-concern 27. www.federalreserve.gov, https://www.federalreserve.gov/publications/files/financial-stability-report-20250425.pdf 28. What's next with Trump's trade war truce with China - AP News, https://apnews.com/article/trump-tariffs-whats-next-2d597284774fddd6ad9fa4f60e783d34 29. The Economic Effects of President Trump's Tariffs - Penn Wharton Budget Model, https://budgetmodel.wharton.upenn.edu/issues/2025/4/10/economic-effects-of-president-trumps-tariffs 30. Treasury market resilience—ever more important - Brookings Institution, https://www.brookings.edu/articles/treasury-market-resilience-ever-more-important/ 31. What's going on in the US Treasury market, and why does it matter? - Brookings Institution, https://www.brookings.edu/articles/whats-going-on-in-the-us-treasury-market-and-why-does-it-matter/ 32. Where We Stand: The Fiscal, Economic, and Distributional Effects of All U.S. Tariffs Enacted in 2025 Through April 2 - Yale Budget Lab, https://budgetlab.yale.edu/research/where-we-stand-fiscal-economic-and-distributional-effects-all-us-tariffs-enacted-2025-through-april 33. Report to the Secretary of the Treasury from the Treasury Borrowing Advisory Committee | U.S. Department of the Treasury, https://home.treasury.gov/news/press-releases/sb0121 34. US CPI Hits 2.3% for April and Fed Holds Rate | - BTY, https://www.bty.com/us-cpi-hits-2-3-for-april-and-fed-holds-rate/ 35. April 2025 CPI: Inflation Lower Than Expected | J.P. Morgan, https://www.jpmorgan.com/insights/outlook/economic-outlook/cpi-report-april-2025 36. Minutes of the Meeting of the Treasury Borrowing Advisory ..., https://home.treasury.gov/news/press-releases/sb0122 37. Secured Overnight Financing Rate (SOFR) | FRED | St. Louis Fed, https://fred.stlouisfed.org/series/SOFR 38. DTCC GCF Repo Index Chart | Global Trade Repository, https://www.dtcc.com/charts/dtcc-gcf-repo-index 39. Unpacking the basis trade: How a quiet strategy stirred bond market turmoil - Equiti, https://www.equiti.com/sc-en/news/trading-ideas/unpacking-the-basis-trade-how-a-quiet-strategy-stirred-bond-market-turmoil/ 40. The Fed - Quantifying Treasury Cash-Futures Basis Trades - Federal Reserve Board, https://www.federalreserve.gov/econres/notes/feds-notes/quantifying-treasury-cash-futures-basis-trades-20240308.html 41. Hedge funds double down on $1tn Treasury basis trade - Hedgeweek, https://www.hedgeweek.com/hedge-funds-double-down-on-1tn-treasury-basis-trade/ 42. Treasury Yields Defy Expectations, Raising Questions About Basis Trades, https://www.empirical.net/treasury-yields-defy-expectations-raising-questions-about-basis-trades/ 43. www.investopedia.com, https://www.investopedia.com/terms/c/cheapesttodeliver.asp#:~:text=The%20term%20cheapest%20to%20deliver,different%20securities%20to%20be%20delivered. 44. Cheapest to Deliver (CTD): Definition and Calculation Formula - Investopedia, https://www.investopedia.com/terms/c/cheapesttodeliver.asp 45. Calculating U.S. Treasury Futures Conversion Factors - CME Group, https://www.cmegroup.com/trading/interest-rates/files/Calculating_U.S.Treasury_Futures_Conversion_Factors.pdf 46. Switch Risk in Futures: A Refresher - Bourse de Montréal, https://www.m-x.ca/f_publications_en/futures_flash_article5_en.pdf 47. Algorithmic Trading and Market Volatility: Impact of High-Frequency Trading, https://sites.lsa.umich.edu/mje/2025/04/04/algorithmic-trading-and-market-volatility-impact-of-high-frequency-trading/ 48. Navigating the future: The impact of technology and regulation on algorithmic trading in competitive bond markets - Euronext, https://www.euronext.com/en/news/navigating-future-impact-technology-and-regulation-algorithmic-trading-competitive-bond 49. Global Financial Stability Report, April 2025; Chapter 1: Enhancing Resilience amid Global Trade Uncertainty, https://www.imf.org/-/media/Files/Publications/GFSR/2025/April/English/ch1.ashx 50. pages.stern.nyu.edu, https://pages.stern.nyu.edu/~sternfin/vacharya/public_html/pdfs/Acharya_Laarits_tariff_202504.pdf 51. Taiwan Insurers Hit by Losses in April on US Dollar Slump - Mint, https://www.livemint.com/market/stock-market-news/taiwan-insurers-hit-by-losses-in-april-on-us-dollar-slump-11747100994913.html 52. Taiwan: Insurers face foreign exchange risk exposure after dollar appreciation, https://www.asiainsurancereview.com/News/ViewNewsLetterArticle/id/91598/Type/eDaily/Taiwan-Insurers-face-foreign-exchange-risk-exposure-after-dollar-appreciation 53. What the Sell-Off in Treasuries Means for Your Mortgage - The Darden Report, https://news.darden.virginia.edu/2025/04/09/what-the-sell-off-in-treasuries-means-for-your-mortgage/ 54. Treasury Bonds: Why Are Yields Dropping? - Charles Schwab, https://www.schwab.com/learn/story/treasury-bonds-why-are-yields-dropping 55. Inflation Expectations Mixed; Financial Outlook for Households Deteriorates, https://www.newyorkfed.org/newsevents/news/research/2025/20250508 56. Making Sense of the Current US Treasury Market - State Street Global Advisors, https://www.ssga.com/us/en/individual/insights/making-sense-of-the-current-us-treasury-market 57. Treasury Market Dysfunction and the Role of the Central Bank - Brookings Institution, https://www.brookings.edu/wp-content/uploads/2025/03/4_Kashyap-et-al.pdf 58. The U.S. Economic Outlook for 2025–2027 - University of Michigan, https://lsa.umich.edu/content/dam/econ-assets/Econdocs/RSQE%20PDFs/RSQE_US_Forecast_May25.pdf 59. All-to-All Trading in the U.S. Treasury Market - Federal Reserve Bank of New York, https://www.newyorkfed.org/medialibrary/media/research/epr/2025/EPR_2025_all-to-all_chaboud.pdf?sc_lang=en 60. ENHANCING THE RESILIENCE OF THE U.S. TREASURY MARKET: 2023 STAFF PROGRESS REPORT, https://home.treasury.gov/system/files/136/20231106_IAWG_report.pdf

@@ -1,0 +1,502 @@
+第一部分：開發者可讀的總結報告
+
+綜合金融風險儀表板 - 專案狀態總結報告 (v1.0)
+
+生成時間: 2025-05-06 06:40:00 Asia/Taipei (UTC+8)
+
+整體狀態: ✅ 開發進行中 - 基礎數據獲取完成 (Development In Progress - Base Data Acquisition Complete)
+
+核心功能:
+
+整合多維度金融數據 (市場、宏觀、交易商部位等)。
+
+計算量化風險指標。
+
+評估綜合金融市場風險位階 (包含新台幣匯率作為觀察面向之一)。
+
+以清晰、互動的儀表板視覺化呈現風險狀況與關鍵驅動因素。
+
+專案目標:
+
+目標 1 (階段一): 在 Google Colab 環境中，開發一個可運行的儀表板原型 (v1.0)，實現核心數據流、基礎風險評估和靜態視覺化 (兩段式 HTML：總覽表格 + 詳細卡片)。
+
+目標 2 (階段二): 實現進階指標計算和風險評估邏輯，並加入互動式圖表。
+
+目標 3 (階段三): 建立回測框架以驗證風險評估邏輯的有效性。
+
+(ℹ️ 目標的可衡量指標將在開發過程中進一步細化。)
+
+關鍵決策、假設與理由:
+
+決策: 選擇 Google Colab 作為主要開發環境。
+
+理由: 便於快速原型設計、整合 Python 生態系、利用免費計算資源、易於與 AI 協作。 (來源: 先前規劃)
+
+決策: 採用模組化 Colab 儲存格設計，遵循 v3.4 設計準則。
+
+理由: 提高程式碼可讀性、可維護性、可測試性，強制執行前置規劃與安全規範。 (來源: 本次開發過程)
+
+決策: 最終儀表板採用兩段式佈局 (總覽表格 + 詳細卡片)。
+
+理由: 平衡快速掃描與詳細信息獲取需求。 (來源: 先前規劃)
+
+決策: 優先使用 Colab Secrets 管理 API 金鑰，並遵循 UPPER_CASE_WITH_UNDERSCORES 命名規則。
+
+理由: 遵循 v3.4 安全規範，確保金鑰安全。 (來源: 本次開發過程)
+
+決策: 使用 FRED 的 INDPRO (工業生產指數) 作為 ISM 製造業 PMI 的代理指標。
+
+理由: 經研究確認 FRED 不再提供官方 ISM PMI 數據，INDPRO 是可用的相關替代指標。 (來源: 本次開發過程)
+
+決策: 調整 Cell 1 程式碼結構 (移動 logger 初始化、增強檢查) 以解決 NameError。
+
+理由: 確保 Cell 1 初始化流程的穩定性，解決先前遇到的全域變數未定義問題。 (來源: 本次除錯過程)
+
+假設: 選定的 API (yfinance, Alpha Vantage (免費功能), FRED) 能提供足夠的歷史數據用於第一階段分析。
+
+影響: 若數據質量或長度不足，可能影響後續指標計算和風險評估。
+
+假設: 開發者具備必要的 Python, Pandas 及金融知識。
+
+影響: 若技能不足，開發進度可能延遲。
+
+環境需求:
+
+Python 版本: (待 Cell 1 最終確認，預計 3.x)
+
+關鍵函式庫: pandas, numpy, requests, requests-cache, yfinance, fredapi, tenacity, plotly, ipywidgets, openpyxl, pytz, logging (已在 Cell 1 中安裝/確認)
+
+硬體加速器: 無特別需求 (預設 Colab 環境)
+
+外部數據源: yfinance API, Alpha Vantage API (免費), FRED API, NY Fed 網站 (Excel 文件), Google Colab Secrets
+
+專案進度追蹤表:
+
+步驟 #
+
+步驟名稱
+
+狀態
+
+完成日期
+
+紀錄/困難點/相關決策
+
+0
+
+專案規劃與框架設計
+
+✅ 完成
+
+2025-05-05
+
+完成多份規劃文件，確定分階段計畫、Colab 結構、儀表板佈局。選擇 Colab。
+
+1
+
+階段一 - 初始化與設定 (Cell 1)
+
+✅ 完成
+
+2025-05-06
+
+環境設定、API Key讀取、全局變數、日誌完成。已解決 NameError 和 SyntaxError。
+
+2
+
+階段一 - 環境檢查、目錄與快取 (Cell 2)
+
+✅ 完成
+
+2025-05-06
+
+目錄創建、快取設定完成。
+
+3
+
+階段一 - yfinance 數據獲取 (Cell 3)
+
+✅ 完成
+
+2025-05-06
+
+TWD/USD, VIX 數據獲取完成。修正了 NameError。
+
+4
+
+階段一 - Alpha Vantage 數據獲取 (Cell 4)
+
+✅ 完成
+
+2025-05-06
+
+SPY, HYG, LQD 數據獲取完成 (改用免費 API)。
+
+5
+
+階段一 - FRED 數據獲取 (Cell 5)
+
+✅ 完成
+
+2025-05-06
+
+FEDFUNDS, INDPRO (代理) 數據獲取完成。修正了 Series ID 問題。
+
+6
+
+階段一 - NY Fed 數據獲取 (Cell 6)
+
+⏳ 待辦
+
+-
+
+下一步。 需要從 NY Fed 網站獲取並處理一級交易商持有量數據。
+
+7
+
+階段一 - 數據合併與清洗 (Cell 7)
+
+⏳ 待辦
+
+-
+
+需合併所有來源數據，進行初步清洗。
+
+8
+
+階段一 - 基礎指標計算 (Cell 8)
+
+⏳ 待辦
+
+-
+
+需計算基礎指標 (含簡單交易商狀況)。
+
+9
+
+階段一 - 簡單風險邏輯 (Cell 9 - 暫定)
+
+⏳ 待辦
+
+-
+
+需實現初步風險判斷邏輯。
+
+10
+
+階段一 - 基礎視覺化 (HTML Gen)
+
+⏳ 待辦
+
+-
+
+需生成兩段式 HTML 儀表板。
+
+11
+
+階段二 - 進階分析
+
+⏳ 待辦
+
+-
+
+包含擴展數據、進階指標、精煉風險邏輯、互動視覺化。
+
+12
+
+階段三 - 回測分析
+
+⏳ 待辦
+
+-
+
+需設計並執行回測。
+
+Z
+
+執行追蹤摘要實現 (Cell Z)
+
+⏳ 待辦
+
+-
+
+需實現最終的執行摘要報告。
+
+目前進度總結:
+
+✅ 專案初始化 (Cell 1) 和環境準備 (Cell 2) 已成功完成。經過多次除錯，Cell 1 目前執行穩定，能夠正確安裝/導入函式庫並設定必要的全域變數 (libs_loaded, target_tz 等)。
+
+✅ 第一階段的基礎數據獲取任務 (Cells 3, 4, 5) 已全部完成，成功獲取了來自 yfinance, Alpha Vantage (免費 API), FRED 的數據。已處理 Alpha Vantage API 限制和 FRED PMI Series ID 問題。
+
+✅ 已規劃將一級交易商數據納入分析，作為綜合風險評估的一部分。
+
+⏳ 目前專案處於 等待開發 Cell 6 (NY Fed 數據獲取與處理) 的階段。
+
+已遇困難、待解決問題與潛在風險:
+
+困難 (已解決): Cell 1 初始化時遇到多次 NameError 和 SyntaxError。已透過調整程式碼結構、移動初始化位置、修正語法錯誤解決。
+
+困難 (已解決): 無法透過 FRED API 獲取官方 ISM PMI 數據。已決定使用 INDPRO 作為代理指標。
+
+困難 (已處理): Alpha Vantage 免費 API 無法獲取調整後收盤價數據。已改用 TIME_SERIES_DAILY 功能。
+
+潛在風險:
+
+API 限制：Alpha Vantage 免費 API 有較嚴格的請求限制。NY Fed 文件下載也可能有限制或不穩定。
+
+數據質量/代理指標限制：INDPRO 作為 PMI 代理可能無法完全捕捉 PMI 的預期信號。Alpha Vantage 未調整價格可能影響需要考慮股息/拆分的計算。
+
+NY Fed 文件格式變更：Cell 6 依賴 NY Fed Excel 文件的當前格式，若未來格式變更可能導致解析失敗。
+
+Colab Runtime 狀態： 雖然 Cell 1 已修正，但 Colab Runtime 若意外重設仍可能導致全域變數丟失，需要注意執行順序。
+
+參考資料需求（具體檔案與原因）：
+
+ℹ️ 目前提供的資訊和已獲取的數據，足以開始開發 Cell 6: NY Fed 一級交易商數據獲取與處理。開發 Cell 6 時，主要依賴 PROJECT_CONFIG 中定義的 ny_fed_positions_urls, sbp2013_cols_to_sum, sbp2001_cols_to_sum 配置。
+
+各儲存格執行摘要:
+
+Cell 1: ✅ 成功 (已修正錯誤) - 完成初始化、安裝、導入、配置、時區、API Key 讀取。
+
+Cell 2: ✅ 成功 - 完成環境檢查、目錄創建、快取設定。
+
+Cell 3: ✅ 成功 (已修正 NameError) - 完成 TWD/USD, VIX 數據獲取。
+
+Cell 4: ✅ 成功 (改用免費 API) - 完成 SPY, HYG, LQD 數據獲取。
+
+Cell 5: ✅ 成功 (已修正 Series ID) - 完成 FEDFUNDS, INDPRO 數據獲取。
+
+(Debug Cell): ✅ 成功 (確認 libs_loaded, target_tz 存在，但 nyfed_positions_series 類型錯誤 - 符合預期，因 Cell 6 未執行)
+
+關鍵全局變數快照與數據脈絡:
+
+PROJECT_CONFIG (dict): 包含專案配置。由 Cell 1 初始化。
+
+EXECUTION_TRACKER (dict): 記錄 Cell 1-5 及 Debug Cell 的執行狀態。
+
+libs_loaded (dict): 記錄核心函式庫導入狀態 (應為 True)。由 Cell 1 創建和填充。
+
+target_tz (datetime.tzinfo): 專案使用的時區物件 (應為 ZoneInfo 或 pytz)。由 Cell 1 設定。
+
+logger (logging.Logger): 全局日誌記錄器。由 Cell 1 初始化。
+
+df_twdusd (pd.DataFrame): 包含 TWD/USD 歷史數據。由 Cell 3 生成。
+
+df_vix (pd.DataFrame): 包含 VIX 指數歷史數據。由 Cell 3 生成。
+
+df_spy (pd.DataFrame): 包含 SPY 歷史數據。由 Cell 4 生成。
+
+df_hyg (pd.DataFrame): 包含 HYG 歷史數據。由 Cell 4 生成。
+
+df_lqd (pd.DataFrame): 包含 LQD 歷史數據。由 Cell 4 生成。
+
+df_fedfunds (pd.DataFrame): 包含 FEDFUNDS 歷史數據。由 Cell 5 生成。
+
+df_indpro (pd.DataFrame): 包含 INDPRO 歷史數據。由 Cell 5 生成。
+
+nyfed_positions_series (NoneType): 尚未生成，預期由 Cell 6 生成。
+
+後續規劃:
+
+[進度表步驟 6] 立即執行: 開發並執行 Cell 6: NY Fed 一級交易商數據獲取與處理。
+
+[進度表步驟 7] 接著開發 Cell 7: 合併所有數據源。
+
+[進度表步驟 8] 繼續開發 Cell 8: 計算基礎指標。
+
+逐步完成階段一剩餘的風險邏輯和 HTML 視覺化儲存格。
+
+第二部分：AI 可讀的結構化數據 (JSON)
+
+{
+  "reportMetadata": {
+    "reportVersion": "1.5",
+    "guidelineVersion": "1.5-manual",
+    "reportGeneratedAt": "2025-05-06T06:40:00+08:00",
+    "generationConfidence": "High",
+    "contextCompleteness": "Full",
+    "missingInfoNotes": [
+      "Python 確切版本待 Cell 1 執行確認。",
+      "部分函式庫確切版本待 Cell 1 執行確認。"
+    ]
+  },
+  "projectInfo": {
+    "projectName": "綜合金融風險儀表板",
+    "overallStatus": "InProgress_DataAcquisitionComplete",
+    "coreFeatures": [
+      "整合多維度金融數據 (市場、宏觀、交易商部位等)。",
+      "計算量化風險指標。",
+      "評估綜合金融市場風險位階 (包含新台幣匯率作為觀察面向之一)。",
+      "以清晰、互動的儀表板視覺化呈現風險狀況與關鍵驅動因素。"
+    ],
+    "projectGoals": [
+      {
+        "goalId": "G01",
+        "description": "(階段一) 在 Google Colab 環境中，開發一個可運行的儀表板原型 (v1.0)，實現核心數據流、基礎風險評估和靜態視覺化 (兩段式 HTML：總覽表格 + 詳細卡片)。",
+        "status": "進行中",
+        "measurement": "基礎數據獲取完成，待後續計算與視覺化。"
+      },
+      {
+        "goalId": "G02",
+        "description": "(階段二目標) 實現進階指標計算和風險評估邏輯，並加入互動式圖表。",
+        "status": "未開始",
+        "measurement": null
+      },
+      {
+        "goalId": "G03",
+        "description": "(階段三目標) 建立回測框架以驗證風險評估邏輯的有效性。",
+        "status": "未開始",
+        "measurement": null
+      }
+    ]
+  },
+  "projectContext": {
+    "keyDecisionsAndAssumptions": [
+      {
+        "decisionId": "D01",
+        "decision": "選擇 Google Colab 作為主要開發環境。",
+        "rationale": "便於快速原型設計、整合 Python 生態系、利用免費計算資源、易於與 AI 協作。",
+        "contextSource": "先前規劃",
+        "timestamp": "2025-05-05"
+      },
+      {
+        "decisionId": "D02",
+        "decision": "採用模組化 Colab 儲存格設計，遵循 v3.4 設計準則。",
+        "rationale": "提高程式碼可讀性、可維護性、可測試性，強制執行前置規劃與安全規範。",
+        "contextSource": "對話記錄 2025-05-06",
+        "timestamp": "2025-05-06"
+      },
+       {
+        "decisionId": "D03",
+        "decision": "最終儀表板採用兩段式佈局 (總覽表格 + 詳細卡片)。",
+        "rationale": "平衡快速掃描與詳細信息獲取需求。",
+        "contextSource": "先前規劃",
+        "timestamp": "2025-05-05"
+      },
+      {
+        "decisionId": "D04",
+        "decision": "優先使用 Colab Secrets 管理 API 金鑰，並遵循 UPPER_CASE_WITH_UNDERSCORES 命名規則。",
+        "rationale": "遵循 v3.4 安全規範，確保金鑰安全。",
+        "contextSource": "對話記錄 2025-05-06",
+        "timestamp": "2025-05-06"
+      },
+       {
+        "decisionId": "D05",
+        "decision": "使用 FRED 的 INDPRO (工業生產指數) 作為 ISM 製造業 PMI 的代理指標。",
+        "rationale": "經研究確認 FRED 不再提供官方 ISM PMI 數據，INDPRO 是可用的相關替代指標。",
+        "contextSource": "對話記錄 2025-05-06",
+        "timestamp": "2025-05-06"
+      },
+       {
+        "decisionId": "D06",
+        "decision": "調整 Cell 1 程式碼結構 (移動 logger 初始化、增強檢查) 以解決 NameError。",
+        "rationale": "確保 Cell 1 初始化流程的穩定性，解決先前遇到的全域變數未定義問題。",
+        "contextSource": "對話記錄 2025-05-06 (除錯過程)",
+        "timestamp": "2025-05-06"
+       }
+      {
+        "assumptionId": "A01",
+        "assumption": "選定的 API (yfinance, Alpha Vantage (免費功能), FRED) 能提供足夠的歷史數據用於第一階段分析。",
+        "impact": "若數據質量或長度不足，可能影響後續指標計算和風險評估。",
+        "validationStatus": "部分驗證 (數據已獲取)",
+        "contextSource": "先前規劃/本次執行"
+      },
+      {
+        "assumptionId": "A02",
+        "assumption": "開發者具備必要的 Python, Pandas 及金融知識。",
+        "impact": "若技能不足，開發進度可能延遲。",
+        "validationStatus": "待驗證",
+        "contextSource": "先前規劃"
+      }
+    ],
+    "rejectedAlternatives": [
+        {
+         "alternative": "在 FRED 中繼續嘗試尋找官方 ISM PMI Series ID ('NAPM', 'ISM/MAN_PMI', 'PMI')",
+         "reasonRejected": "研究確認 FRED 自 2016 年起已停止提供 ISM 數據。",
+         "contextSource": "對話記錄 2025-05-06 / 研究報告"
+       }
+    ],
+    "progressTrackingTable": [
+      {"step": 0, "name": "專案規劃與框架設計", "status": "完成", "completionDate": "2025-05-05", "notes": "完成規劃文件，確定結構、佈局。", "relatedDecisions": ["D01", "D03"], "blockers": []},
+      {"step": 1, "name": "階段一 - 初始化與設定 (Cell 1)", "status": "完成", "completionDate": "2025-05-06", "notes": "環境設定、API Key讀取、全局變數、日誌完成。已解決 NameError 和 SyntaxError。", "relatedDecisions": ["D02", "D04", "D06"], "blockers": []},
+      {"step": 2, "name": "階段一 - 環境檢查、目錄與快取 (Cell 2)", "status": "完成", "completionDate": "2025-05-06", "notes": "目錄創建、快取設定完成。", "relatedDecisions": [], "blockers": []},
+      {"step": 3, "name": "階段一 - yfinance 數據獲取 (Cell 3)", "status": "完成", "completionDate": "2025-05-06", "notes": "TWD/USD, VIX 數據獲取完成。修正 NameError。", "relatedDecisions": [], "blockers": []},
+      {"step": 4, "name": "階段一 - Alpha Vantage 數據獲取 (Cell 4)", "status": "完成", "completionDate": "2025-05-06", "notes": "SPY, HYG, LQD 數據獲取完成 (改用免費 API)。", "relatedDecisions": [], "blockers": []},
+      {"step": 5, "name": "階段一 - FRED 數據獲取 (Cell 5)", "status": "完成", "completionDate": "2025-05-06", "notes": "FEDFUNDS, INDPRO (代理) 數據獲取完成。修正 Series ID 問題。", "relatedDecisions": ["D05"], "blockers": []},
+      {"step": 6, "name": "階段一 - NY Fed 數據獲取 (Cell 6)", "status": "待辦", "completionDate": null, "notes": "下一步。需獲取並處理一級交易商持有量。", "relatedDecisions": [], "blockers": ["依賴網路和 NY Fed 文件格式"]},
+      {"step": 7, "name": "階段一 - 數據合併與清洗 (Cell 7)", "status": "待辦", "completionDate": null, "notes": "需合併所有來源數據，進行初步清洗。", "relatedDecisions": [], "blockers": ["依賴 Cell 6 完成"]},
+      {"step": 8, "name": "階段一 - 基礎指標計算 (Cell 8)", "status": "待辦", "completionDate": null, "notes": "需計算基礎指標 (含簡單交易商狀況)。", "relatedDecisions": [], "blockers": ["依賴 Cell 7 完成"]},
+      {"step": 9, "name": "階段一 - 簡單風險邏輯 (Cell 9 - 暫定)", "status": "待辦", "completionDate": null, "notes": "需實現初步風險判斷邏輯。", "relatedDecisions": [], "blockers": ["依賴 Cell 8 完成"]},
+      {"step": 10, "name": "階段一 - 基礎視覺化 (HTML Gen)", "status": "待辦", "completionDate": null, "notes": "需生成兩段式 HTML 儀表板。", "relatedDecisions": ["D03"], "blockers": ["依賴 Cell 9 完成"]},
+      {"step": 11, "name": "階段二 - 進階分析", "status": "待辦", "completionDate": null, "notes": "包含擴展數據、進階指標、精煉風險邏輯、互動視覺化。", "relatedDecisions": [], "blockers": ["依賴階段一完成"]},
+      {"step": 12, "name": "階段三 - 回測分析", "status": "待辦", "completionDate": null, "notes": "需設計並執行回測。", "relatedDecisions": [], "blockers": ["依賴階段二完成"]},
+      {"step": "Z", "name": "執行追蹤摘要實現 (Cell Z)", "status": "待辦", "completionDate": null, "notes": "需實現最終的執行摘要報告。", "relatedDecisions": [], "blockers": []}
+    ],
+    "progressSummary": "專案初始化與基礎數據獲取階段 (Cell 1-5) 已成功完成，遵循 v3.4 設計準則。已解決初始化 NameError/SyntaxError、Alpha Vantage API 限制 (改用免費功能) 及 FRED PMI Series ID 問題 (改用 INDPRO 代理)。已規劃納入 NY Fed 一級交易商數據。目前準備進入 Cell 6 進行 NY Fed 數據處理。",
+    "difficultiesAndIssues": [
+       {"issueId": "INIT-01", "description": "Cell 1 初始化時 NameError/SyntaxError", "status": "已解決", "resolution": "調整程式碼結構，修正語法錯誤。", "relatedProgressStep": 1},
+       {"issueId": "DATA-01", "description": "無法透過 FRED API 獲取官方 ISM PMI 數據", "status": "已解決 (使用代理)", "resolution": "研究確認 FRED 已停止提供 ISM 數據。決定使用 INDPRO 作為代理。", "relatedProgressStep": 5},
+       {"issueId": "DATA-02", "description": "Alpha Vantage 免費 API 無法獲取調整後收盤價", "status": "已處理", "resolution": "改用免費的 TIME_SERIES_DAILY 功能，接受無調整後價格的限制。", "relatedProgressStep": 4}
+    ],
+    "potentialRisksAndEdgeCases": [
+       {"riskId": "R01", "description": "API 限制 (Alpha Vantage, NY Fed)", "likelihood": "Medium", "impact": "Medium", "mitigationStatus": "部分緩解 (AV改用免費API, NY Fed 待觀察)", "mitigationPlan": "監控 API 使用情況，考慮階段二尋找更高配額或替代來源。"},
+       {"riskId": "R02", "description": "數據質量/代理指標限制", "likelihood": "Medium", "impact": "Medium", "mitigationStatus": "已知", "mitigationPlan": "在分析和儀表板中註明代理指標的局限性。"},
+       {"riskId": "R03", "description": "NY Fed Excel 文件格式變更", "likelihood": "Low", "impact": "High", "mitigationStatus": "待觀察", "mitigationPlan": "Cell 6 包含一定的自動檢測邏輯，若格式大改需更新程式碼。"},
+       {"riskId": "R04", "description": "Colab Runtime 狀態重設導致全域變數丟失", "likelihood": "Low", "impact": "Medium", "mitigationStatus": "已知", "mitigationPlan": "強調按順序執行儲存格的重要性。"}
+    ],
+    "requiredContextResources": {
+      "files": [],
+      "notes": [],
+      "isContextSufficient": true
+    },
+    "nextSteps": [
+      {"stepId": "N01", "description": "開發並執行 Cell 6: NY Fed 一級交易商數據獲取與處理。", "priority": "High", "relatedProgressStep": 6, "estimatedEffort": "1-2 天", "status": "待辦"},
+      {"stepId": "N02", "description": "開發 Cell 7: 合併所有數據源。", "priority": "Medium", "relatedProgressStep": 7, "estimatedEffort": "0.5 天", "status": "待辦"},
+      {"stepId": "N03", "description": "開發 Cell 8: 計算基礎指標。", "priority": "Medium", "relatedProgressStep": 8, "estimatedEffort": "1 天", "status": "待辦"}
+    ]
+  },
+  "environmentSnapshot": {
+    "pythonVersion": "(待 Cell 1 執行確認)",
+    "keyLibraryVersions": {
+      "pandas": "(待 Cell 1 執行確認)", "numpy": "(待 Cell 1 執行確認)", "requests": "(待 Cell 1 執行確認)",
+      "requests-cache": "(待 Cell 1 執行確認)", "yfinance": "(待 Cell 1 執行確認)", "fredapi": "(待 Cell 1 執行確認)",
+      "tenacity": "(待 Cell 1 執行確認)", "plotly": "(待 Cell 1 執行確認)", "ipywidgets": "(待 Cell 1 執行確認)",
+      "openpyxl": "(待 Cell 1 執行確認)", "pytz": "(待 Cell 1 執行確認)"
+    },
+    "hardwareAccelerator": {"type": "None", "model": "N/A", "status": "Disabled (預期)"},
+    "externalDataSources": [
+      {"type": "API", "endpoint": "yfinance", "authRequired": false, "status": "已測試 (Cell 3)"},
+      {"type": "API", "endpoint": "Alpha Vantage (TIME_SERIES_DAILY)", "authRequired": true, "status": "已測試 (Cell 4)"},
+      {"type": "API", "endpoint": "FRED", "authRequired": true, "status": "已測試 (Cell 5)"},
+      {"type": "Web Download (Excel)", "endpoint": "NY Fed Markets API", "authRequired": false, "status": "待測試 (Cell 6)"}
+    ],
+    "operatingSystem": "Linux (Colab 預期)"
+  },
+  "cellSummaries": [
+      {"cellId": "Cell 1: 專案初始化與全局設定", "status": "成功"},
+      {"cellId": "Cell 2: 環境檢查、目錄與快取設定", "status": "成功"},
+      {"cellId": "Cell 3: yfinance 數據獲取 (TWD/USD, VIX)", "status": "成功"},
+      {"cellId": "Cell 4: Alpha Vantage 數據獲取 (SPY, HYG, LQD)", "status": "成功"},
+      {"cellId": "Cell 5: FRED 數據獲取 (FEDFUNDS, INDPRO)", "status": "成功"}
+  ],
+  "keyGlobalVariables": [
+    {"variableName": "PROJECT_CONFIG", "dataType": "dict", "description": "全局配置字典", "derivationSummary": "由 Cell 1 初始化和填充。", "relevantCell": "Cell 1"},
+    {"variableName": "EXECUTION_TRACKER", "dataType": "dict", "description": "儲存格執行追蹤器", "derivationSummary": "由 Cell 1 初始化，後續 Cell 更新。", "relevantCell": "Cell 1+"},
+    {"variableName": "libs_loaded", "dataType": "dict", "description": "函式庫導入狀態", "derivationSummary": "由 Cell 1 創建和填充。", "relevantCell": "Cell 1"},
+    {"variableName": "target_tz", "dataType": "datetime.tzinfo", "description": "目標時區物件", "derivationSummary": "由 Cell 1 設定。", "relevantCell": "Cell 1"},
+    {"variableName": "logger", "dataType": "logging.Logger", "description": "日誌記錄器", "derivationSummary": "由 Cell 1 初始化。", "relevantCell": "Cell 1"},
+    {"variableName": "df_twdusd", "dataType": "pandas.DataFrame", "description": "TWD/USD 數據", "derivationSummary": "由 Cell 3 從 yfinance 獲取。", "relevantCell": "Cell 3"},
+    {"variableName": "df_vix", "dataType": "pandas.DataFrame", "description": "VIX 數據", "derivationSummary": "由 Cell 3 從 yfinance 獲取。", "relevantCell": "Cell 3"},
+    {"variableName": "df_spy", "dataType": "pandas.DataFrame", "description": "SPY 數據", "derivationSummary": "由 Cell 4 從 Alpha Vantage 獲取。", "relevantCell": "Cell 4"},
+    {"variableName": "df_hyg", "dataType": "pandas.DataFrame", "description": "HYG 數據", "derivationSummary": "由 Cell 4 從 Alpha Vantage 獲取。", "relevantCell": "Cell 4"},
+    {"variableName": "df_lqd", "dataType": "pandas.DataFrame", "description": "LQD 數據", "derivationSummary": "由 Cell 4 從 Alpha Vantage 獲取。", "relevantCell": "Cell 4"},
+    {"variableName": "df_fedfunds", "dataType": "pandas.DataFrame", "description": "FEDFUNDS 數據", "derivationSummary": "由 Cell 5 從 FRED 獲取。", "relevantCell": "Cell 5"},
+    {"variableName": "df_indpro", "dataType": "pandas.DataFrame", "description": "INDPRO 數據 (PMI 代理)", "derivationSummary": "由 Cell 5 從 FRED 獲取。", "relevantCell": "Cell 5"},
+    {"variableName": "nyfed_positions_series", "dataType": "NoneType", "description": "NY Fed 一級交易商持有量數據 (尚未生成)", "derivationSummary": "預計由 Cell 6 生成。", "relevantCell": "Cell 6 (待辦)"}
+  ],
+  "resolvedIssuesLog": [
+    {"issueId": "INIT-01", "description": "Cell 1 初始化時 NameError/SyntaxError", "resolution": "調整程式碼結構，修正語法錯誤。", "resolvedAt": "2025-05-06", "resolvedBy": "AI/開發者", "relevantCell": "Cell 1"},
+    {"issueId": "DATA-01", "description": "無法透過 FRED API 獲取官方 ISM PMI", "resolution": "研究確認 FRED 已停止提供。改用 INDPRO 作為代理。", "resolvedAt": "2025-05-06", "resolvedBy": "AI/開發者", "relevantCell": "Cell 5"},
+    {"issueId": "DATA-02", "description": "Alpha Vantage 免費 API 無法獲取調整後收盤價", "resolution": "改用免費的 TIME_SERIES_DAILY 功能。", "resolvedAt": "2025-05-06", "resolvedBy": "AI/開發者", "relevantCell": "Cell 4"}
+  ]
+}

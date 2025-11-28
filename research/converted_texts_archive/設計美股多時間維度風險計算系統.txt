@@ -1,0 +1,677 @@
+多時間維度風險計算系統
+
+好的，這就為您將我們目前為止所有關於「美股多時間維度風險計算系統」的討論內容，以及我們完成的第一步實作程式碼，進行一個詳細的總結與打包。這份資料應該能方便您在其他地方繼續開發。
+
+地點： 台灣
+
+時間： 2025年4月18日 星期五 下午6:53
+
+
+
+美股多時間維度風險計算系統 - 設計總結與初步實作 (v2.1)
+
+I. 專案願景與核心目標
+
+核心目標： 建立一個評估美國股市在極短 (1-7天)、短期 (約 60 天)、中期 (約 160 天) 及長期 (約 10 年) 四個時間維度下量化風險的系統原型。
+
+開發主軸： 以免費 API 和開源工具作為主要開發路徑。
+
+設計彈性與現實考量： 框架需具備接入付費 API 的彈性，因為研究已確認，獲取可靠的、高頻的日內數據（對極短/短期風險評估尤其重要）必須使用付費數據源。
+
+II. 風險維度、指標與數據挑戰
+
+風險維度與概念指標：
+
+極短 (1-7 天): 即時動態、事件風險、情緒動能 (例如：超短期波動率、事件衝擊評估)。
+
+短期 (約 60 天): 波動性、尾部風險 (例如：預測波動率、CVaR)。
+
+中期 (約 160 天): 趨勢、回撤風險 (例如：MDD 預測/概率)。
+
+長期 (約 10 年): 宏觀週期、系統風險 (例如：宏觀調整波動率、系統風險概率)。
+
+數據來源與核心挑戰 (研究確認)：
+
+免費來源 (主用): FRED, yfinance, FMP (免費層), Finnhub (免費層), AV (免費層), News API (免費層) 等。
+
+嚴峻限制： 免費 API 無法提供可靠的即時/高頻期貨、選擇權深度數據及日內利率變動；存在嚴格的請求限制、數據延遲、覆蓋不全、質量與穩定性風險 (尤其 yfinance)。
+
+結論： 完全依賴免費 API 無法構建可靠的日內高頻風險系統，僅適用於日終分析、研究或中長週期評估。
+
+技術應對： 數據緩存 (Caching)。
+
+III. 系統框架設計藍圖
+
+設計原則： 模組化、可配置、健壯、可擴展。
+
+核心模組： 設定管理 (含 API 選擇/金鑰)、數據獲取與緩存 (含抽象層)、新聞/情緒處理、特徵工程、模型訓練/管理、風險預測、主控流程、結果輸出。
+
+數據獲取抽象化： 設計通用接口，內部根據配置調用特定 API 的 Wrapper，為未來接入付費 API 保留彈性。
+
+IV. 核心解決方案：互動式、分層、優化的處理流程 (針對免費 API 主軸)
+
+為應對免費 API 限制，採用半自動化流程：
+
+步驟 0：初步快速評估 (Quick Estimate):
+
+目的： 即時、極粗略的四維度風險快照。
+
+方法： 最少量/快取數據，簡易計算。
+
+輸出： 初步風險標籤/指標 (低精度警告)。
+
+步驟 1：呈現快速評估並詢問是否詳解:
+
+詢問使用者是否繼續 (Enter/Y = Yes, N = No)。
+
+步驟 2：(若 Yes) 第一層分析 (寬鬆 API):
+
+目的： 獲取較全面的宏觀/市場背景。
+
+執行： 調用 FRED, yfinance (注意風險)。
+
+限制： 無法獲取可靠即時期貨/選擇權深度數據。
+
+步驟 3：(若 Yes) 呈現第一層結果並進行優化互動:
+
+目的： 引導使用者決定是否調用限制性 API。
+
+執行： 展示結果，使用優化互動 ("按 Enter 執行預設", "明確列出可選項")。
+
+步驟 4：(若 Yes 且指示) 第二層分析 (條件式調用限制性 API):
+
+目的： 獲取特定深度數據。
+
+執行： 僅在使用者指示下調用 FMP, Finnhub, AV, News API 免費層。
+
+步驟 5：(若 Yes) 最終整合與分析:
+
+目的： 產生基於可用免費數據的最終風險評估。
+
+執行： 特徵工程 -> 模型 -> 輸出四維度量化風險評估。
+
+詮釋： 需理解結果未包含可靠即時期貨/選擇權深度信息。
+
+V. 方案選擇與適用性
+
+免費方案 (互動流程): 開發重點。適用於研究、原型、學習、中低頻監控。承認數據局限，無法做可靠日內高頻分析。
+
+付費方案 (潛在自動流程): 未來擴展方向。需要付費。可實現全自動化及可靠日內分析。框架已考慮接入彈性。
+
+VI. 結論
+
+我們已規劃出一套詳細、務實的系統設計方案。該方案以免費 API 為主，透過創新的互動式流程應對其限制，旨在提供有價值的多維度風險評估框架，同時明確其能力邊界，並為未來的功能增強保留了空間。
+
+
+
+VII. 實作程式碼：第一步 (基礎框架、設定管理、FRED 數據獲取與緩存)
+
+Python
+
+# -*- coding: utf-8 -*-
+
+# ==============================================================================
+
+# 系統名稱: 美股多時間維度風險計算系統 - 初步實作 v0.1
+
+# 功能: 建立基礎框架，安全讀取設定，從 FRED 獲取數據並實現本地緩存。
+
+# 主要函式庫: pandas, fredapi, pyarrow
+
+# ==============================================================================
+
+
+
+# ==============================================================================
+
+# 1. 設定與配置 (@param forms)
+
+# ==============================================================================
+
+# @markdown --- API 金鑰設定 (API Key Settings) ---
+
+# @markdown **說明:** 請選擇一種方式提供 FRED API 金鑰：
+
+# @markdown 1.  **直接在下方欄位貼上您的 FRED API 金鑰。** (最方便，但注意公開筆記本時的安全)
+
+# @markdown 2.  **將下方欄位留空，並預先將金鑰添加到 Colab 左側邊欄的「密鑰」(Secrets) 中，名稱設為 `FRED_API_KEY`。** (較安全)
+
+# @markdown *程式會優先使用您直接在此處輸入的金鑰。如果留空，才會嘗試從 Secrets 讀取。*
+
+# @markdown ---
+
+# @markdown **FRED API Key** ([點此取得金鑰](https://fred.stlouisfed.org/docs/api/api_key.html))
+
+fred_api_key_form_input = "" # @param {type:"string"}
+
+
+
+# ==============================================================================
+
+# 2. 環境檢查與函式庫導入
+
+# ==============================================================================
+
+import os
+
+import pandas as pd
+
+from datetime import datetime, timedelta
+
+import traceback # 用於打印詳細錯誤信息
+
+import time # 用於可能的延遲控制
+
+
+
+# --- 檢查環境並嘗試安裝/匯入函式庫 ---
+
+IN_COLAB = False
+
+fredapi_loaded = False
+
+pyarrow_installed = False # 用於 Parquet 格式
+
+
+
+try:
+
+    import google.colab
+
+    IN_COLAB = True
+
+    print("偵測到 Google Colab 環境，嘗試安裝/更新 fredapi 和 pyarrow...")
+
+    # 在 Colab 中靜默安裝 (-q)
+
+    !pip install fredapi pyarrow -q
+
+    print("函式庫安裝/更新完成。")
+
+    from google.colab import userdata
+
+except ImportError:
+
+    print("非 Colab 環境，請確保已安裝 fredapi 和 pyarrow (pip install fredapi pyarrow)")
+
+
+
+# 嘗試匯入 fredapi
+
+try:
+
+    from fredapi import Fred
+
+    fredapi_loaded = True
+
+    print("fredapi 函式庫載入成功。")
+
+except ImportError:
+
+    print("錯誤：無法載入 fredapi 函式庫。")
+
+
+
+# 檢查 pyarrow 是否已安裝
+
+try:
+
+    import pyarrow
+
+    pyarrow_installed = True
+
+    print("pyarrow 函式庫載入成功 (用於 Parquet 格式)。")
+
+except ImportError:
+
+     print("警告：未找到 pyarrow 函式庫。Parquet 緩存功能可能無法使用。請嘗試 'pip install pyarrow'")
+
+
+
+
+
+# ==============================================================================
+
+# 3. API 金鑰處理 (雙重方案邏輯)
+
+# ==============================================================================
+
+FRED_API_KEY = None
+
+api_key_source = "未設定"
+
+
+
+# 優先使用表單輸入的金鑰 (去除前後空格)
+
+fred_api_key_direct = fred_api_key_form_input.strip()
+
+
+
+if fred_api_key_direct:
+
+    FRED_API_KEY = fred_api_key_direct
+
+    api_key_source = "表單直接輸入 (Form Input)"
+
+else:
+
+    # print("表單欄位為空，嘗試從其他來源獲取 FRED API 金鑰...") # 執行時再詳細打印
+
+    if IN_COLAB:
+
+        try:
+
+            fred_secret_key = userdata.get('FRED_API_KEY')
+
+            if fred_secret_key: FRED_API_KEY = fred_secret_key; api_key_source = "Colab Secrets"
+
+            else: api_key_source = "未找到 (Colab Secrets)"
+
+        except Exception: api_key_source = "讀取錯誤 (Colab Secrets)"
+
+    else:
+
+        fred_env_key = os.environ.get('FRED_API_KEY')
+
+        if fred_env_key: FRED_API_KEY = fred_env_key; api_key_source = "環境變數"
+
+        else: api_key_source = "未找到 (環境變數)"
+
+
+
+# ==============================================================================
+
+# 4. 數據獲取與緩存函數
+
+# ==============================================================================
+
+
+
+# --- 定義緩存目錄 ---
+
+CACHE_DIR = "data_cache"
+
+if not os.path.exists(CACHE_DIR):
+
+    try:
+
+        os.makedirs(CACHE_DIR)
+
+        print(f"已創建數據緩存目錄: {os.path.abspath(CACHE_DIR)}")
+
+    except OSError as e:
+
+        print(f"錯誤：創建緩存目錄 '{CACHE_DIR}' 失敗: {e}")
+
+        # 如果無法創建目錄，後續緩存會失敗
+
+else:
+
+    print(f"數據緩存目錄: {os.path.abspath(CACHE_DIR)}")
+
+
+
+
+
+def get_fred_series_with_cache(series_id: str,
+
+                               api_key: str,
+
+                               observation_start: str | None = None,
+
+                               force_reload: bool = False
+
+                               ) -> pd.Series | None:
+
+    """
+
+    獲取 FRED 數據序列，優先從本地 Parquet 緩存讀取，僅下載更新部分。
+
+    包含詳細的打印信息和錯誤處理。
+
+    """
+
+    print(f"\n處理 FRED 序列: {series_id}...")
+
+    # --- 前置檢查 ---
+
+    if not api_key:
+
+        print(f"  ! 錯誤：未提供 FRED API 金鑰。")
+
+        return None
+
+    if not fredapi_loaded:
+
+        print(f"  ! 錯誤：fredapi 函式庫未載入。")
+
+        return None
+
+    can_use_cache = pyarrow_installed and os.path.exists(CACHE_DIR)
+
+    if not can_use_cache and not force_reload:
+
+        print(f"  ! 警告：無法使用 Parquet 緩存 (pyarrow未安裝或目錄創建失敗)。將嘗試直接下載。")
+
+        force_reload = True # 強制直接下載
+
+
+
+    cache_file_path = os.path.join(CACHE_DIR, f"fred_{series_id}.parquet")
+
+    cached_data = None
+
+    fetch_start_date = observation_start # API 請求的起始日期
+
+
+
+    # --- 1. 嘗試從緩存加載 ---
+
+    if not force_reload and can_use_cache:
+
+        try:
+
+            cached_data = pd.read_parquet(cache_file_path)
+
+            print(f"  + 成功從緩存 '{os.path.basename(cache_file_path)}' 加載 {len(cached_data)} 筆數據。")
+
+            if not cached_data.empty:
+
+                last_cached_date = cached_data.index.max()
+
+                # 從緩存最後記錄的下一天開始請求更新
+
+                fetch_start_date_obj = last_cached_date + timedelta(days=1)
+
+                fetch_start_date = fetch_start_date_obj.strftime('%Y-%m-%d')
+
+                print(f"  + 緩存最新日期: {last_cached_date.strftime('%Y-%m-%d')}，將從 {fetch_start_date} 開始請求更新。")
+
+            else:
+
+                print(f"  + 緩存文件為空，將嘗試獲取所有數據。")
+
+                fetch_start_date = observation_start # 緩存為空，按指定或默認起始日期
+
+        except FileNotFoundError:
+
+            print(f"  * 緩存文件 '{os.path.basename(cache_file_path)}' 不存在，將嘗試獲取數據。")
+
+            fetch_start_date = observation_start
+
+        except Exception as e:
+
+            print(f"  ! 錯誤：讀取緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+            traceback.print_exc()
+
+            cached_data = None # 視為無緩存
+
+
+
+    if force_reload:
+
+         print(f"  * 強制重新加載，將獲取從 {observation_start or '最早'} 開始的所有數據。")
+
+         fetch_start_date = observation_start
+
+         cached_data = None # 清空，以便完全替換
+
+
+
+    # --- 2. 調用 API 獲取新數據 (如果需要) ---
+
+    new_data = None
+
+    needs_fetch = True
+
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
+
+
+    if fetch_start_date and fetch_start_date > today_str:
+
+         print(f"  * 計算出的獲取開始日期 {fetch_start_date} 晚於今天，無需獲取更新。")
+
+         needs_fetch = False
+
+
+
+    if needs_fetch:
+
+        print(f"  > 呼叫 FRED API (序列: {series_id}, 開始日期: {fetch_start_date or '最早'})...")
+
+        try:
+
+            start_time = time.time()
+
+            fred = Fred(api_key=api_key)
+
+            new_data = fred.get_series(series_id, observation_start=fetch_start_date)
+
+            end_time = time.time()
+
+            print(f"  > API 調用耗時: {end_time - start_time:.2f} 秒。")
+
+
+
+            if new_data is not None and not new_data.empty:
+
+                print(f"  + 成功從 API 獲取 {len(new_data)} 筆新數據。")
+
+            elif new_data is not None: # API 返回空 Series
+
+                 print(f"  * API 未返回 {fetch_start_date or '最早'} 之後的新數據。")
+
+            # else: # fredapi 出錯會拋異常，在 except 中處理
+
+
+
+        except Exception as e:
+
+            print(f"  ! 錯誤：獲取 FRED 序列 {series_id} (從 {fetch_start_date or '最早'} 開始) 時發生 API 錯誤。")
+
+            print(f"  ! 詳細錯誤: {e}")
+
+            traceback.print_exc()
+
+            new_data = None # 確保出錯時 new_data 為 None
+
+
+
+    # --- 3. 合併數據 ---
+
+    combined_data = None
+
+    if new_data is not None and not new_data.empty:
+
+        if cached_data is not None:
+
+            # 合併：優先保留新數據的值（處理可能的重疊）
+
+            combined_data = new_data.combine_first(cached_data)
+
+            combined_data.sort_index(inplace=True)
+
+            print(f"  + 已合併緩存與新數據，總計 {len(combined_data)} 筆。")
+
+        else:
+
+            combined_data = new_data
+
+            print(f"  + 僅使用新獲取的數據，總計 {len(combined_data)} 筆。")
+
+    elif cached_data is not None:
+
+        combined_data = cached_data
+
+        print(f"  * 無新數據獲取/API出錯，使用現有緩存數據，總計 {len(combined_data)} 筆。")
+
+    else:
+
+        print(f"  ! 警告：無緩存數據也未能獲取新數據，序列 {series_id} 無法提供。")
+
+        return None # 關鍵：確保返回 None
+
+
+
+    # --- 4. 保存到緩存 ---
+
+    if can_use_cache and combined_data is not None and not combined_data.empty:
+
+        try:
+
+            combined_data.to_parquet(cache_file_path)
+
+            print(f"  + 成功將數據保存到緩存 '{os.path.basename(cache_file_path)}'。")
+
+        except Exception as e:
+
+            print(f"  ! 錯誤：保存緩存 '{os.path.basename(cache_file_path)}' 失敗: {e}")
+
+            traceback.print_exc()
+
+    elif not can_use_cache:
+
+         print(f"  * 跳過保存到 Parquet 緩存 (pyarrow 未安裝或目錄無法創建)。")
+
+
+
+    return combined_data
+
+
+
+# ==============================================================================
+
+# 5. 主執行區塊
+
+# ==============================================================================
+
+if __name__ == "__main__":
+
+    print("\n" + "="*40)
+
+    print(f"開始執行腳本 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
+
+    print(f"使用的 FRED API 金鑰來源: {api_key_source}")
+
+    print("="*40)
+
+
+
+    if FRED_API_KEY and fredapi_loaded:
+
+        # --- 獲取 DGS10 (10年期公債殖利率) ---
+
+        dgs10_data = get_fred_series_with_cache(
+
+            series_id='DGS10',
+
+            api_key=FRED_API_KEY,
+
+            force_reload=False # 設為 True 可強制刷新
+
+        )
+
+
+
+        # --- 處理並顯示最新結果 ---
+
+        if dgs10_data is not None and not dgs10_data.empty:
+
+            try:
+
+                latest_date = dgs10_data.index.max()
+
+                latest_value = dgs10_data.loc[latest_date]
+
+                print("\n--- DGS10 最新數據 (來自緩存或更新) ---")
+
+                print(f"日期: {latest_date.strftime('%Y-%m-%d')}")
+
+                print(f"數值 (%): {latest_value}")
+
+            except Exception as e_process:
+
+                 print(f"\n! 處理最終 DGS10 數據時發生錯誤: {e_process}")
+
+                 traceback.print_exc()
+
+        else:
+
+            print("\n! 未能成功獲取或處理 DGS10 數據。")
+
+
+
+        # --- 示例：獲取 T10Y2Y (10年與2年期利差) ---
+
+        # 您可以仿照 DGS10 的方式，加入獲取其他序列的程式碼
+
+        # t10y2y_data = get_fred_series_with_cache(
+
+        #     series_id='T10Y2Y',
+
+        #     api_key=FRED_API_KEY
+
+        # )
+
+        # if t10y2y_data is not None and not t10y2y_data.empty:
+
+        #     # ... 處理和顯示 T10Y2Y 的最新數據 ...
+
+        #     pass
+
+
+
+    else:
+
+        print("\n! 由於缺少 API 金鑰或必要函式庫問題，跳過數據獲取。")
+
+
+
+
+
+    print("\n" + "="*40)
+
+    print("腳本執行完畢。")
+
+    print("="*40)
+
+
+
+
+
+VIII. 後續步驟與如何使用
+
+依賴：
+
+pandas: 數據處理。
+
+fredapi: 連接 FRED API。
+
+pyarrow: 用於讀寫 Parquet 緩存文件（如果不用 Parquet，可以改用 CSV，則此項非必需）。
+
+請確保已安裝這些庫 (pip install pandas fredapi pyarrow)。
+
+API 金鑰設定：
+
+Colab: 在左側 Secrets 中添加名為 FRED_API_KEY 的密鑰，或者直接在程式碼頂部的表單欄位中貼上您的金鑰。
+
+本地: 設置名為 FRED_API_KEY 的環境變數，或修改程式碼以從 .env 文件讀取。
+
+執行： 直接運行此 Python 腳本。
+
+緩存目錄： 程式碼會在腳本所在的目錄下自動創建一個名為 data_cache 的子目錄，用於存放 Parquet 緩存文件 (例如 fred_DGS10.parquet)。
+
+後續開發建議：
+
+增加更多 FRED 序列： 仿照 DGS10 的方式，在主執行區塊調用 get_fred_series_with_cache 來獲取其他您需要的宏觀指標。
+
+接入 yfinance： 編寫類似的帶有緩存和錯誤處理的函數來獲取 yfinance 的數據（例如股票歷史價格），但要特別注意其穩定性風險。
+
+逐步實現互動流程： 在獲取了更多第一層數據後，開始設計和實現「初步快速評估」以及後續的互動環節。
+
+完善錯誤處理與日誌： 隨著系統變複雜，加入更完善的日誌記錄 (logging) 會很有幫助。
+
+這份統整報告和程式碼希望能為您提供一個清晰的起點，方便您在其他環境中繼續開發這個風險評估系統。祝您開發順利！
