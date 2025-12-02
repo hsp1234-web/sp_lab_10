@@ -172,3 +172,17 @@ open capital_protection_charts/capital_protection_backtest_analysis.png
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
